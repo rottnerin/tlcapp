@@ -16,22 +16,8 @@ class WellnessController extends Controller
     {
         $user = auth()->user();
         
-        // Get filter parameters
-        $category = $request->get('category');
-        $date = $request->get('date');
-        $available_only = $request->boolean('available_only');
-        
-        // Build query
+        // Get all active wellness sessions - no filtering
         $sessions = WellnessSession::active()
-            ->when($category, function($query) use ($category) {
-                return $query->byCategory($category);
-            })
-            ->when($date, function($query) use ($date) {
-                return $query->onDate($date);
-            })
-            ->when($available_only, function($query) {
-                return $query->withCapacity();
-            })
             ->with(['userSessions' => function($query) use ($user) {
                 $query->where('user_id', $user->id);
             }])
@@ -39,26 +25,9 @@ class WellnessController extends Controller
             ->orderBy('start_time')
             ->paginate(12);
         
-        // Get available categories for filter
-        $categories = WellnessSession::active()
-            ->whereNotNull('category')
-            ->distinct()
-            ->pluck('category')
-            ->sort();
-        
-        // Get available dates for filter
-        $availableDates = WellnessSession::active()
-            ->distinct()
-            ->pluck('date')
-            ->sort();
-        
         return view('wellness.index', compact(
-            'sessions',
-            'categories',
-            'availableDates',
-            'category',
-            'date',
-            'available_only'
+            'user',
+            'sessions'
         ));
     }
 
@@ -89,6 +58,7 @@ class WellnessController extends Controller
             ->pluck('user');
         
         return view('wellness.show', compact(
+            'user',
             'session',
             'userEnrollment',
             'participants'
@@ -102,7 +72,7 @@ class WellnessController extends Controller
     {
         $user = auth()->user();
         
-        // Check if user is already enrolled
+        // Check if user is already enrolled in this specific session
         $existingEnrollment = UserSession::where('user_id', $user->id)
             ->where('wellness_session_id', $session->id)
             ->where('status', '!=', 'cancelled')
@@ -110,6 +80,16 @@ class WellnessController extends Controller
         
         if ($existingEnrollment) {
             return back()->with('error', 'You are already enrolled in this session.');
+        }
+        
+        // Check if user is already enrolled in any wellness session
+        $existingWellnessEnrollment = UserSession::where('user_id', $user->id)
+            ->whereNotNull('wellness_session_id')
+            ->where('status', '!=', 'cancelled')
+            ->first();
+        
+        if ($existingWellnessEnrollment) {
+            return back()->with('error', 'You can only enroll in one wellness session. Please cancel your current enrollment before enrolling in a new session.');
         }
         
         // Check for time conflicts
@@ -146,43 +126,30 @@ class WellnessController extends Controller
                 
                 // Check capacity again after acquiring lock
                 $hasCapacity = $lockedSession->current_enrollment < $lockedSession->max_participants;
-                $canWaitlist = $lockedSession->allow_waitlist;
                 
-                // Determine enrollment status
-                $status = 'confirmed';
+                // If no capacity, abort
                 if (!$hasCapacity) {
-                    if ($canWaitlist) {
-                        $status = 'waitlisted';
-                    } else {
-                        throw new \Exception('This session is full and does not allow waitlist.');
-                    }
+                    throw new \Exception('This session is full.');
                 }
                 
                 // Create enrollment record
                 $enrollment = UserSession::create([
                     'user_id' => $user->id,
                     'wellness_session_id' => $session->id,
-                    'status' => $status,
+                    'status' => 'confirmed',
                     'enrolled_at' => now(),
                 ]);
                 
                 // Update session enrollment count if confirmed
-                if ($status === 'confirmed') {
-                    $lockedSession->increment('current_enrollment');
-                }
+                $lockedSession->increment('current_enrollment');
                 
                 return [
-                    'status' => $status,
                     'enrollment' => $enrollment,
                     'session' => $lockedSession->fresh()
                 ];
             });
             
-            $message = $result['status'] === 'confirmed' 
-                ? 'Successfully enrolled in the session!' 
-                : 'Added to the waitlist for this session.';
-            
-            return back()->with('success', $message);
+            return back()->with('success', 'Successfully enrolled in the session!');
             
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -206,24 +173,12 @@ class WellnessController extends Controller
         }
         
         // Update enrollment status
+        $wasConfirmed = $enrollment->status === 'confirmed';
         $enrollment->update(['status' => 'cancelled']);
         
         // If was confirmed, decrease enrollment count and promote from waitlist
-        if ($enrollment->status === 'confirmed') {
+        if ($wasConfirmed) {
             $session->decrement('current_enrollment');
-            
-            // Promote first waitlisted user
-            $waitlistedUser = UserSession::where('wellness_session_id', $session->id)
-                ->where('status', 'waitlisted')
-                ->orderBy('enrolled_at')
-                ->first();
-            
-            if ($waitlistedUser) {
-                $waitlistedUser->update(['status' => 'confirmed']);
-                $session->increment('current_enrollment');
-                
-                // TODO: Send notification to promoted user
-            }
         }
         
         return back()->with('success', 'Successfully cancelled your enrollment.');

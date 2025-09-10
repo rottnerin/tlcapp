@@ -153,7 +153,8 @@ class WellnessSession extends Model
      */
     public function isAvailableForEnrollment(): bool
     {
-        return $this->is_active && ($this->hasAvailableCapacity() || $this->allow_waitlist);
+        // Users can only enroll when the session is active AND capacity remains.
+        return $this->is_active && $this->hasAvailableCapacity();
     }
 
     /**
@@ -166,7 +167,8 @@ class WellnessSession extends Model
         }
         
         if ($this->isFull()) {
-            return $this->allow_waitlist ? 'waitlist' : 'full';
+            // Always report 'full' once capacity is reached. Waitlist is no longer offered.
+            return 'full';
         }
         
         return 'available';
