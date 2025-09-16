@@ -64,8 +64,8 @@
         </div>
 
         <!-- Session Details -->
-        <div class="bg-white rounded-lg shadow-sm border {{ $session->status === 'full' ? 'session-full session-full-border' : ($session->status === 'waitlist' ? 'session-waitlist' : 'session-available') }}">
-            <div class="p-8">
+        <div class="bg-white rounded-lg shadow-sm border {{ $session->status === 'full' ? 'session-full session-full-border' : ($session->status === 'waitlist' ? 'session-waitlist' : 'session-available') }} relative">
+            <div class="p-8 pb-20">
                 <!-- Header -->
                 <div class="flex justify-between items-start mb-6">
                     <div>
@@ -206,33 +206,34 @@
                     </div>
                 @endif
 
-                <!-- Action Buttons -->
-                <div class="flex space-x-4">
-                    @if($session->isAvailableForEnrollment())
-                        @if($userEnrollment)
-                            <form method="POST" action="{{ route('wellness.cancel', $session) }}" class="flex-1">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        class="w-full px-6 py-3 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
-                                    Cancel Enrollment
-                                </button>
-                            </form>
-                        @else
-                            <form method="POST" action="{{ route('wellness.enroll', $session) }}" class="flex-1">
-                                @csrf
-                                <button type="submit" 
-                                        class="w-full px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
-                                    {{ $session->status === 'waitlist' ? 'Join Waitlist' : 'Enroll Now' }}
-                                </button>
-                            </form>
-                        @endif
+            </div>
+            
+            <!-- Fixed Action Buttons -->
+            <div class="absolute bottom-0 right-0 p-6 bg-white rounded-br-lg">
+                @if($session->isAvailableForEnrollment())
+                    @if($userEnrollment)
+                        <form method="POST" action="{{ route('wellness.cancel', $session) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" 
+                                    class="px-6 py-3 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors shadow-lg">
+                                Cancel Enrollment
+                            </button>
+                        </form>
                     @else
-                        <span class="flex-1 text-center px-6 py-3 text-sm font-medium text-gray-500 bg-gray-100 rounded-md">
-                            Not Available for Enrollment
-                        </span>
+                        <form method="POST" action="{{ route('wellness.enroll', $session) }}">
+                            @csrf
+                            <button type="submit" 
+                                    class="px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors shadow-lg">
+                                {{ $session->status === 'waitlist' ? 'Join Waitlist' : 'Sign Up' }}
+                            </button>
+                        </form>
                     @endif
-                </div>
+                @else
+                    <span class="px-6 py-3 text-sm font-medium text-gray-500 bg-gray-100 rounded-md shadow-lg">
+                        Not Available
+                    </span>
+                @endif
             </div>
         </div>
     </div>
