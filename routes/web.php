@@ -7,6 +7,7 @@ use App\Http\Controllers\WellnessController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\WellnessSessionController;
 use App\Http\Controllers\Admin\ScheduleItemController;
+use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Auth\GoogleController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,11 +22,10 @@ Route::post('/logout', [GoogleController::class, 'logout'])->name('logout');
 
 // User-only protected routes
 Route::middleware(['user.only'])->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/my-schedule', [DashboardController::class, 'mySchedule'])->name('my-schedule');
+    // Default landing page - Schedule view
+    Route::get('/dashboard', [ScheduleController::class, 'index'])->name('dashboard');
     
-    // Schedule
+    // Schedule (main view with day 1/day 2 tabs)
     Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
     Route::get('/schedule/{scheduleItem}', [ScheduleController::class, 'show'])->name('schedule.show');
     
@@ -33,7 +33,6 @@ Route::middleware(['user.only'])->group(function () {
     Route::get('/wellness', [WellnessController::class, 'index'])->name('wellness.index');
     Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('wellness.show');
     Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('wellness.enroll');
-    Route::delete('/wellness/{session}/cancel', [WellnessController::class, 'cancel'])->name('wellness.cancel');
     
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -53,6 +52,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Wellness Sessions Management
     Route::resource('wellness', WellnessSessionController::class);
     Route::post('/wellness/{wellness}/toggle-status', [WellnessSessionController::class, 'toggleStatus'])->name('wellness.toggle-status');
+    Route::post('/wellness/{wellness}/remove-enrollment', [WellnessSessionController::class, 'removeEnrollment'])->name('wellness.remove-enrollment');
+    Route::get('/wellness/{wellness}/transfer', [WellnessSessionController::class, 'showTransfer'])->name('wellness.transfer');
+    Route::post('/wellness/{wellness}/transfer-user', [WellnessSessionController::class, 'transferUser'])->name('wellness.transfer-user');
     
     // Schedule Items Management
     Route::resource('schedule', ScheduleItemController::class);
@@ -60,6 +62,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/schedule/bulk-update', [ScheduleItemController::class, 'bulkUpdate'])->name('schedule.bulk-update');
     
     // Reports
-    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
-    Route::get('/reports/enrollments', [AdminController::class, 'enrollmentReport'])->name('reports.enrollments');
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
+    Route::get('/reports/wellness-enrollments', [ReportsController::class, 'wellnessEnrollments'])->name('reports.wellness-enrollments');
+    Route::get('/reports/unenrolled-users', [ReportsController::class, 'unenrolledUsers'])->name('reports.unenrolled-users');
+    Route::get('/reports/capacity-utilization', [ReportsController::class, 'capacityUtilization'])->name('reports.capacity-utilization');
+    Route::get('/reports/division-summary', [ReportsController::class, 'divisionSummary'])->name('reports.division-summary');
+    Route::get('/reports/user-activity', [ReportsController::class, 'userActivity'])->name('reports.user-activity');
 });

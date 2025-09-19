@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DivisionSeeder::class,
             AdminUserSeeder::class,
+            ReportsTestDataSeeder::class,
         ]);
 
         // User::factory(10)->create();
