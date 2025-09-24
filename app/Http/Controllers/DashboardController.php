@@ -33,7 +33,7 @@ class DashboardController extends Controller
             ->when($selectedDivisions, function($query) use ($selectedDivisions) {
                 return $query->forDivisions($selectedDivisions);
             })
-            ->with(['divisions'])
+            ->with(['divisions', 'links'])
             ->orderBy('date')
             ->orderBy('start_time')
             ->get()
@@ -83,7 +83,7 @@ class DashboardController extends Controller
             ->when($user->division_id, function($query) use ($user) {
                 return $query->forDivisions([$user->division_id]);
             })
-            ->with(['divisions'])
+            ->with(['divisions', 'links'])
             ->orderBy('date')
             ->orderBy('start_time')
             ->get();

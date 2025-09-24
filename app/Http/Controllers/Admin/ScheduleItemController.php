@@ -15,7 +15,7 @@ class ScheduleItemController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ScheduleItem::with('divisions');
+        $query = ScheduleItem::with(['divisions', 'links']);
 
         // Search functionality
         if ($request->filled('search')) {
@@ -104,9 +104,10 @@ class ScheduleItemController extends Controller
             'end_time' => 'required|date|after:start_time',
             'color' => 'nullable|string|max:7|regex:/^#[0-9A-Fa-f]{6}$/',
             'notes' => 'nullable|string',
-            'link_title' => 'nullable|string|max:255',
-            'link_url' => 'nullable|url|max:500',
-            'link_description' => 'nullable|string|max:1000',
+            'links' => 'nullable|array',
+            'links.*.title' => 'required_with:links|string|max:255',
+            'links.*.url' => 'required_with:links|url|max:500',
+            'links.*.description' => 'nullable|string|max:1000',
             'is_required' => 'boolean',
             'is_active' => 'boolean',
         ]);
@@ -132,8 +133,29 @@ class ScheduleItemController extends Controller
 
         $validated['is_required'] = $request->has('is_required');
         $validated['is_active'] = $request->has('is_active') ? true : false;
+        
+        // Extract date from start_time for the date field
+        $validated['date'] = Carbon::parse($validated['start_time'])->format('Y-m-d');
 
-        ScheduleItem::create($validated);
+        // Extract links from validated data
+        $links = $validated['links'] ?? [];
+        unset($validated['links']);
+
+        $scheduleItem = ScheduleItem::create($validated);
+
+        // Create links if provided
+        if (!empty($links)) {
+            foreach ($links as $index => $linkData) {
+                if (!empty($linkData['title']) && !empty($linkData['url'])) {
+                    $scheduleItem->links()->create([
+                        'title' => $linkData['title'],
+                        'url' => $linkData['url'],
+                        'description' => $linkData['description'] ?? null,
+                        'sort_order' => $index,
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('admin.schedule.index')
             ->with('success', 'Schedule item created successfully!');
@@ -144,7 +166,7 @@ class ScheduleItemController extends Controller
      */
     public function show(ScheduleItem $schedule)
     {
-        $schedule->load('divisions');
+        $schedule->load(['divisions', 'links']);
         
         return view('admin.schedule.show', compact('schedule'));
     }
@@ -154,7 +176,7 @@ class ScheduleItemController extends Controller
      */
     public function edit(ScheduleItem $schedule)
     {
-        $schedule->load('divisions');
+        $schedule->load(['divisions', 'links']);
         $divisions = Division::orderBy('name')->get();
         
         return view('admin.schedule.edit', compact('schedule', 'divisions'));
@@ -179,9 +201,10 @@ class ScheduleItemController extends Controller
             'max_participants' => 'nullable|integer|min:1|max:500',
             'equipment_needed' => 'nullable|string',
             'special_requirements' => 'nullable|string',
-            'link_title' => 'nullable|string|max:255',
-            'link_url' => 'nullable|url|max:500',
-            'link_description' => 'nullable|string|max:1000',
+            'links' => 'nullable|array',
+            'links.*.title' => 'required_with:links|string|max:255',
+            'links.*.url' => 'required_with:links|url|max:500',
+            'links.*.description' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
             'divisions' => 'nullable|array',
             'divisions.*' => 'exists:divisions,id',
@@ -190,6 +213,10 @@ class ScheduleItemController extends Controller
         // Combine date and times for datetime fields
         $validated['start_time'] = $validated['date'] . ' ' . $validated['start_time'];
         $validated['end_time'] = $validated['date'] . ' ' . $validated['end_time'];
+
+        // Extract links from validated data
+        $links = $validated['links'] ?? [];
+        unset($validated['links']);
 
         $validated['is_active'] = $request->has('is_active') ? true : false;
 
@@ -200,6 +227,21 @@ class ScheduleItemController extends Controller
             $schedule->divisions()->sync($request->divisions);
         } else {
             $schedule->divisions()->detach();
+        }
+
+        // Update links
+        $schedule->links()->delete(); // Remove existing links
+        if (!empty($links)) {
+            foreach ($links as $index => $linkData) {
+                if (!empty($linkData['title']) && !empty($linkData['url'])) {
+                    $schedule->links()->create([
+                        'title' => $linkData['title'],
+                        'url' => $linkData['url'],
+                        'description' => $linkData['description'] ?? null,
+                        'sort_order' => $index,
+                    ]);
+                }
+            }
         }
 
         return redirect()->route('admin.schedule.index')
@@ -224,9 +266,9 @@ class ScheduleItemController extends Controller
     {
         $schedule->update(['is_active' => !$schedule->is_active]);
         
-        $status = $schedule->is_active ? 'activated' : 'deactivated';
+        $status = $schedule->is_active ? 'made visible' : 'hidden';
         
-        return back()->with('success', "Schedule item {$status} successfully!");
+        return back()->with('success', "Schedule item '{$schedule->title}' {$status} successfully!");
     }
 
     /**

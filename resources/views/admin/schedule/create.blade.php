@@ -171,44 +171,22 @@
                             @enderror
                         </div>
 
-                        <!-- Link Section -->
+                        <!-- Links Section -->
                         <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                            <h4 class="text-md font-medium text-gray-900 mb-3">🔗 Additional Link (Optional)</h4>
-                            <p class="text-sm text-gray-600 mb-4">Add a link that users can click to access additional resources (e.g., menu, materials, documents)</p>
-                            
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="link_title" class="block text-sm font-medium text-gray-700 mb-1">Link Title</label>
-                                    <input type="text" id="link_title" name="link_title" value="{{ old('link_title') }}"
-                                           placeholder="e.g., View Menu, Download Materials"
-                                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                                  @error('link_title') border-red-300 @enderror">
-                                    @error('link_title')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div>
-                                    <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
-                                    <input type="url" id="link_url" name="link_url" value="{{ old('link_url') }}"
-                                           placeholder="https://example.com or example.com"
-                                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                                  @error('link_url') border-red-300 @enderror">
-                                    @error('link_url')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-md font-medium text-gray-900">🔗 Additional Links (Optional)</h4>
+                                <button type="button" id="add-link-btn" class="px-3 py-1 text-sm bg-aes-blue text-white rounded hover:bg-blue-700 transition-colors">
+                                    Add Link
+                                </button>
                             </div>
-
-                            <div class="mt-4">
-                                <label for="link_description" class="block text-sm font-medium text-gray-700 mb-1">Link Description (Optional)</label>
-                                <textarea id="link_description" name="link_description" rows="2"
-                                          placeholder="Brief description of what users will find at this link..."
-                                          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                                 @error('link_description') border-red-300 @enderror">{{ old('link_description') }}</textarea>
-                                @error('link_description')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                            <p class="text-sm text-gray-600 mb-4">Add links that users can click to access additional resources (e.g., menu, materials, documents)</p>
+                            
+                            <div id="links-container">
+                                <!-- Links will be added dynamically here -->
+                            </div>
+                            
+                            <div class="text-sm text-gray-500 mt-2">
+                                <p>💡 <strong>Tip:</strong> You can add multiple links by clicking the "Add Link" button. Each link will appear as a separate button on the session card.</p>
                             </div>
                         </div>
                     </div>
@@ -297,6 +275,82 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     colorContainer.appendChild(presetContainer);
+    
+    // Initialize links functionality
+    initializeLinks();
 });
+
+// Links management
+let linkCounter = 0;
+
+function initializeLinks() {
+    const addLinkBtn = document.getElementById('add-link-btn');
+    const linksContainer = document.getElementById('links-container');
+    
+    addLinkBtn.addEventListener('click', addLink);
+    
+    // Add initial link if old data exists
+    const oldTitle = '{{ old("link_title") }}';
+    const oldUrl = '{{ old("link_url") }}';
+    const oldDescription = '{{ old("link_description") }}';
+    
+    if (oldTitle && oldUrl) {
+        addLink(oldTitle, oldUrl, oldDescription);
+    }
+}
+
+function addLink(title = '', url = '', description = '') {
+    const linksContainer = document.getElementById('links-container');
+    const linkIndex = linkCounter++;
+    
+    const linkHtml = `
+        <div class="link-item border border-gray-300 rounded-lg p-4 mb-4 bg-white" data-index="${linkIndex}">
+            <div class="flex items-center justify-between mb-3">
+                <h5 class="text-sm font-medium text-gray-700">Link ${linkIndex + 1}</h5>
+                <button type="button" class="remove-link-btn text-red-600 hover:text-red-800 text-sm font-medium">
+                    Remove
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Link Title</label>
+                                    <input type="text" name="links[${linkIndex}][title]" value="${title}"
+                                           placeholder="e.g., Food Menu, View Materials, Download Resources"
+                                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
+                    <input type="url" name="links[${linkIndex}][url]" value="${url}"
+                           placeholder="https://example.com or example.com"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Link Description (Optional)</label>
+                <textarea name="links[${linkIndex}][description]" rows="2"
+                          placeholder="Brief description of what users will find at this link..."
+                          class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue">${description}</textarea>
+            </div>
+        </div>
+    `;
+    
+    linksContainer.insertAdjacentHTML('beforeend', linkHtml);
+    
+    // Add remove functionality
+    const removeBtn = linksContainer.querySelector(`[data-index="${linkIndex}"] .remove-link-btn`);
+    removeBtn.addEventListener('click', () => {
+        removeLink(linkIndex);
+    });
+}
+
+function removeLink(index) {
+    const linkItem = document.querySelector(`[data-index="${index}"]`);
+    if (linkItem) {
+        linkItem.remove();
+    }
+}
 </script>
 @endsection

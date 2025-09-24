@@ -113,17 +113,22 @@
                                                     • {{ $item->location }}
                                                 @endif
                                             </div>
-                                            @if($item->hasLink())
-                                                <div class="mt-1">
-                                                    <a href="{{ $item->formatted_link_url }}" 
-                                                       target="_blank" 
-                                                       rel="noopener noreferrer"
-                                                       class="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 hover:underline">
-                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                                        </svg>
-                                                        {{ $item->link_title }}
-                                                    </a>
+                                            @if($item->hasLinks())
+                                                <div class="mt-1 space-y-1">
+                                                    @foreach($item->links as $link)
+                                                        <a href="{{ $link->formatted_url }}" 
+                                                           target="_blank" 
+                                                           rel="noopener noreferrer"
+                                                           class="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 hover:underline">
+                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                                            </svg>
+                                                            {{ $link->title }}
+                                                        </a>
+                                                        @if(!$loop->last)
+                                                            <br>
+                                                        @endif
+                                                    @endforeach
                                                 </div>
                                             @endif
                                         </div>
@@ -182,9 +187,7 @@
                                     <div class="flex justify-between items-start">
                                         <div class="font-medium text-sm">{{ $session->title }}</div>
                                         <span class="px-2 py-1 text-xs font-medium rounded-full
-                                            {{ $session->status === 'available' ? 'bg-green-100 text-green-800' : 
-                                               ($session->status === 'waitlist' ? 'bg-yellow-100 text-yellow-800' : 
-                                                'bg-red-100 text-red-800') }}">
+                                           {{ $session->status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                             {{ ucfirst($session->status) }}
                                         </span>
                                     </div>
@@ -195,14 +198,11 @@
                                         @endif
                                     </div>
                                     <div class="text-xs mt-1
-                                        {{ $session->status === 'available' ? 'text-green-600' : 
-                                           ($session->status === 'waitlist' ? 'text-yellow-600' : 'text-red-600') }}">
+                                        {{ $session->status === 'available' ? 'text-green-600' : 'text-red-600' }}">
                                         @if($session->status === 'available')
                                             {{ $session->available_spots }} spots available
-                                        @elseif($session->status === 'waitlist')
-                                            Full - {{ $session->waitlist_count }} on waitlist
                                         @else
-                                            Full - No waitlist
+                                            Full
                                         @endif
                                     </div>
                                 </div>

@@ -26,9 +26,6 @@ class ScheduleItem extends Model
         'current_enrollment',
         'equipment_needed',
         'special_requirements',
-        'link_title',
-        'link_url',
-        'link_description',
         'is_active',
         'session_type',
     ];
@@ -54,6 +51,14 @@ class ScheduleItem extends Model
     public function userSessions(): HasMany
     {
         return $this->hasMany(UserSession::class);
+    }
+
+    /**
+     * Get the links for this schedule item
+     */
+    public function links(): HasMany
+    {
+        return $this->hasMany(ScheduleItemLink::class)->ordered();
     }
 
     /**
@@ -117,26 +122,142 @@ class ScheduleItem extends Model
     }
 
     /**
-     * Check if schedule item has a link
+     * Check if schedule item has any links
      */
-    public function hasLink(): bool
+    public function hasLinks(): bool
     {
-        return !empty($this->link_url) && !empty($this->link_title);
+        return $this->links()->exists();
     }
 
     /**
-     * Get formatted link URL (add https if missing)
+     * Get the first link (for backward compatibility)
+     */
+    public function getFirstLinkAttribute()
+    {
+        return $this->links()->first();
+    }
+
+    /**
+     * Check if schedule item has a link (backward compatibility)
+     * @deprecated Use hasLinks() instead
+     */
+    public function hasLink(): bool
+    {
+        return $this->hasLinks();
+    }
+
+    /**
+     * Get formatted link URL (backward compatibility)
+     * @deprecated Use links relationship instead
      */
     public function getFormattedLinkUrlAttribute(): string
     {
-        if (empty($this->link_url)) {
+        $firstLink = $this->first_link;
+        return $firstLink ? $firstLink->formatted_url : '';
+    }
+
+    /**
+     * Generate Google Calendar URL for this schedule item
+     */
+    public function getGoogleCalendarUrlAttribute(): string
+    {
+        $timezone = $this->calendarTimezone();
+
+        $startLocal = $this->convertToCalendarTimezone($this->start_time, $timezone);
+        $endLocal = $this->convertToCalendarTimezone($this->end_time, $timezone);
+
+        if (!$startLocal || !$endLocal) {
             return '';
         }
 
-        if (!str_starts_with($this->link_url, 'http://') && !str_starts_with($this->link_url, 'https://')) {
-            return 'https://' . $this->link_url;
+        $startDateTime = $startLocal->format('Ymd\THis');
+        $endDateTime = $endLocal->format('Ymd\THis');
+
+        // Prepare event details
+        $title = $this->title;
+        $description = $this->description ?? '';
+        $location = $this->location ?? '';
+
+        // Add presenter info to description if available
+        if ($this->presenter_primary) {
+            $description .= "\n\nPresenter: " . $this->presenter_primary;
+        }
+        
+        // Add division info to description
+        if ($this->divisions->count() > 0) {
+            $divisionNames = $this->divisions->pluck('full_name')->join(', ');
+            $description .= "\nDivisions: " . $divisionNames;
+        }
+        
+        // Add links to description if available
+        if ($this->hasLinks()) {
+            $description .= "\n\nMore info:";
+            foreach ($this->links as $link) {
+                $description .= "\n- " . $link->title . ": " . $link->formatted_url;
+            }
+        }
+        
+        // Build Google Calendar URL with proper encoding
+        $baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+        $params = [
+            'text' => $title,
+            'dates' => $startDateTime . '/' . $endDateTime,
+            'details' => $description,
+            'location' => $location,
+            'ctz' => $timezone,
+        ];
+        
+        return $baseUrl . '&' . http_build_query($params);
+    }
+
+    /**
+     * Generate mobile-friendly calendar URLs for different calendar apps
+     */
+    public function getMobileCalendarUrlsAttribute(): array
+    {
+        $timezone = $this->calendarTimezone();
+        $startLocal = $this->convertToCalendarTimezone($this->start_time, $timezone);
+        $endLocal = $this->convertToCalendarTimezone($this->end_time, $timezone);
+
+        // Format dates for different calendar apps
+        if (!$startLocal || !$endLocal) {
+            return [];
         }
 
-        return $this->link_url;
+        $startDateTime = $startLocal->format('Ymd\THis');
+        $endDateTime = $endLocal->format('Ymd\THis');
+
+        // Prepare event details
+        $title = urlencode($this->title);
+        $description = urlencode(($this->description ?? '') . 
+            ($this->presenter_primary ? "\n\nPresenter: " . $this->presenter_primary : '') .
+            ($this->location ? "\nLocation: " . $this->location : ''));
+        $location = urlencode($this->location ?? '');
+        $timezoneParam = urlencode($timezone);
+        $outlookStart = urlencode($startLocal->format('Y-m-d\TH:i:sP'));
+        $outlookEnd = urlencode($endLocal->format('Y-m-d\TH:i:sP'));
+
+        return [
+            'google' => "https://calendar.google.com/calendar/render?action=TEMPLATE&text={$title}&dates={$startDateTime}/{$endDateTime}&details={$description}&location={$location}&ctz={$timezoneParam}",
+            'outlook' => "https://outlook.live.com/calendar/0/deeplink/compose?subject={$title}&startdt={$outlookStart}&enddt={$outlookEnd}&body={$description}&location={$location}",
+            'yahoo' => "https://calendar.yahoo.com/?v=60&view=d&type=20&title={$title}&st={$startDateTime}&et={$endDateTime}&desc={$description}&in_loc={$location}",
+            'ics' => '#' // Placeholder for .ics file download
+        ];
+    }
+
+    protected function calendarTimezone(): string
+    {
+        $timezone = config('services.calendar.timezone', config('app.timezone'));
+
+        return $timezone ?: 'UTC';
+    }
+
+    protected function convertToCalendarTimezone(?Carbon $date, string $timezone): ?Carbon
+    {
+        if (!$date) {
+            return null;
+        }
+
+        return Carbon::createFromFormat('Y-m-d H:i:s', $date->format('Y-m-d H:i:s'), $timezone);
     }
 }
