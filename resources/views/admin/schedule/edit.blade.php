@@ -66,6 +66,28 @@
                         @enderror
                     </div>
 
+                    <!-- Wellness Session Selector (shown only for wellness slots) -->
+                    <div id="wellness_session_div" class="lg:col-span-2 {{ $schedule->session_type === 'wellness' ? '' : 'hidden' }}">
+                        <label for="wellness_session_id" class="block text-sm font-medium text-gray-700 mb-1">
+                            Link to Wellness Session <span class="text-orange-500">*</span>
+                        </label>
+                        <select id="wellness_session_id" name="wellness_session_id"
+                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                       @error('wellness_session_id') border-red-300 @enderror"
+                                {{ $schedule->session_type === 'wellness' ? 'required' : '' }}>
+                            <option value="">Select a wellness session...</option>
+                            @foreach($wellnessSessions as $session)
+                                <option value="{{ $session->id }}" {{ old('wellness_session_id', $schedule->wellness_session_id) == $session->id ? 'selected' : '' }}>
+                                    {{ $session->title }} - {{ $session->presenter_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">Select the wellness session this time slot belongs to.</p>
+                        @error('wellness_session_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
                         <input type="text" id="location" name="location" value="{{ old('location', $schedule->location) }}"
@@ -254,6 +276,26 @@
                     @enderror
                 </div>
 
+                <!-- PD Day -->
+                <div>
+                    <label for="pd_day_id" class="block text-sm font-medium text-gray-700 mb-1">
+                        PD Day Event
+                    </label>
+                    <select id="pd_day_id" name="pd_day_id"
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                   @error('pd_day_id') border-red-300 @enderror">
+                        <option value="">Not assigned to any PD Day</option>
+                        @foreach($pdDays as $pdDay)
+                            <option value="{{ $pdDay->id }}" {{ old('pd_day_id', $schedule->pd_day_id) == $pdDay->id ? 'selected' : '' }}>
+                                {{ $pdDay->title }} ({{ $pdDay->date_range }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('pd_day_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Form Actions -->
                 <div class="flex items-center justify-between pt-6 border-t border-gray-200">
                     <a href="{{ route('admin.schedule.index') }}" 
@@ -269,4 +311,28 @@
         </div>
     </div>
 </div>
+
+<script>
+// Toggle wellness session selector based on session type
+document.addEventListener('DOMContentLoaded', function() {
+    const sessionTypeSelect = document.getElementById('session_type');
+    const wellnessDiv = document.getElementById('wellness_session_div');
+    const wellnessSelect = document.getElementById('wellness_session_id');
+    
+    function updateWellnessVisibility() {
+        if (sessionTypeSelect.value === 'wellness') {
+            wellnessDiv.classList.remove('hidden');
+            wellnessSelect.required = true;
+        } else {
+            wellnessDiv.classList.add('hidden');
+            wellnessSelect.required = false;
+            wellnessSelect.value = '';
+        }
+    }
+    
+    sessionTypeSelect.addEventListener('change', updateWellnessVisibility);
+    updateWellnessVisibility(); // Initialize on load
+});
+</script>
 @endsection
+

@@ -34,6 +34,10 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'calendar' => [
+        'timezone' => env('CALENDAR_TIMEZONE', env('APP_TIMEZONE', 'Asia/Kolkata')),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

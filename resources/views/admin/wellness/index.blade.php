@@ -202,7 +202,15 @@
                                 <td class="px-6 py-4">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900">{{ $session->title }}</div>
-                                        @if($session->category)
+                                        @if($session->category && is_array($session->category) && count($session->category) > 0)
+                                            <div class="text-sm text-gray-500 mt-1">
+                                                @foreach($session->category as $category)
+                                                    <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full mr-1">
+                                                        {{ $category }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @elseif($session->category)
                                             <div class="text-sm text-gray-500 mt-1">
                                                 <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
                                                     {{ ucfirst($session->category) }}
@@ -219,12 +227,18 @@
                                 <td class="px-6 py-4 text-sm text-gray-900">
                                     <div class="font-medium">{{ \Carbon\Carbon::parse($session->date)->format('M j, Y') }}</div>
                                     <div class="text-gray-500">
-                                        {{ \Carbon\Carbon::parse($session->start_time)->format('g:i A') }} - 
-                                        {{ \Carbon\Carbon::parse($session->end_time)->format('g:i A') }}
+                                        2:30 PM - 3:30 PM
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
-                                    {{ $session->presenter_name ?: 'TBD' }}
+                                    <div>
+                                        <div class="font-medium">{{ $session->presenter_name ?: 'TBD' }}</div>
+                                        @if($session->co_presenter_name)
+                                            <div class="text-gray-500 text-xs mt-1">
+                                                Co: {{ $session->co_presenter_name }}
+                                            </div>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
                                     <div class="flex items-center">
@@ -251,6 +265,12 @@
                                            class="text-yellow-600 hover:text-yellow-900 transition-colors" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        @if($session->user_sessions_count > 0)
+                                            <a href="{{ route('admin.wellness.transfer', $session) }}" 
+                                               class="text-blue-600 hover:text-blue-900 transition-colors" title="Transfer Users">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </a>
+                                        @endif
                                         <form action="{{ route('admin.wellness.toggle-status', $session) }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" class="text-gray-600 hover:text-gray-900 transition-colors" 

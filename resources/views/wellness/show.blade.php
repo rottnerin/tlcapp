@@ -10,7 +10,6 @@
     <style>
         .aes-bg { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
         .session-full { opacity: 0.6; background-color: #f8f9fa; }
-        .session-waitlist { border-left: 4px solid #f59e0b; }
         .session-available { border-left: 4px solid #10b981; }
         .session-full-border { border-left: 4px solid #ef4444; }
     </style>
@@ -31,10 +30,8 @@
                 
                 <div class="flex items-center space-x-4">
                     <nav class="space-x-4">
-                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">Dashboard</a>
-                        <a href="{{ route('schedule.index') }}" class="text-gray-600 hover:text-gray-900">Schedule</a>
-                        <a href="{{ route('wellness.index') }}" class="text-gray-600 hover:text-gray-900">Wellness</a>
-                        <a href="{{ route('my-schedule') }}" class="text-gray-600 hover:text-gray-900">My Schedule</a>
+                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">Schedule</a>
+                        <a href="{{ route('wellness.index') }}" class="text-gray-900 font-medium">Wellness</a>
                     </nav>
                     
                     <div class="flex items-center space-x-2">
@@ -63,8 +60,19 @@
             </a>
         </div>
 
+        <!-- One Session Limit Notice -->
+        @if(!$userEnrollment)
+            <div class="mb-6">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-sm text-blue-800">
+                        <strong>Note:</strong> You can only enroll in one wellness session. If you're already enrolled in another session, you'll need to cancel that enrollment first.
+                    </p>
+                </div>
+            </div>
+        @endif
+
         <!-- Session Details -->
-        <div class="bg-white rounded-lg shadow-sm border {{ $session->status === 'full' ? 'session-full session-full-border' : ($session->status === 'waitlist' ? 'session-waitlist' : 'session-available') }}">
+        <div class="bg-white rounded-lg shadow-sm border {{ $session->status === 'full' ? 'session-full session-full-border' : 'session-available' }}">
             <div class="p-8">
                 <!-- Header -->
                 <div class="flex justify-between items-start mb-6">
@@ -77,9 +85,7 @@
                         @endif
                     </div>
                     <span class="px-4 py-2 text-sm font-medium rounded-full
-                        {{ $session->status === 'available' ? 'bg-green-100 text-green-800' : 
-                           ($session->status === 'waitlist' ? 'bg-yellow-100 text-yellow-800' : 
-                            'bg-red-100 text-red-800') }}">
+                        {{ $session->status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                         {{ ucfirst($session->status) }}
                     </span>
                 </div>
@@ -114,13 +120,17 @@
                         @endif
 
                         @if($session->presenter_name)
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 mr-3 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">Presenter</div>
                                     <div class="text-sm text-gray-600">{{ $session->presenter_name }}</div>
+                                    @if($session->co_presenter_name)
+                                        <div class="text-sm font-medium text-gray-900 mt-2">Co-Presenter</div>
+                                        <div class="text-sm text-gray-600">{{ $session->co_presenter_name }}</div>
+                                    @endif
                                 </div>
                             </div>
                         @endif
@@ -132,8 +142,6 @@
                             <div class="text-2xl font-bold text-gray-900">{{ $session->current_enrollment }} / {{ $session->max_participants }}</div>
                             @if($session->status === 'available')
                                 <div class="text-sm text-green-600 mt-1">{{ $session->available_spots }} spots available</div>
-                            @elseif($session->status === 'waitlist')
-                                <div class="text-sm text-yellow-600 mt-1">{{ $session->waitlist_count }} on waitlist</div>
                             @else
                                 <div class="text-sm text-red-600 mt-1">Session is full</div>
                             @endif
@@ -207,26 +215,20 @@
                 @endif
 
                 <!-- Action Buttons -->
-                <div class="flex space-x-4">
-                    @if($session->isAvailableForEnrollment())
-                        @if($userEnrollment)
-                            <form method="POST" action="{{ route('wellness.cancel', $session) }}" class="flex-1">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        class="w-full px-6 py-3 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
-                                    Cancel Enrollment
-                                </button>
-                            </form>
-                        @else
-                            <form method="POST" action="{{ route('wellness.enroll', $session) }}" class="flex-1">
-                                @csrf
-                                <button type="submit" 
-                                        class="w-full px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
-                                    {{ $session->status === 'waitlist' ? 'Join Waitlist' : 'Enroll Now' }}
-                                </button>
-                            </form>
-                        @endif
+                <div class="flex space-x-4 sticky bottom-0 bg-white pt-4 border-t border-gray-200">
+                    @if($userEnrollment)
+                        <span class="flex-1 text-center px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-md">
+                            ✓ Enrolled
+                        </span>
+                    @elseif($session->isAvailableForEnrollment())
+                        <form method="POST" action="{{ route('wellness.enroll', $session) }}" class="flex-1" id="enroll-form-{{ $session->id }}">
+                            @csrf
+                            <button type="button" 
+                                    onclick="confirmEnrollment({{ $session->id }}, '{{ $session->title }}')"
+                                    class="w-full px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">
+                                Enroll Now
+                            </button>
+                        </form>
                     @else
                         <span class="flex-1 text-center px-6 py-3 text-sm font-medium text-gray-500 bg-gray-100 rounded-md">
                             Not Available for Enrollment
@@ -236,5 +238,16 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript for enrollment confirmation -->
+    <script>
+        function confirmEnrollment(sessionId, sessionTitle) {
+            const message = `Are you sure you want to enroll in "${sessionTitle}"?`;
+            
+            if (confirm(message)) {
+                document.getElementById('enroll-form-' + sessionId).submit();
+            }
+        }
+    </script>
 </body>
 </html>

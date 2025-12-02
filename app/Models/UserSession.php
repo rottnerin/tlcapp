@@ -60,13 +60,6 @@ class UserSession extends Model
         return $query->where('status', 'confirmed');
     }
 
-    /**
-     * Scope for waitlisted enrollments
-     */
-    public function scopeWaitlisted($query)
-    {
-        return $query->where('status', 'waitlisted');
-    }
 
     /**
      * Scope for cancelled enrollments
@@ -84,13 +77,6 @@ class UserSession extends Model
         return $this->status === 'confirmed';
     }
 
-    /**
-     * Check if enrollment is waitlisted
-     */
-    public function isWaitlisted(): bool
-    {
-        return $this->status === 'waitlisted';
-    }
 
     /**
      * Check if enrollment is cancelled

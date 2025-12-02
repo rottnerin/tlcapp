@@ -26,6 +26,7 @@
                 <div class="flex items-center space-x-4">
                     <nav class="space-x-4">
                         <a href="{{ route('admin.dashboard') }}" class="text-white font-medium">Dashboard</a>
+                        <a href="{{ route('admin.pddays.index') }}" class="text-indigo-200 hover:text-white">PD Days</a>
                         <a href="{{ route('admin.wellness.index') }}" class="text-indigo-200 hover:text-white">Wellness</a>
                         <a href="{{ route('admin.schedule.index') }}" class="text-indigo-200 hover:text-white">Schedule</a>
                         <a href="{{ route('admin.users.index') }}" class="text-indigo-200 hover:text-white">Users</a>
@@ -37,7 +38,7 @@
                             <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}" class="w-8 h-8 rounded-full">
                         @endif
                         <span class="text-sm text-indigo-200">{{ auth()->user()->name }}</span>
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                        <form method="POST" action="{{ route('admin.logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="text-sm text-red-300 hover:text-red-100">Logout</button>
                         </form>
@@ -108,8 +109,6 @@
                 <div class="text-sm text-gray-600">Confirmed Enrollments</div>
             </div>
             <div class="bg-white rounded-lg shadow-sm p-6">
-                <div class="text-3xl font-bold text-yellow-600">{{ $stats['waitlisted_enrollments'] }}</div>
-                <div class="text-sm text-gray-600">Waitlisted</div>
             </div>
         </div>
 

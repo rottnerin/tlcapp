@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\ScheduleItem;
 use App\Models\WellnessSession;
 use App\Models\Division;
+use App\Models\PDDay;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -18,18 +19,29 @@ class DashboardController extends Controller
         $user = auth()->user();
         $divisions = Division::active()->get();
         
-        // Get Professional Learning Days dates
-        $eventDates = [
-            Carbon::create(2025, 9, 25),
-            Carbon::create(2025, 9, 26),
-        ];
+        // Get active PD Day
+        $activePDDay = PDDay::getActive();
+        
+        // Generate date range from PD Day if available
+        $eventDates = [];
+        if ($activePDDay) {
+            $start = Carbon::parse($activePDDay->start_date);
+            $end = Carbon::parse($activePDDay->end_date);
+            
+            while ($start->lte($end)) {
+                $eventDates[] = $start->copy();
+                $start->addDay();
+            }
+        }
         
         // Get user's division filter preference
         $selectedDivisions = $request->get('divisions', $user->division_id ? [$user->division_id] : []);
         
         // Get schedule items for the event dates
         $scheduleItems = ScheduleItem::active()
-            ->whereIn('date', $eventDates)
+            ->when($activePDDay, function($query) use ($activePDDay) {
+                return $query->where('pd_day_id', $activePDDay->id);
+            })
             ->when($selectedDivisions, function($query) use ($selectedDivisions) {
                 return $query->forDivisions($selectedDivisions);
             })
@@ -47,7 +59,9 @@ class DashboardController extends Controller
         
         // Get upcoming wellness sessions
         $upcomingWellness = WellnessSession::active()
-            ->whereIn('date', $eventDates)
+            ->when($activePDDay, function($query) use ($activePDDay) {
+                return $query->where('pd_day_id', $activePDDay->id);
+            })
             ->withCapacity()
             ->orderBy('date')
             ->orderBy('start_time')
@@ -61,7 +75,8 @@ class DashboardController extends Controller
             'scheduleItems',
             'userEnrollments',
             'upcomingWellness',
-            'eventDates'
+            'eventDates',
+            'activePDDay'
         ));
     }
 
