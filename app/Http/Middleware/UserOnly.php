@@ -19,12 +19,9 @@ class UserOnly
         if (!auth()->check()) {
             return redirect('/')->with('error', 'Please log in to access this page.');
         }
-        
-        // If user is an admin, redirect to admin dashboard
-        if (auth()->user()->is_admin) {
-            return redirect()->route('admin.dashboard')->with('info', 'Admins should use the admin panel.');
-        }
-        
+
+        // Allow admins to access user routes - they'll see user interface but can return to admin
+        // This allows admins to preview/test the user experience
         return $next($request);
     }
 }

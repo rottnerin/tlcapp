@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ScheduleItem;
 use App\Models\Division;
+use App\Models\PDDay;
+use App\Models\WellnessSession;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -84,8 +86,10 @@ class ScheduleItemController extends Controller
     public function create()
     {
         $divisions = Division::orderBy('name')->get();
+        $pdDays = PDDay::orderBy('start_date', 'desc')->get();
+        $wellnessSessions = WellnessSession::orderBy('created_at', 'desc')->get();
         
-        return view('admin.schedule.create', compact('divisions'));
+        return view('admin.schedule.create', compact('divisions', 'pdDays', 'wellnessSessions'));
     }
 
     /**
@@ -132,6 +136,9 @@ class ScheduleItemController extends Controller
 
         $validated['is_required'] = $request->has('is_required');
         $validated['is_active'] = $request->has('is_active') ? true : false;
+        
+        // Extract date from start_time for the date field
+        $validated['date'] = Carbon::parse($validated['start_time'])->format('Y-m-d');
 
         ScheduleItem::create($validated);
 
@@ -156,8 +163,10 @@ class ScheduleItemController extends Controller
     {
         $schedule->load('divisions');
         $divisions = Division::orderBy('name')->get();
+        $pdDays = PDDay::orderBy('start_date', 'desc')->get();
+        $wellnessSessions = WellnessSession::orderBy('created_at', 'desc')->get();
         
-        return view('admin.schedule.edit', compact('schedule', 'divisions'));
+        return view('admin.schedule.edit', compact('schedule', 'divisions', 'pdDays', 'wellnessSessions'));
     }
 
     /**
@@ -224,9 +233,9 @@ class ScheduleItemController extends Controller
     {
         $schedule->update(['is_active' => !$schedule->is_active]);
         
-        $status = $schedule->is_active ? 'activated' : 'deactivated';
+        $status = $schedule->is_active ? 'made visible' : 'hidden';
         
-        return back()->with('success', "Schedule item {$status} successfully!");
+        return back()->with('success', "Schedule item '{$schedule->title}' {$status} successfully!");
     }
 
     /**
@@ -258,5 +267,150 @@ class ScheduleItemController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    /**
+     * Show schedule items grouped by PD days
+     */
+    public function byPdDay()
+    {
+        $pdDays = PDDay::orderBy('start_date', 'desc')->get();
+        $pdDaysWithCounts = $pdDays->map(function($pdDay) {
+            return [
+                'pdDay' => $pdDay,
+                'scheduleCount' => $pdDay->scheduleItems()->count(),
+                'scheduleItems' => $pdDay->scheduleItems()->get()
+            ];
+        });
+
+        return view('admin.schedule.by-pdday', compact('pdDaysWithCounts', 'pdDays'));
+    }
+
+    /**
+     * Show copy schedule form
+     */
+    public function showCopyForm(PDDay $pdDay)
+    {
+        $sourcePdDays = PDDay::where('id', '!=', $pdDay->id)
+            ->whereHas('scheduleItems')
+            ->orderBy('start_date', 'desc')
+            ->get();
+
+        return view('admin.schedule.copy-form', compact('pdDay', 'sourcePdDays'));
+    }
+
+    /**
+     * Copy schedule from one PD day to another
+     */
+    public function copySchedule(Request $request, PDDay $pdDay)
+    {
+        $validated = $request->validate([
+            'source_pd_day_id' => 'required|exists:p_d_days,id'
+        ]);
+
+        $sourcePdDay = PDDay::findOrFail($validated['source_pd_day_id']);
+        $sourceSchedules = ScheduleItem::where('p_d_day_id', $sourcePdDay->id)->get();
+
+        if ($sourceSchedules->isEmpty()) {
+            return back()->with('error', "Source PD day has no schedule items to copy.");
+        }
+
+        $copied = 0;
+        foreach ($sourceSchedules as $sourceSchedule) {
+            $newSchedule = $sourceSchedule->replicate();
+            $newSchedule->p_d_day_id = $pdDay->id;
+            $newSchedule->save();
+            
+            // Copy divisions
+            foreach ($sourceSchedule->divisions as $division) {
+                $newSchedule->divisions()->attach($division->id);
+            }
+            $copied++;
+        }
+
+        return back()->with('success', "Copied {$copied} schedule items from {$sourcePdDay->title}");
+    }
+
+    /**
+     * Upload schedule items via CSV
+     */
+    public function uploadCsv(Request $request, PDDay $pdDay)
+    {
+        $validated = $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048'
+        ]);
+
+        try {
+            $file = $request->file('csv_file');
+            $path = $file->getRealPath();
+            
+            $imported = 0;
+            $errors = [];
+            
+            if (($handle = fopen($path, 'r')) !== false) {
+                $headers = fgetcsv($handle);
+                
+                while (($row = fgetcsv($handle)) !== false) {
+                    if (empty(array_filter($row))) continue; // Skip empty rows
+                    
+                    try {
+                        $data = array_combine($headers, $row);
+                        
+                        // Validate required fields
+                        if (empty($data['title'])) {
+                            throw new \Exception("Title is required");
+                        }
+                        
+                        // Validate session_type if provided
+                        $sessionType = $data['session_type'] ?? 'Fixed';
+                        if (!in_array($sessionType, ['Fixed', 'Wellness'])) {
+                            throw new \Exception("Session type must be 'Fixed' or 'Wellness'");
+                        }
+                        
+                        $schedule = new ScheduleItem();
+                        $schedule->title = $data['title'] ?? null;
+                        $schedule->description = $data['description'] ?? null;
+                        $schedule->location = $data['location'] ?? null;
+                        $schedule->presenter_primary = $data['presenter_primary'] ?? null;
+                        $schedule->presenter_secondary = $data['presenter_secondary'] ?? null;
+                        $schedule->presenter_bio = $data['presenter_bio'] ?? null;
+                        $schedule->session_type = $sessionType;
+                        $schedule->equipment_needed = $data['equipment_needed'] ?? null;
+                        $schedule->special_requirements = $data['special_requirements'] ?? null;
+                        $schedule->p_d_day_id = $pdDay->id;
+                        $schedule->is_active = true;
+                        
+                        // Parse dates if provided
+                        if (!empty($data['date'])) {
+                            $schedule->date = \Carbon\Carbon::createFromFormat('Y-m-d', $data['date']);
+                        }
+                        
+                        // Parse times if provided
+                        if (!empty($data['start_time'])) {
+                            $schedule->start_time = \Carbon\Carbon::createFromFormat('H:i', $data['start_time']);
+                        }
+                        
+                        if (!empty($data['end_time'])) {
+                            $schedule->end_time = \Carbon\Carbon::createFromFormat('H:i', $data['end_time']);
+                        }
+                        
+                        $schedule->save();
+                        $imported++;
+                    } catch (\Exception $e) {
+                        $errors[] = "Row error: " . $e->getMessage();
+                    }
+                }
+                fclose($handle);
+            }
+
+            $message = "Imported {$imported} schedule items successfully!";
+            if (!empty($errors)) {
+                $message .= " (" . count($errors) . " errors)";
+            }
+
+            return back()->with('success', $message);
+        } catch (\Exception $e) {
+            return back()->with('error', "CSV import failed: " . $e->getMessage());
+        }
     }
 }

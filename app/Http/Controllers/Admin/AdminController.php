@@ -23,7 +23,6 @@ class AdminController extends Controller
             'total_schedule_items' => ScheduleItem::count(),
             'total_wellness_sessions' => WellnessSession::count(),
             'total_enrollments' => UserSession::where('status', 'confirmed')->count(),
-            'waitlisted_enrollments' => UserSession::where('status', 'waitlisted')->count(),
         ];
 
         // Recent registrations (last 7 days)
@@ -109,6 +108,22 @@ class AdminController extends Controller
         $message = $user->is_admin ? 'User granted admin privileges' : 'Admin privileges revoked';
         
         return back()->with('success', $message);
+    }
+
+    /**
+     * Update user password (for admin login)
+     */
+    public function updatePassword(Request $request, User $user)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user->update([
+            'password' => \Hash::make($request->password),
+        ]);
+
+        return back()->with('success', 'Password updated successfully for ' . $user->name);
     }
 
     /**

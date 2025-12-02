@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\WellnessSession;
 use App\Models\UserSession;
+use App\Models\PDDay;
 use Carbon\Carbon;
 
 class WellnessController extends Controller
@@ -16,18 +17,62 @@ class WellnessController extends Controller
     {
         $user = auth()->user();
         
-        // Get all active wellness sessions - no filtering
-        $sessions = WellnessSession::active()
+        // Get active PD Day
+        $activePDDay = PDDay::getActive();
+        
+        // Check if user has any active wellness enrollment
+        $userWellnessEnrollment = UserSession::where('user_id', $user->id)
+            ->whereNotNull('wellness_session_id')
+            ->where('status', '!=', 'cancelled')
+            ->with('wellnessSession')
+            ->first();
+        
+        // Build query for wellness sessions
+        $query = WellnessSession::active()
+            ->when($activePDDay, function($query) use ($activePDDay) {
+                return $query->where('pd_day_id', $activePDDay->id);
+            })
             ->with(['userSessions' => function($query) use ($user) {
                 $query->where('user_id', $user->id);
-            }])
-            ->orderBy('date')
+            }]);
+        
+        // Apply category filter if provided
+        if ($request->filled('category')) {
+            $category = $request->category;
+            $query->whereJsonContains('category', $category);
+        }
+        
+        // Apply search filter if provided
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('presenter_name', 'like', "%{$search}%")
+                  ->orWhere('co_presenter_name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+        
+        $sessions = $query->orderBy('date')
             ->orderBy('start_time')
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString(); // Preserve query parameters in pagination
+        
+        // Get all unique categories for filter dropdown
+        $categories = WellnessSession::whereNotNull('category')
+            ->get()
+            ->pluck('category')
+            ->flatten()
+            ->unique()
+            ->filter()
+            ->sort()
+            ->values();
         
         return view('wellness.index', compact(
             'user',
-            'sessions'
+            'sessions',
+            'userWellnessEnrollment',
+            'categories'
         ));
     }
 
@@ -156,31 +201,4 @@ class WellnessController extends Controller
         }
     }
 
-    /**
-     * Cancel user enrollment
-     */
-    public function cancel(Request $request, WellnessSession $session)
-    {
-        $user = auth()->user();
-        
-        $enrollment = UserSession::where('user_id', $user->id)
-            ->where('wellness_session_id', $session->id)
-            ->where('status', '!=', 'cancelled')
-            ->first();
-        
-        if (!$enrollment) {
-            return back()->with('error', 'You are not enrolled in this session.');
-        }
-        
-        // Update enrollment status
-        $wasConfirmed = $enrollment->status === 'confirmed';
-        $enrollment->update(['status' => 'cancelled']);
-        
-        // If was confirmed, decrease enrollment count and promote from waitlist
-        if ($wasConfirmed) {
-            $session->decrement('current_enrollment');
-        }
-        
-        return back()->with('success', 'Successfully cancelled your enrollment.');
-    }
 }

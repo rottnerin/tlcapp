@@ -120,13 +120,17 @@
                         @endif
 
                         @if($session->presenter_name)
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 mr-3 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900">Presenter</div>
                                     <div class="text-sm text-gray-600">{{ $session->presenter_name }}</div>
+                                    @if($session->co_presenter_name)
+                                        <div class="text-sm font-medium text-gray-900 mt-2">Co-Presenter</div>
+                                        <div class="text-sm text-gray-600">{{ $session->co_presenter_name }}</div>
+                                    @endif
                                 </div>
                             </div>
                         @endif
@@ -211,27 +215,20 @@
                 @endif
 
                 <!-- Action Buttons -->
-                <div class="flex space-x-4">
-                    @if($session->isAvailableForEnrollment())
-                        @if($userEnrollment)
-                            <form method="POST" action="{{ route('wellness.cancel', $session) }}" class="flex-1">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        class="w-full px-6 py-3 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
-                                    Cancel Enrollment
-                                </button>
-                            </form>
-                        @else
-                            <form method="POST" action="{{ route('wellness.enroll', $session) }}" class="flex-1" id="enroll-form-{{ $session->id }}">
-                                @csrf
-                                <button type="button" 
-                                        onclick="confirmEnrollment({{ $session->id }}, '{{ $session->title }}')"
-                                        class="w-full px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
-                                    Enroll Now
-                                </button>
-                            </form>
-                        @endif
+                <div class="flex space-x-4 sticky bottom-0 bg-white pt-4 border-t border-gray-200">
+                    @if($userEnrollment)
+                        <span class="flex-1 text-center px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-md">
+                            ✓ Enrolled
+                        </span>
+                    @elseif($session->isAvailableForEnrollment())
+                        <form method="POST" action="{{ route('wellness.enroll', $session) }}" class="flex-1" id="enroll-form-{{ $session->id }}">
+                            @csrf
+                            <button type="button" 
+                                    onclick="confirmEnrollment({{ $session->id }}, '{{ $session->title }}')"
+                                    class="w-full px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">
+                                Enroll Now
+                            </button>
+                        </form>
                     @else
                         <span class="flex-1 text-center px-6 py-3 text-sm font-medium text-gray-500 bg-gray-100 rounded-md">
                             Not Available for Enrollment

@@ -31,7 +31,11 @@
                 <div class="text-center mb-8">
                     <h1 class="text-4xl font-bold text-white mb-2">AES</h1>
                     <h2 class="text-xl text-white/90 mb-1">Professional Learning Days</h2>
-                    <p class="text-white/80 text-sm">September 25-26, 2025</p>
+                    @if($activePDDay)
+                        <p class="text-white/80 text-lg">{{ $activePDDay->date_range }}</p>
+                    @else
+                        <p class="text-white/80 text-lg">No active event</p>
+                    @endif
                 </div>
 
                 <!-- Login Card -->
@@ -75,7 +79,6 @@
                             <div class="text-center">
                                 <p class="text-xs text-gray-500">
                                     Please use your AES school email account<br>
-                                    (@aes.ac.in, @staff.aes.ac.in)
                                 </p>
                             </div>
                         </div>
@@ -84,8 +87,8 @@
 
                 <!-- Event Info -->
                 <div class="mt-8 text-center text-white/80">
-                    <p class="text-sm mb-2">🎯 Personalized Schedules • 🧘 Wellness Sessions • 🤝 Community Building</p>
-                    <p class="text-xs">Questions? Contact the Professional Learning team</p>
+                    <p class="text-sm mb-2">🎯 Personalized Schedules • 🧘 Wellness Sessions </p>
+                    <p class="text-xs">Questions? Contact TLC or email rmckinnie@aes.ac.in</p>
                 </div>
             </div>
         </div>

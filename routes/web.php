@@ -8,14 +8,23 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\WellnessSessionController;
 use App\Http\Controllers\Admin\ScheduleItemController;
 use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\PDDayController;
+use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Models\PDDay;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $activePDDay = PDDay::getActive();
+    return view('welcome', compact('activePDDay'));
 });
 
-// Google OAuth routes
+// Admin Authentication routes
+Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
+Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+
+// Google OAuth routes (for regular users)
 Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.login');
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 Route::post('/logout', [GoogleController::class, 'logout'])->name('logout');
@@ -48,6 +57,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users', [AdminController::class, 'users'])->name('users.index');
     Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
     Route::post('/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
+    Route::post('/users/{user}/update-password', [AdminController::class, 'updatePassword'])->name('users.update-password');
     
     // Wellness Sessions Management
     Route::resource('wellness', WellnessSessionController::class);
@@ -60,6 +70,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('schedule', ScheduleItemController::class);
     Route::post('/schedule/{schedule}/toggle-status', [ScheduleItemController::class, 'toggleStatus'])->name('schedule.toggle-status');
     Route::post('/schedule/bulk-update', [ScheduleItemController::class, 'bulkUpdate'])->name('schedule.bulk-update');
+    Route::get('/schedule-by-pdday', [ScheduleItemController::class, 'byPdDay'])->name('schedule.by-pdday');
+    Route::get('/schedule-copy/{pdday}', [ScheduleItemController::class, 'showCopyForm'])->name('schedule.copy-form');
+    Route::post('/schedule-copy/{pdday}', [ScheduleItemController::class, 'copySchedule'])->name('schedule.copy');
+    Route::post('/schedule-upload/{pdday}', [ScheduleItemController::class, 'uploadCsv'])->name('schedule.upload-csv');
+    
+    // PD Days Management
+    Route::resource('pddays', PDDayController::class)->except(['show']);
+    Route::post('/pddays/{pdday}/toggle-active', [PDDayController::class, 'toggleActive'])->name('pddays.toggle-active');
     
     // Reports
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');

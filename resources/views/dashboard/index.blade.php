@@ -59,7 +59,11 @@
                     <h2 class="text-2xl font-bold text-gray-900 mb-2">
                         Welcome back, {{ $user->name }}! 👋
                     </h2>
-                    <p class="text-gray-600">Ready for an amazing Professional Learning Days experience on September 25-26, 2025?</p>
+                    @if($activePDDay)
+                        <p class="text-gray-600">Ready for an amazing Professional Learning Days experience on {{ $activePDDay->date_range }}?</p>
+                    @else
+                        <p class="text-gray-600">No active Professional Learning Days event at the moment.</p>
+                    @endif
                 </div>
             </div>
             
@@ -182,9 +186,7 @@
                                     <div class="flex justify-between items-start">
                                         <div class="font-medium text-sm">{{ $session->title }}</div>
                                         <span class="px-2 py-1 text-xs font-medium rounded-full
-                                            {{ $session->status === 'available' ? 'bg-green-100 text-green-800' : 
-                                               ($session->status === 'waitlist' ? 'bg-yellow-100 text-yellow-800' : 
-                                                'bg-red-100 text-red-800') }}">
+                                           {{ $session->status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                             {{ ucfirst($session->status) }}
                                         </span>
                                     </div>
@@ -195,14 +197,11 @@
                                         @endif
                                     </div>
                                     <div class="text-xs mt-1
-                                        {{ $session->status === 'available' ? 'text-green-600' : 
-                                           ($session->status === 'waitlist' ? 'text-yellow-600' : 'text-red-600') }}">
+                                        {{ $session->status === 'available' ? 'text-green-600' : 'text-red-600' }}">
                                         @if($session->status === 'available')
                                             {{ $session->available_spots }} spots available
-                                        @elseif($session->status === 'waitlist')
-                                            Full - {{ $session->waitlist_count }} on waitlist
                                         @else
-                                            Full - No waitlist
+                                            Full
                                         @endif
                                     </div>
                                 </div>
