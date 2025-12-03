@@ -10,12 +10,12 @@
             <div class="flex items-center justify-between mb-4">
                 <a href="{{ route('admin.schedule.index') }}" 
                    class="text-aes-blue hover:text-blue-700 font-medium">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to Schedule Items
+                    <i class="fas fa-arrow-left mr-2 text-sm"></i>Back to Schedule Items
                 </a>
                 <div class="flex space-x-3">
                     <a href="{{ route('admin.schedule.edit', $schedule) }}" 
                        class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition-colors">
-                        <i class="fas fa-edit mr-2"></i>Edit
+                        <i class="fas fa-edit mr-2 text-sm"></i>Edit
                     </a>
                     @if($schedule->user_sessions_count == 0)
                         <form action="{{ route('admin.schedule.destroy', $schedule) }}" method="POST" 
@@ -23,7 +23,7 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
-                                <i class="fas fa-trash mr-2"></i>Delete
+                                <i class="fas fa-trash mr-2 text-sm"></i>Delete
                             </button>
                         </form>
                     @endif
@@ -37,7 +37,7 @@
         @if(!$schedule->is_active)
             <div class="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg mb-6">
                 <div class="flex items-center">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <i class="fas fa-exclamation-triangle mr-2 text-sm"></i>
                     This schedule item is currently inactive
                 </div>
             </div>
@@ -67,7 +67,7 @@
                             <label class="block text-sm font-medium text-gray-500 mb-1">Location</label>
                             <p class="text-gray-900">
                                 @if($schedule->location)
-                                    <i class="fas fa-map-marker-alt mr-1 text-gray-400"></i>{{ $schedule->location }}
+                                    <i class="fas fa-map-marker-alt mr-1 text-gray-400 text-sm"></i>{{ $schedule->location }}
                                 @else
                                     <span class="text-gray-500">Not specified</span>
                                 @endif
@@ -98,7 +98,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Date</label>
                             <p class="text-gray-900">
-                                <i class="fas fa-calendar mr-2 text-gray-400"></i>
+                                <i class="fas fa-calendar mr-2 text-gray-400 text-sm"></i>
                                 {{ \Carbon\Carbon::parse($schedule->date)->format('l, F j, Y') }}
                             </p>
                         </div>
@@ -106,7 +106,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Start Time</label>
                             <p class="text-gray-900">
-                                <i class="fas fa-clock mr-2 text-gray-400"></i>
+                                <i class="fas fa-clock mr-2 text-gray-400 text-sm"></i>
                                 {{ \Carbon\Carbon::parse($schedule->start_time)->format('g:i A') }}
                             </p>
                         </div>
@@ -114,7 +114,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">End Time</label>
                             <p class="text-gray-900">
-                                <i class="fas fa-clock mr-2 text-gray-400"></i>
+                                <i class="fas fa-clock mr-2 text-gray-400 text-sm"></i>
                                 {{ \Carbon\Carbon::parse($schedule->end_time)->format('g:i A') }}
                             </p>
                         </div>
@@ -122,7 +122,7 @@
                     
                     <div class="mt-4 p-4 bg-gray-50 rounded-lg">
                         <p class="text-sm text-gray-600">
-                            <i class="fas fa-info-circle mr-2"></i>
+                            <i class="fas fa-info-circle mr-2 text-xs"></i>
                             Duration: {{ \Carbon\Carbon::parse($schedule->start_time)->diffForHumans(\Carbon\Carbon::parse($schedule->end_time), true) }}
                         </p>
                     </div>

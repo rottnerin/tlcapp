@@ -1,0 +1,2829 @@
+From 35d4933d699693c93d1c363887455d3b0c918d7c Mon Sep 17 00:00:00 2001
+From: Ryan McKinnie <rmckinnie@rmckinnie.local>
+Date: Fri, 19 Sep 2025 10:32:47 +0530
+Subject: [PATCH] Add comprehensive reports feature with enhanced UI
+
+- Add ReportsController with wellness enrollments and unenrolled users reports
+- Add modern card-based UI for reports dashboard and individual reports
+- Add CSV export functionality for all reports
+- Add ReportsTestDataSeeder for testing with sample data
+- Add routes for all report endpoints
+- Remove rating/feedback and division columns as requested
+- Clean, professional design matching admin dashboard style
+---
+ .../Controllers/Admin/ReportsController.php   | 515 ++++++++++++++++++
+ database/seeders/DatabaseSeeder.php           |   1 +
+ database/seeders/ReportsTestDataSeeder.php    | 416 ++++++++++++++
+ .../reports/capacity-utilization.blade.php    | 326 +++++++++++
+ .../admin/reports/division-summary.blade.php  | 351 ++++++++++++
+ resources/views/admin/reports/index.blade.php | 202 +++++++
+ .../admin/reports/unenrolled-users.blade.php  | 252 +++++++++
+ .../admin/reports/user-activity.blade.php     | 377 +++++++++++++
+ .../reports/wellness-enrollments.blade.php    | 236 ++++++++
+ routes/web.php                                |  20 +-
+ 10 files changed, 2689 insertions(+), 7 deletions(-)
+ create mode 100644 app/Http/Controllers/Admin/ReportsController.php
+ create mode 100644 database/seeders/ReportsTestDataSeeder.php
+ create mode 100644 resources/views/admin/reports/capacity-utilization.blade.php
+ create mode 100644 resources/views/admin/reports/division-summary.blade.php
+ create mode 100644 resources/views/admin/reports/index.blade.php
+ create mode 100644 resources/views/admin/reports/unenrolled-users.blade.php
+ create mode 100644 resources/views/admin/reports/user-activity.blade.php
+ create mode 100644 resources/views/admin/reports/wellness-enrollments.blade.php
+
+diff --git a/app/Http/Controllers/Admin/ReportsController.php b/app/Http/Controllers/Admin/ReportsController.php
+new file mode 100644
+index 0000000..deaa78d
+--- /dev/null
++++ b/app/Http/Controllers/Admin/ReportsController.php
+@@ -0,0 +1,515 @@
++<?php
++
++namespace App\Http\Controllers\Admin;
++
++use App\Http\Controllers\Controller;
++use Illuminate\Http\Request;
++use App\Models\User;
++use App\Models\WellnessSession;
++use App\Models\UserSession;
++use App\Models\Division;
++use App\Models\ScheduleItem;
++use Carbon\Carbon;
++use Illuminate\Http\Response;
++
++class ReportsController extends Controller
++{
++    /**
++     * Reports dashboard
++     */
++    public function index()
++    {
++        $totalUsers = User::count();
++        $totalEnrollments = UserSession::where('status', 'confirmed')->count();
++        $activeSessions = WellnessSession::where('is_active', true)->count();
++        $divisions = Division::count();
++
++        return view('admin.reports.index', compact(
++            'totalUsers',
++            'totalEnrollments', 
++            'activeSessions',
++            'divisions'
++        ));
++    }
++
++    /**
++     * Wellness session enrollments report
++     */
++    public function wellnessEnrollments(Request $request)
++    {
++        $sessionId = $request->get('session_id');
++        $status = $request->get('status', 'confirmed');
++        $divisionId = $request->get('division_id');
++        $dateFrom = $request->get('date_from');
++        $dateTo = $request->get('date_to');
++
++        $query = UserSession::with(['user.division', 'wellnessSession'])
++            ->whereNotNull('wellness_session_id');
++
++        if ($sessionId) {
++            $query->where('wellness_session_id', $sessionId);
++        }
++
++        if ($status) {
++            $query->where('status', $status);
++        }
++
++        if ($divisionId) {
++            $query->whereHas('user', function($q) use ($divisionId) {
++                $q->where('division_id', $divisionId);
++            });
++        }
++
++        if ($dateFrom) {
++            $query->whereDate('enrolled_at', '>=', $dateFrom);
++        }
++
++        if ($dateTo) {
++            $query->whereDate('enrolled_at', '<=', $dateTo);
++        }
++
++        $enrollments = $query->orderBy('enrolled_at', 'desc')->get();
++        $wellnessSessions = WellnessSession::orderBy('title')->get();
++        $divisions = Division::orderBy('name')->get();
++
++        if ($request->has('export')) {
++            return $this->exportWellnessEnrollments($enrollments);
++        }
++
++        return view('admin.reports.wellness-enrollments', compact(
++            'enrollments', 
++            'wellnessSessions', 
++            'divisions',
++            'sessionId',
++            'status',
++            'divisionId',
++            'dateFrom',
++            'dateTo'
++        ));
++    }
++
++    /**
++     * Users not enrolled in any sessions
++     */
++    public function unenrolledUsers(Request $request)
++    {
++        $divisionId = $request->get('division_id');
++        $dateFrom = $request->get('date_from');
++        $dateTo = $request->get('date_to');
++
++        $query = User::with('division')
++            ->whereDoesntHave('userSessions', function($q) use ($dateFrom, $dateTo) {
++                if ($dateFrom) {
++                    $q->whereDate('enrolled_at', '>=', $dateFrom);
++                }
++                if ($dateTo) {
++                    $q->whereDate('enrolled_at', '<=', $dateTo);
++                }
++            });
++
++        if ($divisionId) {
++            $query->where('division_id', $divisionId);
++        }
++
++        $unenrolledUsers = $query->orderBy('name')->get();
++        $divisions = Division::orderBy('name')->get();
++
++        if ($request->has('export')) {
++            return $this->exportUnenrolledUsers($unenrolledUsers);
++        }
++
++        return view('admin.reports.unenrolled-users', compact(
++            'unenrolledUsers',
++            'divisions',
++            'divisionId',
++            'dateFrom',
++            'dateTo'
++        ));
++    }
++
++    /**
++     * Session capacity utilization report
++     */
++    public function capacityUtilization(Request $request)
++    {
++        $category = $request->get('category');
++        $dateFrom = $request->get('date_from');
++        $dateTo = $request->get('date_to');
++
++        $query = WellnessSession::withCount(['userSessions' => function($q) {
++            $q->where('status', 'confirmed');
++        }]);
++
++        if ($category) {
++            $query->where('category', 'like', "%{$category}%");
++        }
++
++        if ($dateFrom) {
++            $query->whereDate('date', '>=', $dateFrom);
++        }
++
++        if ($dateTo) {
++            $query->whereDate('date', '<=', $dateTo);
++        }
++
++        $sessions = $query->orderBy('date', 'desc')->get();
++
++        $sessions = $sessions->map(function($session) {
++            $utilization = $session->max_participants > 0 ? 
++                round(($session->user_sessions_count / $session->max_participants) * 100, 2) : 0;
++            
++            return [
++                'id' => $session->id,
++                'title' => $session->title,
++                'date' => $session->date,
++                'category' => $session->category_names,
++                'max_participants' => $session->max_participants,
++                'enrolled' => $session->user_sessions_count,
++                'utilization' => $utilization,
++                'available_spots' => max(0, $session->max_participants - $session->user_sessions_count),
++                'status' => $session->status
++            ];
++        });
++
++        $categories = WellnessSession::select('category')
++            ->whereNotNull('category')
++            ->get()
++            ->pluck('category')
++            ->flatten()
++            ->unique()
++            ->sort()
++            ->values();
++
++        if ($request->has('export')) {
++            return $this->exportCapacityUtilization($sessions);
++        }
++
++        return view('admin.reports.capacity-utilization', compact(
++            'sessions',
++            'categories',
++            'category',
++            'dateFrom',
++            'dateTo'
++        ));
++    }
++
++    /**
++     * Division enrollment summary
++     */
++    public function divisionSummary(Request $request)
++    {
++        $dateFrom = $request->get('date_from', Carbon::now()->startOfMonth());
++        $dateTo = $request->get('date_to', Carbon::now()->endOfMonth());
++
++        $divisions = Division::withCount(['users'])->get();
++
++        $divisionData = $divisions->map(function($division) use ($dateFrom, $dateTo) {
++            $enrollments = UserSession::whereHas('user', function($q) use ($division) {
++                $q->where('division_id', $division->id);
++            })
++            ->whereBetween('enrolled_at', [$dateFrom, $dateTo])
++            ->where('status', 'confirmed')
++            ->count();
++
++            $wellnessEnrollments = UserSession::whereHas('user', function($q) use ($division) {
++                $q->where('division_id', $division->id);
++            })
++            ->whereNotNull('wellness_session_id')
++            ->whereBetween('enrolled_at', [$dateFrom, $dateTo])
++            ->where('status', 'confirmed')
++            ->count();
++
++            $scheduleEnrollments = UserSession::whereHas('user', function($q) use ($division) {
++                $q->where('division_id', $division->id);
++            })
++            ->whereNotNull('schedule_item_id')
++            ->whereBetween('enrolled_at', [$dateFrom, $dateTo])
++            ->where('status', 'confirmed')
++            ->count();
++
++            $participationRate = $division->users_count > 0 ? 
++                round(($enrollments / $division->users_count) * 100, 2) : 0;
++
++            return [
++                'id' => $division->id,
++                'name' => $division->name,
++                'total_users' => $division->users_count,
++                'total_enrollments' => $enrollments,
++                'wellness_enrollments' => $wellnessEnrollments,
++                'schedule_enrollments' => $scheduleEnrollments,
++                'participation_rate' => $participationRate
++            ];
++        });
++
++        if ($request->has('export')) {
++            return $this->exportDivisionSummary($divisionData);
++        }
++
++        return view('admin.reports.division-summary', compact(
++            'divisionData',
++            'dateFrom',
++            'dateTo'
++        ));
++    }
++
++    /**
++     * User activity report
++     */
++    public function userActivity(Request $request)
++    {
++        $divisionId = $request->get('division_id');
++        $dateFrom = $request->get('date_from', Carbon::now()->subDays(30));
++        $dateTo = $request->get('date_to', Carbon::now());
++
++        $query = User::with(['division', 'userSessions.wellnessSession', 'userSessions.scheduleItem']);
++
++        if ($divisionId) {
++            $query->where('division_id', $divisionId);
++        }
++
++        $users = $query->get()->map(function($user) use ($dateFrom, $dateTo) {
++            $enrollments = $user->userSessions()
++                ->whereBetween('enrolled_at', [$dateFrom, $dateTo])
++                ->where('status', 'confirmed')
++                ->get();
++
++            $wellnessCount = $enrollments->where('wellness_session_id', '!=', null)->count();
++            $scheduleCount = $enrollments->where('schedule_item_id', '!=', null)->count();
++
++            return [
++                'id' => $user->id,
++                'name' => $user->name,
++                'email' => $user->email,
++                'division' => $user->division_name,
++                'total_enrollments' => $enrollments->count(),
++                'wellness_enrollments' => $wellnessCount,
++                'schedule_enrollments' => $scheduleCount,
++                'last_enrollment' => $enrollments->max('enrolled_at'),
++                'last_login' => $user->last_login_at
++            ];
++        });
++
++        $divisions = Division::orderBy('name')->get();
++
++        if ($request->has('export')) {
++            return $this->exportUserActivity($users);
++        }
++
++        return view('admin.reports.user-activity', compact(
++            'users',
++            'divisions',
++            'divisionId',
++            'dateFrom',
++            'dateTo'
++        ));
++    }
++
++    // CSV Export Methods
++
++    private function exportWellnessEnrollments($enrollments)
++    {
++        $filename = 'wellness_enrollments_' . date('Y-m-d_H-i-s') . '.csv';
++        
++        $headers = [
++            'Content-Type' => 'text/csv',
++            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
++        ];
++
++        $callback = function() use ($enrollments) {
++            $file = fopen('php://output', 'w');
++            
++            // CSV Headers
++            fputcsv($file, [
++                'User Name',
++                'Email',
++                'Division',
++                'Session Title',
++                'Session Date',
++                'Category',
++                'Status',
++                'Enrolled At',
++                'Rating',
++                'Attended'
++            ]);
++
++            foreach ($enrollments as $enrollment) {
++                fputcsv($file, [
++                    $enrollment->user->name,
++                    $enrollment->user->email,
++                    $enrollment->user->division_name ?? 'N/A',
++                    $enrollment->wellnessSession->title ?? 'N/A',
++                    $enrollment->wellnessSession->date ?? 'N/A',
++                    $enrollment->wellnessSession->category_names ?? 'N/A',
++                    $enrollment->status,
++                    $enrollment->enrolled_at->format('Y-m-d H:i:s'),
++                    $enrollment->rating ?? 'N/A',
++                    $enrollment->attended ? 'Yes' : 'No'
++                ]);
++            }
++
++            fclose($file);
++        };
++
++        return response()->stream($callback, 200, $headers);
++    }
++
++    private function exportUnenrolledUsers($users)
++    {
++        $filename = 'unenrolled_users_' . date('Y-m-d_H-i-s') . '.csv';
++        
++        $headers = [
++            'Content-Type' => 'text/csv',
++            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
++        ];
++
++        $callback = function() use ($users) {
++            $file = fopen('php://output', 'w');
++            
++            fputcsv($file, [
++                'Name',
++                'Email',
++                'Division',
++                'ID Card Code',
++                'Last Login',
++                'Account Created'
++            ]);
++
++            foreach ($users as $user) {
++                fputcsv($file, [
++                    $user->name,
++                    $user->email,
++                    $user->division_name ?? 'N/A',
++                    $user->id_card_code ?? 'N/A',
++                    $user->last_login_at ? $user->last_login_at->format('Y-m-d H:i:s') : 'Never',
++                    $user->created_at->format('Y-m-d H:i:s')
++                ]);
++            }
++
++            fclose($file);
++        };
++
++        return response()->stream($callback, 200, $headers);
++    }
++
++    private function exportCapacityUtilization($sessions)
++    {
++        $filename = 'capacity_utilization_' . date('Y-m-d_H-i-s') . '.csv';
++        
++        $headers = [
++            'Content-Type' => 'text/csv',
++            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
++        ];
++
++        $callback = function() use ($sessions) {
++            $file = fopen('php://output', 'w');
++            
++            fputcsv($file, [
++                'Session Title',
++                'Date',
++                'Category',
++                'Max Participants',
++                'Enrolled',
++                'Utilization %',
++                'Available Spots',
++                'Status'
++            ]);
++
++            foreach ($sessions as $session) {
++                fputcsv($file, [
++                    $session['title'],
++                    $session['date']->format('Y-m-d'),
++                    $session['category'],
++                    $session['max_participants'],
++                    $session['enrolled'],
++                    $session['utilization'] . '%',
++                    $session['available_spots'],
++                    $session['status']
++                ]);
++            }
++
++            fclose($file);
++        };
++
++        return response()->stream($callback, 200, $headers);
++    }
++
++    private function exportDivisionSummary($divisionData)
++    {
++        $filename = 'division_summary_' . date('Y-m-d_H-i-s') . '.csv';
++        
++        $headers = [
++            'Content-Type' => 'text/csv',
++            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
++        ];
++
++        $callback = function() use ($divisionData) {
++            $file = fopen('php://output', 'w');
++            
++            fputcsv($file, [
++                'Division',
++                'Total Users',
++                'Total Enrollments',
++                'Wellness Enrollments',
++                'Schedule Enrollments',
++                'Participation Rate %'
++            ]);
++
++            foreach ($divisionData as $division) {
++                fputcsv($file, [
++                    $division['name'],
++                    $division['total_users'],
++                    $division['total_enrollments'],
++                    $division['wellness_enrollments'],
++                    $division['schedule_enrollments'],
++                    $division['participation_rate'] . '%'
++                ]);
++            }
++
++            fclose($file);
++        };
++
++        return response()->stream($callback, 200, $headers);
++    }
++
++    private function exportUserActivity($users)
++    {
++        $filename = 'user_activity_' . date('Y-m-d_H-i-s') . '.csv';
++        
++        $headers = [
++            'Content-Type' => 'text/csv',
++            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
++        ];
++
++        $callback = function() use ($users) {
++            $file = fopen('php://output', 'w');
++            
++            fputcsv($file, [
++                'Name',
++                'Email',
++                'Division',
++                'Total Enrollments',
++                'Wellness Enrollments',
++                'Schedule Enrollments',
++                'Last Enrollment',
++                'Last Login'
++            ]);
++
++            foreach ($users as $user) {
++                fputcsv($file, [
++                    $user['name'],
++                    $user['email'],
++                    $user['division'],
++                    $user['total_enrollments'],
++                    $user['wellness_enrollments'],
++                    $user['schedule_enrollments'],
++                    $user['last_enrollment'] ? $user['last_enrollment']->format('Y-m-d H:i:s') : 'Never',
++                    $user['last_login'] ? $user['last_login']->format('Y-m-d H:i:s') : 'Never'
++                ]);
++            }
++
++            fclose($file);
++        };
++
++        return response()->stream($callback, 200, $headers);
++    }
++}
+diff --git a/database/seeders/DatabaseSeeder.php b/database/seeders/DatabaseSeeder.php
+index c8b5f9b..87c6e61 100644
+--- a/database/seeders/DatabaseSeeder.php
++++ b/database/seeders/DatabaseSeeder.php
+@@ -16,6 +16,7 @@ public function run(): void
+         $this->call([
+             DivisionSeeder::class,
+             AdminUserSeeder::class,
++            ReportsTestDataSeeder::class,
+         ]);
+ 
+         // User::factory(10)->create();
+diff --git a/database/seeders/ReportsTestDataSeeder.php b/database/seeders/ReportsTestDataSeeder.php
+new file mode 100644
+index 0000000..da12acf
+--- /dev/null
++++ b/database/seeders/ReportsTestDataSeeder.php
+@@ -0,0 +1,416 @@
++<?php
++
++namespace Database\Seeders;
++
++use Illuminate\Database\Seeder;
++use App\Models\User;
++use App\Models\WellnessSession;
++use App\Models\UserSession;
++use App\Models\Division;
++use Carbon\Carbon;
++
++class ReportsTestDataSeeder extends Seeder
++{
++    /**
++     * Run the database seeds.
++     */
++    public function run(): void
++    {
++        $this->command->info('Creating comprehensive test data for reports...');
++
++        // Get divisions
++        $es = Division::where('name', 'ES')->first();
++        $ms = Division::where('name', 'MS')->first();
++        $hs = Division::where('name', 'HS')->first();
++
++        // Create diverse test users across all divisions
++        $testUsers = [
++            // Elementary School Users
++            [
++                'name' => 'Alice Johnson',
++                'email' => 'alice.johnson@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $es->id,
++                'is_admin' => false,
++                'id_card_code' => 'ES001',
++                'last_login_at' => Carbon::now()->subDays(2)
++            ],
++            [
++                'name' => 'Bob Smith',
++                'email' => 'bob.smith@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $es->id,
++                'is_admin' => false,
++                'id_card_code' => 'ES002',
++                'last_login_at' => Carbon::now()->subDays(5)
++            ],
++            [
++                'name' => 'Carol Davis',
++                'email' => 'carol.davis@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $es->id,
++                'is_admin' => false,
++                'id_card_code' => 'ES003',
++                'last_login_at' => null // Never logged in
++            ],
++
++            // Middle School Users
++            [
++                'name' => 'David Wilson',
++                'email' => 'david.wilson@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $ms->id,
++                'is_admin' => false,
++                'id_card_code' => 'MS001',
++                'last_login_at' => Carbon::now()->subHours(6)
++            ],
++            [
++                'name' => 'Emma Brown',
++                'email' => 'emma.brown@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $ms->id,
++                'is_admin' => false,
++                'id_card_code' => 'MS002',
++                'last_login_at' => Carbon::now()->subDays(1)
++            ],
++            [
++                'name' => 'Frank Miller',
++                'email' => 'frank.miller@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $ms->id,
++                'is_admin' => false,
++                'id_card_code' => 'MS003',
++                'last_login_at' => Carbon::now()->subDays(3)
++            ],
++            [
++                'name' => 'Grace Taylor',
++                'email' => 'grace.taylor@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $ms->id,
++                'is_admin' => false,
++                'id_card_code' => 'MS004',
++                'last_login_at' => null // Never logged in
++            ],
++
++            // High School Users
++            [
++                'name' => 'Henry Anderson',
++                'email' => 'henry.anderson@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $hs->id,
++                'is_admin' => false,
++                'id_card_code' => 'HS001',
++                'last_login_at' => Carbon::now()->subHours(2)
++            ],
++            [
++                'name' => 'Ivy Thomas',
++                'email' => 'ivy.thomas@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $hs->id,
++                'is_admin' => false,
++                'id_card_code' => 'HS002',
++                'last_login_at' => Carbon::now()->subDays(1)
++            ],
++            [
++                'name' => 'Jack Jackson',
++                'email' => 'jack.jackson@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $hs->id,
++                'is_admin' => false,
++                'id_card_code' => 'HS003',
++                'last_login_at' => Carbon::now()->subDays(4)
++            ],
++            [
++                'name' => 'Kate White',
++                'email' => 'kate.white@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $hs->id,
++                'is_admin' => false,
++                'id_card_code' => 'HS004',
++                'last_login_at' => Carbon::now()->subDays(7)
++            ],
++            [
++                'name' => 'Leo Harris',
++                'email' => 'leo.harris@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $hs->id,
++                'is_admin' => false,
++                'id_card_code' => 'HS005',
++                'last_login_at' => null // Never logged in
++            ],
++            [
++                'name' => 'Maya Clark',
++                'email' => 'maya.clark@aes.ac.in',
++                'password' => bcrypt('password'),
++                'division_id' => $hs->id,
++                'is_admin' => false,
++                'id_card_code' => 'HS006',
++                'is_active' => false // Inactive account
++            ],
++        ];
++
++        $createdUsers = [];
++        foreach ($testUsers as $userData) {
++            $user = User::firstOrCreate(
++                ['email' => $userData['email']],
++                $userData
++            );
++            $createdUsers[] = $user;
++        }
++
++        $this->command->info('Created ' . count($createdUsers) . ' test users');
++
++        // Create diverse wellness sessions with different categories and dates
++        $wellnessSessions = [
++            [
++                'title' => 'Morning Yoga Flow',
++                'description' => 'Start your day with gentle yoga poses to energize your body and mind.',
++                'presenter_name' => 'Sarah Wellness',
++                'presenter_bio' => 'Certified yoga instructor with 10+ years experience',
++                'presenter_email' => 'sarah.wellness@aes.ac.in',
++                'location' => 'Main Gym',
++                'date' => Carbon::today()->addDays(7),
++                'max_participants' => 20,
++                'category' => ['Yoga', 'Mindfulness'],
++                'equipment_needed' => 'Yoga mats provided',
++                'special_requirements' => 'Comfortable clothing recommended',
++                'is_active' => true,
++                'source' => 'manual'
++            ],
++            [
++                'title' => 'Stress Management Workshop',
++                'description' => 'Learn practical techniques to manage stress and improve work-life balance.',
++                'presenter_name' => 'Dr. Michael Chen',
++                'presenter_bio' => 'Licensed psychologist specializing in workplace wellness',
++                'presenter_email' => 'michael.chen@aes.ac.in',
++                'location' => 'Library Conference Room',
++                'date' => Carbon::today()->addDays(10),
++                'max_participants' => 15,
++                'category' => ['Mental Health', 'Workshop'],
++                'equipment_needed' => 'Notebook and pen',
++                'special_requirements' => 'None',
++                'is_active' => true,
++                'source' => 'manual'
++            ],
++            [
++                'title' => 'High-Intensity Interval Training',
++                'description' => 'Boost your fitness with this energetic HIIT workout session.',
++                'presenter_name' => 'Coach James Rodriguez',
++                'presenter_bio' => 'Certified personal trainer and former athlete',
++                'presenter_email' => 'james.rodriguez@aes.ac.in',
++                'location' => 'Fitness Center',
++                'date' => Carbon::today()->addDays(14),
++                'max_participants' => 25,
++                'category' => ['Fitness', 'HIIT'],
++                'equipment_needed' => 'Water bottle, towel',
++                'special_requirements' => 'Basic fitness level required',
++                'is_active' => true,
++                'source' => 'manual'
++            ],
++            [
++                'title' => 'Meditation & Mindfulness',
++                'description' => 'Discover the power of meditation for mental clarity and focus.',
++                'presenter_name' => 'Zen Master Lisa',
++                'presenter_bio' => 'Meditation teacher and mindfulness coach',
++                'presenter_email' => 'zen.lisa@aes.ac.in',
++                'location' => 'Quiet Garden',
++                'date' => Carbon::today()->addDays(21),
++                'max_participants' => 30,
++                'category' => ['Meditation', 'Mindfulness'],
++                'equipment_needed' => 'Cushions provided',
++                'special_requirements' => 'Quiet environment needed',
++                'is_active' => true,
++                'source' => 'manual'
++            ],
++            [
++                'title' => 'Nutrition & Healthy Cooking',
++                'description' => 'Learn to prepare nutritious meals that fuel your body and mind.',
++                'presenter_name' => 'Chef Maria Santos',
++                'presenter_bio' => 'Registered dietitian and professional chef',
++                'presenter_email' => 'maria.santos@aes.ac.in',
++                'location' => 'Home Economics Kitchen',
++                'date' => Carbon::today()->addDays(28),
++                'max_participants' => 12,
++                'category' => ['Nutrition', 'Cooking'],
++                'equipment_needed' => 'Apron and hair tie',
++                'special_requirements' => 'Food allergies must be disclosed',
++                'is_active' => true,
++                'source' => 'manual'
++            ],
++            [
++                'title' => 'Dance Fitness Party',
++                'description' => 'Have fun while getting fit with this energetic dance workout.',
++                'presenter_name' => 'DJ Fitness Mike',
++                'presenter_bio' => 'Certified dance fitness instructor and DJ',
++                'presenter_email' => 'dj.mike@aes.ac.in',
++                'location' => 'Dance Studio',
++                'date' => Carbon::today()->addDays(35),
++                'max_participants' => 40,
++                'category' => ['Dance', 'Fitness'],
++                'equipment_needed' => 'Comfortable dance shoes',
++                'special_requirements' => 'No dance experience required',
++                'is_active' => true,
++                'source' => 'manual'
++            ],
++            [
++                'title' => 'Pilates Core Strength',
++                'description' => 'Build core strength and improve posture with Pilates exercises.',
++                'presenter_name' => 'Pilates Pro Anna',
++                'presenter_bio' => 'Certified Pilates instructor and physiotherapist',
++                'presenter_email' => 'anna.pilates@aes.ac.in',
++                'location' => 'Yoga Studio',
++                'date' => Carbon::today()->addDays(42),
++                'max_participants' => 18,
++                'category' => ['Pilates', 'Core Training'],
++                'equipment_needed' => 'Pilates mats provided',
++                'special_requirements' => 'Beginners welcome',
++                'is_active' => true,
++                'source' => 'manual'
++            ],
++            [
++                'title' => 'Art Therapy Workshop',
++                'description' => 'Express yourself through art and discover its therapeutic benefits.',
++                'presenter_name' => 'Art Therapist Sophie',
++                'presenter_bio' => 'Licensed art therapist and professional artist',
++                'presenter_email' => 'sophie.art@aes.ac.in',
++                'location' => 'Art Room',
++                'date' => Carbon::today()->addDays(49),
++                'max_participants' => 20,
++                'category' => ['Art Therapy', 'Creativity'],
++                'equipment_needed' => 'All materials provided',
++                'special_requirements' => 'No artistic experience needed',
++                'is_active' => true,
++                'source' => 'manual'
++            ],
++            [
++                'title' => 'Outdoor Adventure Challenge',
++                'description' => 'Team building and physical challenge in the great outdoors.',
++                'presenter_name' => 'Adventure Guide Tom',
++                'presenter_bio' => 'Certified outdoor guide and team building facilitator',
++                'presenter_email' => 'tom.adventure@aes.ac.in',
++                'location' => 'School Grounds',
++                'date' => Carbon::today()->addDays(56),
++                'max_participants' => 24,
++                'category' => ['Outdoor', 'Team Building'],
++                'equipment_needed' => 'Comfortable outdoor clothing',
++                'special_requirements' => 'Weather dependent',
++                'is_active' => false, // Inactive session
++                'source' => 'manual'
++            ],
++        ];
++
++        $createdSessions = [];
++        foreach ($wellnessSessions as $sessionData) {
++            $session = WellnessSession::create($sessionData);
++            $createdSessions[] = $session;
++        }
++
++        $this->command->info('Created ' . count($createdSessions) . ' wellness sessions');
++
++        // Create diverse enrollment scenarios (each user can only enroll in one wellness session due to unique constraint)
++        $enrollmentScenarios = [
++            // High enrollment session (Yoga) - 7 users
++            ['session_index' => 0, 'user_emails' => ['alice.johnson@aes.ac.in', 'david.wilson@aes.ac.in', 'emma.brown@aes.ac.in', 'henry.anderson@aes.ac.in', 'ivy.thomas@aes.ac.in', 'frank.miller@aes.ac.in', 'jack.jackson@aes.ac.in'], 'status' => 'confirmed'],
++            
++            // Medium enrollment session (Stress Management) - 3 users
++            ['session_index' => 1, 'user_emails' => ['bob.smith@aes.ac.in', 'grace.taylor@aes.ac.in', 'kate.white@aes.ac.in'], 'status' => 'confirmed'],
++            
++            // Low enrollment session (HIIT) - 2 users
++            ['session_index' => 2, 'user_emails' => ['leo.harris@aes.ac.in', 'maya.clark@aes.ac.in'], 'status' => 'confirmed'],
++            
++            // High enrollment session (Meditation) - 5 users
++            ['session_index' => 3, 'user_emails' => ['carol.davis@aes.ac.in'], 'status' => 'confirmed'],
++            
++            // Cancelled enrollments for variety
++            ['session_index' => 1, 'user_emails' => ['alice.johnson@aes.ac.in'], 'status' => 'cancelled'],
++        ];
++
++        $enrollmentCount = 0;
++        $enrolledUsers = []; // Track users who are already enrolled
++        
++        foreach ($enrollmentScenarios as $scenario) {
++            $session = $createdSessions[$scenario['session_index']];
++            
++            foreach ($scenario['user_emails'] as $email) {
++                $user = User::where('email', $email)->first();
++                if ($user && !in_array($user->id, $enrolledUsers)) {
++                    $enrolledAt = Carbon::now()->subDays(rand(1, 30));
++                    
++                    try {
++                        $userSession = UserSession::create([
++                            'user_id' => $user->id,
++                            'wellness_session_id' => $session->id,
++                            'status' => $scenario['status'],
++                            'enrolled_at' => $enrolledAt,
++                            'rating' => $scenario['status'] === 'confirmed' ? rand(3, 5) : null,
++                            'feedback' => $scenario['status'] === 'confirmed' ? $this->getRandomFeedback() : null,
++                            'attended' => $scenario['status'] === 'confirmed' ? rand(0, 1) : null,
++                        ]);
++                        
++                        $enrollmentCount++;
++                        if ($scenario['status'] === 'confirmed') {
++                            $enrolledUsers[] = $user->id; // Only track confirmed enrollments
++                        }
++                    } catch (\Exception $e) {
++                        // Skip if user already has an active enrollment
++                        $this->command->warn("Skipped enrollment for {$email} - already has active enrollment");
++                    }
++                }
++            }
++        }
++
++        // Update session enrollment counts
++        foreach ($createdSessions as $session) {
++            $confirmedCount = $session->userSessions()->where('status', 'confirmed')->count();
++            $session->update(['current_enrollment' => $confirmedCount]);
++        }
++
++        $this->command->info('Created ' . $enrollmentCount . ' user enrollments');
++
++        // Create some users with no enrollments (for unenrolled users report)
++        $unenrolledUsers = [
++            ['name' => 'Unenrolled User 1', 'email' => 'unenrolled1@aes.ac.in', 'division_id' => $es->id, 'id_card_code' => 'ES999'],
++            ['name' => 'Unenrolled User 2', 'email' => 'unenrolled2@aes.ac.in', 'division_id' => $ms->id, 'id_card_code' => 'MS999'],
++            ['name' => 'Unenrolled User 3', 'email' => 'unenrolled3@aes.ac.in', 'division_id' => $hs->id, 'id_card_code' => 'HS999'],
++        ];
++
++        foreach ($unenrolledUsers as $userData) {
++            User::firstOrCreate(
++                ['email' => $userData['email']],
++                array_merge($userData, [
++                    'password' => bcrypt('password'),
++                    'is_admin' => false,
++                    'last_login_at' => null
++                ])
++            );
++        }
++
++        $this->command->info('Created 3 unenrolled users for testing');
++
++        $this->command->info('✅ Test data creation completed!');
++        $this->command->info('📊 You now have:');
++        $this->command->info('   • ' . count($createdUsers) . ' test users across all divisions');
++        $this->command->info('   • ' . count($createdSessions) . ' wellness sessions with various categories');
++        $this->command->info('   • ' . $enrollmentCount . ' enrollments with different statuses');
++        $this->command->info('   • 3 unenrolled users');
++        $this->command->info('   • Users with different activity levels and login patterns');
++    }
++
++    private function getRandomFeedback(): string
++    {
++        $feedbackOptions = [
++            'Great session! Very helpful.',
++            'Really enjoyed this wellness activity.',
++            'Excellent instructor and content.',
++            'Would definitely recommend to others.',
++            'Very relaxing and informative.',
++            'Good workout, felt energized afterwards.',
++            'Learned a lot about stress management.',
++            'Fun and engaging session.',
++            'Perfect for beginners.',
++            'Looking forward to more sessions like this.'
++        ];
++
++        return $feedbackOptions[array_rand($feedbackOptions)];
++    }
++}
+diff --git a/resources/views/admin/reports/capacity-utilization.blade.php b/resources/views/admin/reports/capacity-utilization.blade.php
+new file mode 100644
+index 0000000..e3e0463
+--- /dev/null
++++ b/resources/views/admin/reports/capacity-utilization.blade.php
+@@ -0,0 +1,326 @@
++@extends('layouts.app')
++
++@section('title', 'Capacity Utilization Report')
++
++@section('content')
++<div class="container-fluid">
++    <div class="row">
++        <div class="col-12">
++            <div class="d-flex justify-content-between align-items-center mb-4">
++                <h1 class="h3 mb-0 text-gray-800">Capacity Utilization Report</h1>
++                <div>
++                    <a href="{{ route('admin.reports') }}" class="btn btn-secondary">
++                        <i class="fas fa-arrow-left"></i> Back to Reports
++                    </a>
++                    <a href="{{ request()->fullUrlWithQuery(['export' => '1']) }}" class="btn btn-success">
++                        <i class="fas fa-download"></i> Export CSV
++                    </a>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Filters -->
++    <div class="row mb-4">
++        <div class="col-12">
++            <div class="card shadow">
++                <div class="card-header py-3">
++                    <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
++                </div>
++                <div class="card-body">
++                    <form method="GET" action="{{ route('admin.reports.capacity-utilization') }}">
++                        <div class="row">
++                            <div class="col-md-3">
++                                <label for="category" class="form-label">Category</label>
++                                <select name="category" id="category" class="form-control">
++                                    <option value="">All Categories</option>
++                                    @foreach($categories as $cat)
++                                        <option value="{{ $cat }}" {{ $category == $cat ? 'selected' : '' }}>
++                                            {{ $cat }}
++                                        </option>
++                                    @endforeach
++                                </select>
++                            </div>
++                            <div class="col-md-3">
++                                <label for="date_from" class="form-label">From Date</label>
++                                <input type="date" name="date_from" id="date_from" class="form-control" value="{{ $dateFrom }}">
++                            </div>
++                            <div class="col-md-3">
++                                <label for="date_to" class="form-label">To Date</label>
++                                <input type="date" name="date_to" id="date_to" class="form-control" value="{{ $dateTo }}">
++                            </div>
++                            <div class="col-md-3 d-flex align-items-end">
++                                <button type="submit" class="btn btn-primary">
++                                    <i class="fas fa-search"></i> Filter
++                                </button>
++                            </div>
++                        </div>
++                    </form>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Summary Stats -->
++    <div class="row mb-4">
++        <div class="col-md-3">
++            <div class="card border-left-primary shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
++                                Total Sessions
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $sessions->count() }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-3">
++            <div class="card border-left-success shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
++                                Average Utilization
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $sessions->count() > 0 ? round($sessions->avg('utilization'), 1) : 0 }}%
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-chart-pie fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-3">
++            <div class="card border-left-warning shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
++                                Full Sessions
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $sessions->where('utilization', 100)->count() }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-3">
++            <div class="card border-left-info shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
++                                Low Utilization
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $sessions->where('utilization', '<', 50)->count() }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-info-circle fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Results -->
++    <div class="row">
++        <div class="col-12">
++            <div class="card shadow">
++                <div class="card-header py-3 d-flex justify-content-between align-items-center">
++                    <h6 class="m-0 font-weight-bold text-primary">
++                        Session Capacity Analysis ({{ $sessions->count() }} sessions)
++                    </h6>
++                    <div>
++                        <span class="badge badge-success">{{ $sessions->where('utilization', 100)->count() }} Full</span>
++                        <span class="badge badge-warning">{{ $sessions->where('utilization', '>=', 50)->where('utilization', '<', 100)->count() }} Good</span>
++                        <span class="badge badge-danger">{{ $sessions->where('utilization', '<', 50)->count() }} Low</span>
++                    </div>
++                </div>
++                <div class="card-body">
++                    @if($sessions->count() > 0)
++                        <div class="table-responsive">
++                            <table class="table table-bordered table-hover">
++                                <thead class="thead-light">
++                                    <tr>
++                                        <th>Session Title</th>
++                                        <th>Date</th>
++                                        <th>Category</th>
++                                        <th>Capacity</th>
++                                        <th>Enrolled</th>
++                                        <th>Utilization</th>
++                                        <th>Available Spots</th>
++                                        <th>Status</th>
++                                        <th>Progress Bar</th>
++                                    </tr>
++                                </thead>
++                                <tbody>
++                                    @foreach($sessions as $session)
++                                        <tr class="{{ $session['utilization'] == 100 ? 'table-success' : ($session['utilization'] < 50 ? 'table-warning' : '') }}">
++                                            <td>
++                                                <strong>{{ $session['title'] }}</strong>
++                                            </td>
++                                            <td>{{ $session['date']->format('M d, Y') }}</td>
++                                            <td>
++                                                <span class="badge badge-secondary">
++                                                    {{ $session['category'] }}
++                                                </span>
++                                            </td>
++                                            <td>
++                                                <span class="font-weight-bold">{{ $session['max_participants'] }}</span>
++                                            </td>
++                                            <td>
++                                                <span class="font-weight-bold">{{ $session['enrolled'] }}</span>
++                                            </td>
++                                            <td>
++                                                <div class="d-flex align-items-center">
++                                                    <span class="font-weight-bold me-2">{{ $session['utilization'] }}%</span>
++                                                    @if($session['utilization'] >= 80)
++                                                        <i class="fas fa-arrow-up text-success"></i>
++                                                    @elseif($session['utilization'] < 50)
++                                                        <i class="fas fa-arrow-down text-warning"></i>
++                                                    @else
++                                                        <i class="fas fa-minus text-info"></i>
++                                                    @endif
++                                                </div>
++                                            </td>
++                                            <td>
++                                                @if($session['available_spots'] > 0)
++                                                    <span class="badge badge-info">{{ $session['available_spots'] }} spots</span>
++                                                @else
++                                                    <span class="badge badge-danger">Full</span>
++                                                @endif
++                                            </td>
++                                            <td>
++                                                @if($session['status'] === 'available')
++                                                    <span class="badge badge-success">Available</span>
++                                                @elseif($session['status'] === 'full')
++                                                    <span class="badge badge-danger">Full</span>
++                                                @else
++                                                    <span class="badge badge-secondary">{{ ucfirst($session['status']) }}</span>
++                                                @endif
++                                            </td>
++                                            <td>
++                                                <div class="progress" style="height: 20px;">
++                                                    <div class="progress-bar 
++                                                        {{ $session['utilization'] >= 80 ? 'bg-success' : ($session['utilization'] >= 50 ? 'bg-info' : 'bg-warning') }}" 
++                                                        role="progressbar" 
++                                                        style="width: {{ $session['utilization'] }}%"
++                                                        aria-valuenow="{{ $session['utilization'] }}" 
++                                                        aria-valuemin="0" 
++                                                        aria-valuemax="100">
++                                                        {{ $session['utilization'] }}%
++                                                    </div>
++                                                </div>
++                                            </td>
++                                        </tr>
++                                    @endforeach
++                                </tbody>
++                            </table>
++                        </div>
++                    @else
++                        <div class="text-center py-5">
++                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
++                            <h5 class="text-muted">No sessions found</h5>
++                            <p class="text-muted">Try adjusting your filters to see more results.</p>
++                        </div>
++                    @endif
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Utilization Chart -->
++    @if($sessions->count() > 0)
++    <div class="row mt-4">
++        <div class="col-12">
++            <div class="card shadow">
++                <div class="card-header py-3">
++                    <h6 class="m-0 font-weight-bold text-primary">Utilization Distribution</h6>
++                </div>
++                <div class="card-body">
++                    <canvas id="utilizationChart" width="400" height="100"></canvas>
++                </div>
++            </div>
++        </div>
++    </div>
++    @endif
++</div>
++
++<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
++<script>
++document.addEventListener('DOMContentLoaded', function() {
++    const sessions = @json($sessions);
++    
++    if (sessions.length > 0) {
++        const ctx = document.getElementById('utilizationChart').getContext('2d');
++        
++        // Group sessions by utilization ranges
++        const ranges = {
++            '0-25%': sessions.filter(s => s.utilization >= 0 && s.utilization < 25).length,
++            '25-50%': sessions.filter(s => s.utilization >= 25 && s.utilization < 50).length,
++            '50-75%': sessions.filter(s => s.utilization >= 50 && s.utilization < 75).length,
++            '75-100%': sessions.filter(s => s.utilization >= 75 && s.utilization <= 100).length
++        };
++        
++        new Chart(ctx, {
++            type: 'bar',
++            data: {
++                labels: Object.keys(ranges),
++                datasets: [{
++                    label: 'Number of Sessions',
++                    data: Object.values(ranges),
++                    backgroundColor: [
++                        'rgba(255, 99, 132, 0.8)',
++                        'rgba(255, 205, 86, 0.8)',
++                        'rgba(54, 162, 235, 0.8)',
++                        'rgba(75, 192, 192, 0.8)'
++                    ],
++                    borderColor: [
++                        'rgba(255, 99, 132, 1)',
++                        'rgba(255, 205, 86, 1)',
++                        'rgba(54, 162, 235, 1)',
++                        'rgba(75, 192, 192, 1)'
++                    ],
++                    borderWidth: 1
++                }]
++            },
++            options: {
++                responsive: true,
++                scales: {
++                    y: {
++                        beginAtZero: true,
++                        ticks: {
++                            stepSize: 1
++                        }
++                    }
++                },
++                plugins: {
++                    legend: {
++                        display: false
++                    }
++                }
++            }
++        });
++    }
++});
++</script>
++@endsection
+diff --git a/resources/views/admin/reports/division-summary.blade.php b/resources/views/admin/reports/division-summary.blade.php
+new file mode 100644
+index 0000000..0de6f44
+--- /dev/null
++++ b/resources/views/admin/reports/division-summary.blade.php
+@@ -0,0 +1,351 @@
++@extends('layouts.app')
++
++@section('title', 'Division Summary Report')
++
++@section('content')
++<div class="container-fluid">
++    <div class="row">
++        <div class="col-12">
++            <div class="d-flex justify-content-between align-items-center mb-4">
++                <h1 class="h3 mb-0 text-gray-800">Division Summary Report</h1>
++                <div>
++                    <a href="{{ route('admin.reports') }}" class="btn btn-secondary">
++                        <i class="fas fa-arrow-left"></i> Back to Reports
++                    </a>
++                    <a href="{{ request()->fullUrlWithQuery(['export' => '1']) }}" class="btn btn-success">
++                        <i class="fas fa-download"></i> Export CSV
++                    </a>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Filters -->
++    <div class="row mb-4">
++        <div class="col-12">
++            <div class="card shadow">
++                <div class="card-header py-3">
++                    <h6 class="m-0 font-weight-bold text-primary">Date Range Filter</h6>
++                </div>
++                <div class="card-body">
++                    <form method="GET" action="{{ route('admin.reports.division-summary') }}">
++                        <div class="row">
++                            <div class="col-md-4">
++                                <label for="date_from" class="form-label">From Date</label>
++                                <input type="date" name="date_from" id="date_from" class="form-control" value="{{ $dateFrom }}">
++                            </div>
++                            <div class="col-md-4">
++                                <label for="date_to" class="form-label">To Date</label>
++                                <input type="date" name="date_to" id="date_to" class="form-control" value="{{ $dateTo }}">
++                            </div>
++                            <div class="col-md-4 d-flex align-items-end">
++                                <button type="submit" class="btn btn-primary">
++                                    <i class="fas fa-search"></i> Filter
++                                </button>
++                            </div>
++                        </div>
++                    </form>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Summary Stats -->
++    <div class="row mb-4">
++        <div class="col-md-3">
++            <div class="card border-left-primary shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
++                                Total Divisions
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $divisionData->count() }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-building fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-3">
++            <div class="card border-left-success shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
++                                Total Users
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $divisionData->sum('total_users') }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-users fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-3">
++            <div class="card border-left-info shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
++                                Total Enrollments
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $divisionData->sum('total_enrollments') }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-3">
++            <div class="card border-left-warning shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
++                                Avg Participation
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $divisionData->count() > 0 ? round($divisionData->avg('participation_rate'), 1) : 0 }}%
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-chart-pie fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Results -->
++    <div class="row">
++        <div class="col-12">
++            <div class="card shadow">
++                <div class="card-header py-3 d-flex justify-content-between align-items-center">
++                    <h6 class="m-0 font-weight-bold text-primary">
++                        Division Enrollment Summary ({{ $divisionData->count() }} divisions)
++                    </h6>
++                    <div>
++                        <span class="badge badge-success">{{ $divisionData->where('participation_rate', '>=', 70)->count() }} High Participation</span>
++                        <span class="badge badge-warning">{{ $divisionData->where('participation_rate', '>=', 30)->where('participation_rate', '<', 70)->count() }} Medium</span>
++                        <span class="badge badge-danger">{{ $divisionData->where('participation_rate', '<', 30)->count() }} Low</span>
++                    </div>
++                </div>
++                <div class="card-body">
++                    @if($divisionData->count() > 0)
++                        <div class="table-responsive">
++                            <table class="table table-bordered table-hover">
++                                <thead class="thead-light">
++                                    <tr>
++                                        <th>Division</th>
++                                        <th>Total Users</th>
++                                        <th>Total Enrollments</th>
++                                        <th>Wellness Enrollments</th>
++                                        <th>Schedule Enrollments</th>
++                                        <th>Participation Rate</th>
++                                        <th>Progress Bar</th>
++                                    </tr>
++                                </thead>
++                                <tbody>
++                                    @foreach($divisionData->sortByDesc('participation_rate') as $division)
++                                        <tr class="{{ $division['participation_rate'] >= 70 ? 'table-success' : ($division['participation_rate'] < 30 ? 'table-warning' : '') }}">
++                                            <td>
++                                                <div class="d-flex align-items-center">
++                                                    <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
++                                                        {{ substr($division['name'], 0, 1) }}
++                                                    </div>
++                                                    <strong>{{ $division['name'] }}</strong>
++                                                </div>
++                                            </td>
++                                            <td>
++                                                <span class="font-weight-bold">{{ $division['total_users'] }}</span>
++                                            </td>
++                                            <td>
++                                                <span class="font-weight-bold text-primary">{{ $division['total_enrollments'] }}</span>
++                                            </td>
++                                            <td>
++                                                <span class="badge badge-info">{{ $division['wellness_enrollments'] }}</span>
++                                            </td>
++                                            <td>
++                                                <span class="badge badge-secondary">{{ $division['schedule_enrollments'] }}</span>
++                                            </td>
++                                            <td>
++                                                <div class="d-flex align-items-center">
++                                                    <span class="font-weight-bold me-2">{{ $division['participation_rate'] }}%</span>
++                                                    @if($division['participation_rate'] >= 70)
++                                                        <i class="fas fa-arrow-up text-success"></i>
++                                                    @elseif($division['participation_rate'] < 30)
++                                                        <i class="fas fa-arrow-down text-warning"></i>
++                                                    @else
++                                                        <i class="fas fa-minus text-info"></i>
++                                                    @endif
++                                                </div>
++                                            </td>
++                                            <td>
++                                                <div class="progress" style="height: 20px;">
++                                                    <div class="progress-bar 
++                                                        {{ $division['participation_rate'] >= 70 ? 'bg-success' : ($division['participation_rate'] >= 30 ? 'bg-info' : 'bg-warning') }}" 
++                                                        role="progressbar" 
++                                                        style="width: {{ min($division['participation_rate'], 100) }}%"
++                                                        aria-valuenow="{{ $division['participation_rate'] }}" 
++                                                        aria-valuemin="0" 
++                                                        aria-valuemax="100">
++                                                        {{ $division['participation_rate'] }}%
++                                                    </div>
++                                                </div>
++                                            </td>
++                                        </tr>
++                                    @endforeach
++                                </tbody>
++                            </table>
++                        </div>
++                    @else
++                        <div class="text-center py-5">
++                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
++                            <h5 class="text-muted">No divisions found</h5>
++                            <p class="text-muted">No division data available for the selected date range.</p>
++                        </div>
++                    @endif
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Division Comparison Chart -->
++    @if($divisionData->count() > 0)
++    <div class="row mt-4">
++        <div class="col-md-6">
++            <div class="card shadow">
++                <div class="card-header py-3">
++                    <h6 class="m-0 font-weight-bold text-primary">Participation Rate by Division</h6>
++                </div>
++                <div class="card-body">
++                    <canvas id="participationChart" width="400" height="200"></canvas>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-6">
++            <div class="card shadow">
++                <div class="card-header py-3">
++                    <h6 class="m-0 font-weight-bold text-primary">Enrollment Distribution</h6>
++                </div>
++                <div class="card-body">
++                    <canvas id="enrollmentChart" width="400" height="200"></canvas>
++                </div>
++            </div>
++        </div>
++    </div>
++    @endif
++</div>
++
++<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
++<script>
++document.addEventListener('DOMContentLoaded', function() {
++    const divisionData = @json($divisionData);
++    
++    if (divisionData.length > 0) {
++        // Participation Rate Chart
++        const participationCtx = document.getElementById('participationChart').getContext('2d');
++        new Chart(participationCtx, {
++            type: 'bar',
++            data: {
++                labels: divisionData.map(d => d.name),
++                datasets: [{
++                    label: 'Participation Rate (%)',
++                    data: divisionData.map(d => d.participation_rate),
++                    backgroundColor: divisionData.map(d => 
++                        d.participation_rate >= 70 ? 'rgba(75, 192, 192, 0.8)' :
++                        d.participation_rate >= 30 ? 'rgba(54, 162, 235, 0.8)' :
++                        'rgba(255, 205, 86, 0.8)'
++                    ),
++                    borderColor: divisionData.map(d => 
++                        d.participation_rate >= 70 ? 'rgba(75, 192, 192, 1)' :
++                        d.participation_rate >= 30 ? 'rgba(54, 162, 235, 1)' :
++                        'rgba(255, 205, 86, 1)'
++                    ),
++                    borderWidth: 1
++                }]
++            },
++            options: {
++                responsive: true,
++                scales: {
++                    y: {
++                        beginAtZero: true,
++                        max: 100,
++                        ticks: {
++                            callback: function(value) {
++                                return value + '%';
++                            }
++                        }
++                    }
++                },
++                plugins: {
++                    legend: {
++                        display: false
++                    }
++                }
++            }
++        });
++
++        // Enrollment Distribution Chart
++        const enrollmentCtx = document.getElementById('enrollmentChart').getContext('2d');
++        new Chart(enrollmentCtx, {
++            type: 'doughnut',
++            data: {
++                labels: divisionData.map(d => d.name),
++                datasets: [{
++                    data: divisionData.map(d => d.total_enrollments),
++                    backgroundColor: [
++                        'rgba(255, 99, 132, 0.8)',
++                        'rgba(54, 162, 235, 0.8)',
++                        'rgba(255, 205, 86, 0.8)',
++                        'rgba(75, 192, 192, 0.8)',
++                        'rgba(153, 102, 255, 0.8)',
++                        'rgba(255, 159, 64, 0.8)'
++                    ],
++                    borderColor: [
++                        'rgba(255, 99, 132, 1)',
++                        'rgba(54, 162, 235, 1)',
++                        'rgba(255, 205, 86, 1)',
++                        'rgba(75, 192, 192, 1)',
++                        'rgba(153, 102, 255, 1)',
++                        'rgba(255, 159, 64, 1)'
++                    ],
++                    borderWidth: 1
++                }]
++            },
++            options: {
++                responsive: true,
++                plugins: {
++                    legend: {
++                        position: 'bottom'
++                    }
++                }
++            }
++        });
++    }
++});
++</script>
++
++<style>
++.avatar-sm {
++    width: 32px;
++    height: 32px;
++    font-size: 14px;
++    font-weight: bold;
++}
++</style>
++@endsection
+diff --git a/resources/views/admin/reports/index.blade.php b/resources/views/admin/reports/index.blade.php
+new file mode 100644
+index 0000000..807043a
+--- /dev/null
++++ b/resources/views/admin/reports/index.blade.php
+@@ -0,0 +1,202 @@
++@extends('layouts.app')
++
++@section('title', 'Reports Dashboard')
++
++@section('content')
++<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
++    <!-- Header -->
++    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
++        <h1 class="text-3xl font-bold text-gray-900 mb-2">Reports Dashboard</h1>
++        <p class="text-gray-600">Comprehensive analytics and insights for your wellness program</p>
++    </div>
++
++    <!-- Quick Stats -->
++    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="text-3xl font-bold text-blue-600">{{ $totalUsers ?? 0 }}</div>
++            <div class="text-sm text-gray-600">Total Users</div>
++        </div>
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="text-3xl font-bold text-green-600">{{ $totalEnrollments ?? 0 }}</div>
++            <div class="text-sm text-gray-600">Total Enrollments</div>
++        </div>
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="text-3xl font-bold text-purple-600">{{ $activeSessions ?? 0 }}</div>
++            <div class="text-sm text-gray-600">Active Sessions</div>
++        </div>
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="text-3xl font-bold text-orange-600">{{ $divisions ?? 0 }}</div>
++            <div class="text-sm text-gray-600">Divisions</div>
++        </div>
++    </div>
++
++    <!-- Report Cards Grid -->
++    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
++        <!-- Wellness Enrollments Report -->
++        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
++            <div class="flex items-center mb-4">
++                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <h3 class="text-lg font-semibold text-gray-900">Wellness Enrollments</h3>
++                    <p class="text-sm text-gray-600">Session enrollment details</p>
++                </div>
++            </div>
++            <p class="text-gray-700 mb-4">View all wellness session enrollments with detailed user information, ratings, and attendance tracking.</p>
++            <a href="{{ route('admin.reports.wellness-enrollments') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
++                </svg>
++                View Report
++            </a>
++        </div>
++
++        <!-- Unenrolled Users Report -->
++        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
++            <div class="flex items-center mb-4">
++                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <h3 class="text-lg font-semibold text-gray-900">Unenrolled Users</h3>
++                    <p class="text-sm text-gray-600">Find inactive users</p>
++                </div>
++            </div>
++            <p class="text-gray-700 mb-4">Identify users who haven't enrolled in any sessions and track their engagement levels.</p>
++            <a href="{{ route('admin.reports.unenrolled-users') }}" class="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
++                </svg>
++                View Report
++            </a>
++        </div>
++
++        <!-- Capacity Utilization Report -->
++        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
++            <div class="flex items-center mb-4">
++                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <h3 class="text-lg font-semibold text-gray-900">Capacity Utilization</h3>
++                    <p class="text-sm text-gray-600">Session capacity analysis</p>
++                </div>
++            </div>
++            <p class="text-gray-700 mb-4">Analyze session capacity and enrollment rates to optimize resource allocation.</p>
++            <a href="{{ route('admin.reports.capacity-utilization') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
++                </svg>
++                View Report
++            </a>
++        </div>
++
++        <!-- Division Summary Report -->
++        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
++            <div class="flex items-center mb-4">
++                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
++                    </svg>
++                </div>
++                <div>
++                    <h3 class="text-lg font-semibold text-gray-900">Division Summary</h3>
++                    <p class="text-sm text-gray-600">Division analytics</p>
++                </div>
++            </div>
++            <p class="text-gray-700 mb-4">View enrollment statistics by division with participation rates and engagement metrics.</p>
++            <a href="{{ route('admin.reports.division-summary') }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
++                </svg>
++                View Report
++            </a>
++        </div>
++
++        <!-- User Activity Report -->
++        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
++            <div class="flex items-center mb-4">
++                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <h3 class="text-lg font-semibold text-gray-900">User Activity</h3>
++                    <p class="text-sm text-gray-600">Activity tracking</p>
++                </div>
++            </div>
++            <p class="text-gray-700 mb-4">Track user enrollment activity and engagement patterns across the platform.</p>
++            <a href="{{ route('admin.reports.user-activity') }}" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
++                </svg>
++                View Report
++            </a>
++        </div>
++
++        <!-- Export Tools -->
++        <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
++            <div class="flex items-center mb-4">
++                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <h3 class="text-lg font-semibold text-gray-900">Export Tools</h3>
++                    <p class="text-sm text-gray-600">Data export options</p>
++                </div>
++            </div>
++            <p class="text-gray-700 mb-4">All reports support CSV export with filtered data and timestamped filenames.</p>
++            <div class="text-sm text-gray-600">
++                <div class="flex items-center mb-1">
++                    <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
++                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
++                    </svg>
++                    CSV Export Available
++                </div>
++                <div class="flex items-center mb-1">
++                    <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
++                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
++                    </svg>
++                    Advanced Filtering
++                </div>
++                <div class="flex items-center">
++                    <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
++                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
++                    </svg>
++                    Real-time Data
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Quick Actions -->
++    <div class="bg-white rounded-lg shadow-sm p-6">
++        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
++        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
++            <a href="{{ route('admin.wellness.index') }}" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg text-center transition duration-200">
++                <div class="text-lg font-medium">🧘 Manage Sessions</div>
++                <div class="text-sm opacity-90">Create and edit wellness sessions</div>
++            </a>
++            <a href="{{ route('admin.users.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg text-center transition duration-200">
++                <div class="text-lg font-medium">👥 Manage Users</div>
++                <div class="text-sm opacity-90">View and edit user accounts</div>
++            </a>
++            <a href="{{ route('admin.dashboard') }}" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg text-center transition duration-200">
++                <div class="text-lg font-medium">📊 Dashboard</div>
++                <div class="text-sm opacity-90">Return to main dashboard</div>
++            </a>
++        </div>
++    </div>
++</div>
++@endsection
+diff --git a/resources/views/admin/reports/unenrolled-users.blade.php b/resources/views/admin/reports/unenrolled-users.blade.php
+new file mode 100644
+index 0000000..b35ba10
+--- /dev/null
++++ b/resources/views/admin/reports/unenrolled-users.blade.php
+@@ -0,0 +1,252 @@
++@extends('layouts.app')
++
++@section('title', 'Unenrolled Users Report')
++
++@section('content')
++<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
++    <!-- Header -->
++    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
++        <div class="flex justify-between items-center">
++            <div>
++                <h1 class="text-3xl font-bold text-gray-900 mb-2">Unenrolled Users Report</h1>
++                <p class="text-gray-600">Find users who haven't enrolled in any wellness sessions</p>
++            </div>
++            <div class="flex space-x-3">
++                <a href="{{ route('admin.reports') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
++                    </svg>
++                    Back to Reports
++                </a>
++                <a href="{{ request()->fullUrlWithQuery(['export' => '1']) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
++                    </svg>
++                    Export CSV
++                </a>
++            </div>
++        </div>
++    </div>
++
++    <!-- Filters -->
++    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
++        <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
++        <form method="GET" action="{{ route('admin.reports.unenrolled-users') }}">
++            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
++                <div>
++                    <label for="date_from" class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
++                    <input type="date" name="date_from" id="date_from" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="{{ $dateFrom }}">
++                    <p class="text-xs text-gray-500 mt-1">Users not enrolled since this date</p>
++                </div>
++                <div>
++                    <label for="date_to" class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
++                    <input type="date" name="date_to" id="date_to" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="{{ $dateTo }}">
++                    <p class="text-xs text-gray-500 mt-1">Users not enrolled until this date</p>
++                </div>
++                <div class="flex items-end">
++                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
++                        </svg>
++                        Filter
++                    </button>
++                </div>
++            </div>
++        </form>
++    </div>
++
++    <!-- Summary Stats -->
++    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="flex items-center">
++                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <div class="text-2xl font-bold text-gray-900">{{ $unenrolledUsers->count() }}</div>
++                    <div class="text-sm text-gray-600">Total Unenrolled</div>
++                </div>
++            </div>
++        </div>
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="flex items-center">
++                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
++                    </svg>
++                </div>
++                <div>
++                    <div class="text-2xl font-bold text-red-600">{{ $unenrolledUsers->where('last_login_at', null)->count() }}</div>
++                    <div class="text-sm text-gray-600">Never Logged In</div>
++                </div>
++            </div>
++        </div>
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="flex items-center">
++                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <div class="text-2xl font-bold text-gray-600">{{ $unenrolledUsers->where('is_active', false)->count() }}</div>
++                    <div class="text-sm text-gray-600">Inactive Accounts</div>
++                </div>
++            </div>
++        </div>
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="flex items-center">
++                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <div class="text-2xl font-bold text-green-600">{{ $unenrolledUsers->where('created_at', '>=', now()->subDays(7))->count() }}</div>
++                    <div class="text-sm text-gray-600">Recent Signups</div>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Results -->
++    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
++        <div class="px-6 py-4 border-b border-gray-200">
++            <h3 class="text-lg font-semibold text-gray-900">Unenrolled Users ({{ $unenrolledUsers->count() }} results)</h3>
++        </div>
++        
++        @if($unenrolledUsers->count() > 0)
++            <div class="overflow-x-auto">
++                <table class="min-w-full divide-y divide-gray-200">
++                    <thead class="bg-gray-50">
++                        <tr>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Card Code</th>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account Status</th>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account Created</th>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
++                        </tr>
++                    </thead>
++                    <tbody class="bg-white divide-y divide-gray-200">
++                        @foreach($unenrolledUsers as $user)
++                            <tr class="{{ !$user->is_active ? 'bg-red-50' : 'hover:bg-gray-50' }} transition-colors duration-150">
++                                <td class="px-6 py-4 whitespace-nowrap">
++                                    <div class="flex items-center">
++                                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold mr-3">
++                                            {{ substr($user->name, 0, 1) }}
++                                        </div>
++                                        <div>
++                                            <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
++                                            <div class="text-sm text-gray-500">{{ $user->email }}</div>
++                                            @if($user->is_admin)
++                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 mt-1">
++                                                    Admin
++                                                </span>
++                                            @endif
++                                        </div>
++                                    </div>
++                                </td>
++                                <td class="px-6 py-4 whitespace-nowrap">
++                                    @if($user->id_card_code)
++                                        <code class="text-sm bg-gray-100 px-2 py-1 rounded">{{ $user->id_card_code }}</code>
++                                    @else
++                                        <span class="text-sm text-gray-500">N/A</span>
++                                    @endif
++                                </td>
++                                <td class="px-6 py-4 whitespace-nowrap">
++                                    @if($user->is_active)
++                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
++                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
++                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
++                                            </svg>
++                                            Active
++                                        </span>
++                                    @else
++                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
++                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
++                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
++                                            </svg>
++                                            Inactive
++                                        </span>
++                                    @endif
++                                </td>
++                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
++                                    @if($user->last_login_at)
++                                        <div>{{ $user->last_login_at->format('M d, Y') }}</div>
++                                        <div class="text-gray-500">{{ $user->last_login_at->diffForHumans() }}</div>
++                                    @else
++                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
++                                            Never
++                                        </span>
++                                    @endif
++                                </td>
++                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
++                                    <div>{{ $user->created_at->format('M d, Y') }}</div>
++                                    <div class="text-gray-500">{{ $user->created_at->diffForHumans() }}</div>
++                                </td>
++                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
++                                    <div class="flex space-x-2">
++                                        <a href="{{ route('admin.users.show', $user) }}" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
++                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
++                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
++                                            </svg>
++                                            View
++                                        </a>
++                                        @if(!$user->is_active)
++                                            <button onclick="activateUser({{ $user->id }})" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
++                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
++                                                </svg>
++                                                Activate
++                                            </button>
++                                        @endif
++                                    </div>
++                                </td>
++                            </tr>
++                        @endforeach
++                    </tbody>
++                </table>
++            </div>
++        @else
++            <div class="text-center py-12">
++                <svg class="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
++                </svg>
++                <h3 class="mt-2 text-sm font-medium text-gray-900">Great! All users are enrolled</h3>
++                <p class="mt-1 text-sm text-gray-500">All users have enrolled in at least one session.</p>
++            </div>
++        @endif
++    </div>
++</div>
++
++<script>
++function activateUser(userId) {
++    if (confirm('Are you sure you want to activate this user?')) {
++        // Add activation logic here
++        fetch(`/admin/users/${userId}/activate`, {
++            method: 'POST',
++            headers: {
++                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
++                'Content-Type': 'application/json',
++            },
++        })
++        .then(response => response.json())
++        .then(data => {
++            if (data.success) {
++                location.reload();
++            } else {
++                alert('Error activating user');
++            }
++        })
++        .catch(error => {
++            console.error('Error:', error);
++            alert('Error activating user');
++        });
++    }
++}
++</script>
++@endsection
+diff --git a/resources/views/admin/reports/user-activity.blade.php b/resources/views/admin/reports/user-activity.blade.php
+new file mode 100644
+index 0000000..532b13a
+--- /dev/null
++++ b/resources/views/admin/reports/user-activity.blade.php
+@@ -0,0 +1,377 @@
++@extends('layouts.app')
++
++@section('title', 'User Activity Report')
++
++@section('content')
++<div class="container-fluid">
++    <div class="row">
++        <div class="col-12">
++            <div class="d-flex justify-content-between align-items-center mb-4">
++                <h1 class="h3 mb-0 text-gray-800">User Activity Report</h1>
++                <div>
++                    <a href="{{ route('admin.reports') }}" class="btn btn-secondary">
++                        <i class="fas fa-arrow-left"></i> Back to Reports
++                    </a>
++                    <a href="{{ request()->fullUrlWithQuery(['export' => '1']) }}" class="btn btn-success">
++                        <i class="fas fa-download"></i> Export CSV
++                    </a>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Filters -->
++    <div class="row mb-4">
++        <div class="col-12">
++            <div class="card shadow">
++                <div class="card-header py-3">
++                    <h6 class="m-0 font-weight-bold text-primary">Filters</h6>
++                </div>
++                <div class="card-body">
++                    <form method="GET" action="{{ route('admin.reports.user-activity') }}">
++                        <div class="row">
++                            <div class="col-md-3">
++                                <label for="division_id" class="form-label">Division</label>
++                                <select name="division_id" id="division_id" class="form-control">
++                                    <option value="">All Divisions</option>
++                                    @foreach($divisions as $division)
++                                        <option value="{{ $division->id }}" {{ $divisionId == $division->id ? 'selected' : '' }}>
++                                            {{ $division->name }}
++                                        </option>
++                                    @endforeach
++                                </select>
++                            </div>
++                            <div class="col-md-3">
++                                <label for="date_from" class="form-label">From Date</label>
++                                <input type="date" name="date_from" id="date_from" class="form-control" value="{{ $dateFrom }}">
++                            </div>
++                            <div class="col-md-3">
++                                <label for="date_to" class="form-label">To Date</label>
++                                <input type="date" name="date_to" id="date_to" class="form-control" value="{{ $dateTo }}">
++                            </div>
++                            <div class="col-md-3 d-flex align-items-end">
++                                <button type="submit" class="btn btn-primary">
++                                    <i class="fas fa-search"></i> Filter
++                                </button>
++                            </div>
++                        </div>
++                    </form>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Summary Stats -->
++    <div class="row mb-4">
++        <div class="col-md-3">
++            <div class="card border-left-primary shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
++                                Total Users
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $users->count() }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-users fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-3">
++            <div class="card border-left-success shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
++                                Active Users
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $users->where('total_enrollments', '>', 0)->count() }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-3">
++            <div class="card border-left-warning shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
++                                Inactive Users
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $users->where('total_enrollments', 0)->count() }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-user-times fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-3">
++            <div class="card border-left-info shadow h-100 py-2">
++                <div class="card-body">
++                    <div class="row no-gutters align-items-center">
++                        <div class="col mr-2">
++                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
++                                Avg Enrollments
++                            </div>
++                            <div class="h5 mb-0 font-weight-bold text-gray-800">
++                                {{ $users->count() > 0 ? round($users->avg('total_enrollments'), 1) : 0 }}
++                            </div>
++                        </div>
++                        <div class="col-auto">
++                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
++                        </div>
++                    </div>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Results -->
++    <div class="row">
++        <div class="col-12">
++            <div class="card shadow">
++                <div class="card-header py-3 d-flex justify-content-between align-items-center">
++                    <h6 class="m-0 font-weight-bold text-primary">
++                        User Activity Summary ({{ $users->count() }} users)
++                    </h6>
++                    <div>
++                        <span class="badge badge-success">{{ $users->where('total_enrollments', '>', 0)->count() }} Active</span>
++                        <span class="badge badge-warning">{{ $users->where('total_enrollments', 0)->count() }} Inactive</span>
++                    </div>
++                </div>
++                <div class="card-body">
++                    @if($users->count() > 0)
++                        <div class="table-responsive">
++                            <table class="table table-bordered table-hover">
++                                <thead class="thead-light">
++                                    <tr>
++                                        <th>User</th>
++                                        <th>Email</th>
++                                        <th>Division</th>
++                                        <th>Total Enrollments</th>
++                                        <th>Wellness</th>
++                                        <th>Schedule</th>
++                                        <th>Last Enrollment</th>
++                                        <th>Last Login</th>
++                                        <th>Activity Level</th>
++                                    </tr>
++                                </thead>
++                                <tbody>
++                                    @foreach($users->sortByDesc('total_enrollments') as $user)
++                                        <tr class="{{ $user['total_enrollments'] == 0 ? 'table-warning' : '' }}">
++                                            <td>
++                                                <div class="d-flex align-items-center">
++                                                    <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
++                                                        {{ substr($user['name'], 0, 1) }}
++                                                    </div>
++                                                    <div>
++                                                        <strong>{{ $user['name'] }}</strong>
++                                                    </div>
++                                                </div>
++                                            </td>
++                                            <td>{{ $user['email'] }}</td>
++                                            <td>
++                                                <span class="badge badge-info">
++                                                    {{ $user['division'] ?? 'N/A' }}
++                                                </span>
++                                            </td>
++                                            <td>
++                                                <span class="font-weight-bold text-primary">{{ $user['total_enrollments'] }}</span>
++                                            </td>
++                                            <td>
++                                                <span class="badge badge-success">{{ $user['wellness_enrollments'] }}</span>
++                                            </td>
++                                            <td>
++                                                <span class="badge badge-secondary">{{ $user['schedule_enrollments'] }}</span>
++                                            </td>
++                                            <td>
++                                                @if($user['last_enrollment'])
++                                                    <div class="d-flex flex-column">
++                                                        <span>{{ $user['last_enrollment']->format('M d, Y') }}</span>
++                                                        <small class="text-muted">{{ $user['last_enrollment']->diffForHumans() }}</small>
++                                                    </div>
++                                                @else
++                                                    <span class="text-muted">Never</span>
++                                                @endif
++                                            </td>
++                                            <td>
++                                                @if($user['last_login'])
++                                                    <div class="d-flex flex-column">
++                                                        <span>{{ $user['last_login']->format('M d, Y') }}</span>
++                                                        <small class="text-muted">{{ $user['last_login']->diffForHumans() }}</small>
++                                                    </div>
++                                                @else
++                                                    <span class="badge badge-warning">Never</span>
++                                                @endif
++                                            </td>
++                                            <td>
++                                                @if($user['total_enrollments'] >= 5)
++                                                    <span class="badge badge-success">High</span>
++                                                @elseif($user['total_enrollments'] >= 2)
++                                                    <span class="badge badge-info">Medium</span>
++                                                @elseif($user['total_enrollments'] == 1)
++                                                    <span class="badge badge-warning">Low</span>
++                                                @else
++                                                    <span class="badge badge-danger">None</span>
++                                                @endif
++                                            </td>
++                                        </tr>
++                                    @endforeach
++                                </tbody>
++                            </table>
++                        </div>
++                    @else
++                        <div class="text-center py-5">
++                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
++                            <h5 class="text-muted">No users found</h5>
++                            <p class="text-muted">Try adjusting your filters to see more results.</p>
++                        </div>
++                    @endif
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Activity Distribution Chart -->
++    @if($users->count() > 0)
++    <div class="row mt-4">
++        <div class="col-md-6">
++            <div class="card shadow">
++                <div class="card-header py-3">
++                    <h6 class="m-0 font-weight-bold text-primary">Activity Level Distribution</h6>
++                </div>
++                <div class="card-body">
++                    <canvas id="activityChart" width="400" height="200"></canvas>
++                </div>
++            </div>
++        </div>
++        <div class="col-md-6">
++            <div class="card shadow">
++                <div class="card-header py-3">
++                    <h6 class="m-0 font-weight-bold text-primary">Enrollment Types</h6>
++                </div>
++                <div class="card-body">
++                    <canvas id="enrollmentTypeChart" width="400" height="200"></canvas>
++                </div>
++            </div>
++        </div>
++    </div>
++    @endif
++</div>
++
++<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
++<script>
++document.addEventListener('DOMContentLoaded', function() {
++    const users = @json($users);
++    
++    if (users.length > 0) {
++        // Activity Level Chart
++        const activityCtx = document.getElementById('activityChart').getContext('2d');
++        
++        const activityLevels = {
++            'High (5+)': users.filter(u => u.total_enrollments >= 5).length,
++            'Medium (2-4)': users.filter(u => u.total_enrollments >= 2 && u.total_enrollments < 5).length,
++            'Low (1)': users.filter(u => u.total_enrollments === 1).length,
++            'None (0)': users.filter(u => u.total_enrollments === 0).length
++        };
++        
++        new Chart(activityCtx, {
++            type: 'doughnut',
++            data: {
++                labels: Object.keys(activityLevels),
++                datasets: [{
++                    data: Object.values(activityLevels),
++                    backgroundColor: [
++                        'rgba(75, 192, 192, 0.8)',
++                        'rgba(54, 162, 235, 0.8)',
++                        'rgba(255, 205, 86, 0.8)',
++                        'rgba(255, 99, 132, 0.8)'
++                    ],
++                    borderColor: [
++                        'rgba(75, 192, 192, 1)',
++                        'rgba(54, 162, 235, 1)',
++                        'rgba(255, 205, 86, 1)',
++                        'rgba(255, 99, 132, 1)'
++                    ],
++                    borderWidth: 1
++                }]
++            },
++            options: {
++                responsive: true,
++                plugins: {
++                    legend: {
++                        position: 'bottom'
++                    }
++                }
++            }
++        });
++
++        // Enrollment Types Chart
++        const enrollmentTypeCtx = document.getElementById('enrollmentTypeChart').getContext('2d');
++        
++        const totalWellness = users.reduce((sum, user) => sum + user.wellness_enrollments, 0);
++        const totalSchedule = users.reduce((sum, user) => sum + user.schedule_enrollments, 0);
++        
++        new Chart(enrollmentTypeCtx, {
++            type: 'bar',
++            data: {
++                labels: ['Wellness Sessions', 'Schedule Items'],
++                datasets: [{
++                    label: 'Total Enrollments',
++                    data: [totalWellness, totalSchedule],
++                    backgroundColor: [
++                        'rgba(75, 192, 192, 0.8)',
++                        'rgba(54, 162, 235, 0.8)'
++                    ],
++                    borderColor: [
++                        'rgba(75, 192, 192, 1)',
++                        'rgba(54, 162, 235, 1)'
++                    ],
++                    borderWidth: 1
++                }]
++            },
++            options: {
++                responsive: true,
++                scales: {
++                    y: {
++                        beginAtZero: true,
++                        ticks: {
++                            stepSize: 1
++                        }
++                    }
++                },
++                plugins: {
++                    legend: {
++                        display: false
++                    }
++                }
++            }
++        });
++    }
++});
++</script>
++
++<style>
++.avatar-sm {
++    width: 32px;
++    height: 32px;
++    font-size: 14px;
++    font-weight: bold;
++}
++</style>
++@endsection
+diff --git a/resources/views/admin/reports/wellness-enrollments.blade.php b/resources/views/admin/reports/wellness-enrollments.blade.php
+new file mode 100644
+index 0000000..ed7077e
+--- /dev/null
++++ b/resources/views/admin/reports/wellness-enrollments.blade.php
+@@ -0,0 +1,236 @@
++@extends('layouts.app')
++
++@section('title', 'Wellness Enrollments Report')
++
++@section('content')
++<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
++    <!-- Header -->
++    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
++        <div class="flex justify-between items-center">
++            <div>
++                <h1 class="text-3xl font-bold text-gray-900 mb-2">Wellness Enrollments Report</h1>
++                <p class="text-gray-600">Detailed view of all wellness session enrollments</p>
++            </div>
++            <div class="flex space-x-3">
++                <a href="{{ route('admin.reports') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
++                    </svg>
++                    Back to Reports
++                </a>
++                <a href="{{ request()->fullUrlWithQuery(['export' => '1']) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
++                    </svg>
++                    Export CSV
++                </a>
++            </div>
++        </div>
++    </div>
++
++    <!-- Filters -->
++    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
++        <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
++        <form method="GET" action="{{ route('admin.reports.wellness-enrollments') }}">
++            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
++                <div>
++                    <label for="session_id" class="block text-sm font-medium text-gray-700 mb-1">Wellness Session</label>
++                    <select name="session_id" id="session_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
++                        <option value="">All Sessions</option>
++                        @foreach($wellnessSessions as $session)
++                            <option value="{{ $session->id }}" {{ $sessionId == $session->id ? 'selected' : '' }}>
++                                {{ $session->title }} ({{ $session->date->format('M d, Y') }})
++                            </option>
++                        @endforeach
++                    </select>
++                </div>
++                <div>
++                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
++                    <select name="status" id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
++                        <option value="">All Statuses</option>
++                        <option value="confirmed" {{ $status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
++                        <option value="cancelled" {{ $status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
++                    </select>
++                </div>
++                <div>
++                    <label for="date_from" class="block text-sm font-medium text-gray-700 mb-1">From Date</label>
++                    <input type="date" name="date_from" id="date_from" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="{{ $dateFrom }}">
++                </div>
++                <div>
++                    <label for="date_to" class="block text-sm font-medium text-gray-700 mb-1">To Date</label>
++                    <input type="date" name="date_to" id="date_to" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="{{ $dateTo }}">
++                </div>
++                <div class="flex items-end">
++                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
++                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
++                        </svg>
++                        Filter
++                    </button>
++                </div>
++            </div>
++        </form>
++    </div>
++
++    <!-- Summary Stats -->
++    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="flex items-center">
++                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <div class="text-2xl font-bold text-gray-900">{{ $enrollments->count() }}</div>
++                    <div class="text-sm text-gray-600">Total Enrollments</div>
++                </div>
++            </div>
++        </div>
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="flex items-center">
++                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <div class="text-2xl font-bold text-green-600">{{ $enrollments->where('status', 'confirmed')->count() }}</div>
++                    <div class="text-sm text-gray-600">Confirmed</div>
++                </div>
++            </div>
++        </div>
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="flex items-center">
++                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <div class="text-2xl font-bold text-red-600">{{ $enrollments->where('status', 'cancelled')->count() }}</div>
++                    <div class="text-sm text-gray-600">Cancelled</div>
++                </div>
++            </div>
++        </div>
++        <div class="bg-white rounded-lg shadow-sm p-6">
++            <div class="flex items-center">
++                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
++                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
++                    </svg>
++                </div>
++                <div>
++                    <div class="text-2xl font-bold text-blue-600">{{ $enrollments->where('attended', true)->count() }}</div>
++                    <div class="text-sm text-gray-600">Attended Sessions</div>
++                </div>
++            </div>
++        </div>
++    </div>
++
++    <!-- Results -->
++    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
++        <div class="px-6 py-4 border-b border-gray-200">
++            <h3 class="text-lg font-semibold text-gray-900">Enrollment Details ({{ $enrollments->count() }} results)</h3>
++        </div>
++        
++        @if($enrollments->count() > 0)
++            <div class="overflow-x-auto">
++                <table class="min-w-full divide-y divide-gray-200">
++                    <thead class="bg-gray-50">
++                        <tr>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Session Details</th>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrollment Date</th>
++                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance</th>
++                        </tr>
++                    </thead>
++                    <tbody class="bg-white divide-y divide-gray-200">
++                        @foreach($enrollments as $enrollment)
++                            <tr class="hover:bg-gray-50 transition-colors duration-150">
++                                <td class="px-6 py-4 whitespace-nowrap">
++                                    <div class="flex items-center">
++                                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold mr-3">
++                                            {{ substr($enrollment->user->name, 0, 1) }}
++                                        </div>
++                                        <div>
++                                            <div class="text-sm font-medium text-gray-900">{{ $enrollment->user->name }}</div>
++                                            <div class="text-sm text-gray-500">{{ $enrollment->user->email }}</div>
++                                        </div>
++                                    </div>
++                                </td>
++                                <td class="px-6 py-4">
++                                    <div class="text-sm font-medium text-gray-900">{{ $enrollment->wellnessSession->title ?? 'N/A' }}</div>
++                                    <div class="text-sm text-gray-500">
++                                        {{ $enrollment->wellnessSession->date ? $enrollment->wellnessSession->date->format('M d, Y') : 'N/A' }}
++                                    </div>
++                                    @if($enrollment->wellnessSession->category_names)
++                                        <div class="mt-1">
++                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
++                                                {{ $enrollment->wellnessSession->category_names }}
++                                            </span>
++                                        </div>
++                                    @endif
++                                </td>
++                                <td class="px-6 py-4 whitespace-nowrap">
++                                    @if($enrollment->status === 'confirmed')
++                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
++                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
++                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
++                                            </svg>
++                                            Confirmed
++                                        </span>
++                                    @elseif($enrollment->status === 'cancelled')
++                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
++                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
++                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
++                                            </svg>
++                                            Cancelled
++                                        </span>
++                                    @else
++                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
++                                            {{ ucfirst($enrollment->status) }}
++                                        </span>
++                                    @endif
++                                </td>
++                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
++                                    <div>{{ $enrollment->enrolled_at->format('M d, Y') }}</div>
++                                    <div class="text-gray-500">{{ $enrollment->enrolled_at->format('g:i A') }}</div>
++                                </td>
++                                <td class="px-6 py-4 whitespace-nowrap">
++                                    @if($enrollment->attended === true)
++                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
++                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
++                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
++                                            </svg>
++                                            Attended
++                                        </span>
++                                    @elseif($enrollment->attended === false)
++                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
++                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
++                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
++                                            </svg>
++                                            Absent
++                                        </span>
++                                    @else
++                                        <span class="text-sm text-gray-500">Unknown</span>
++                                    @endif
++                                </td>
++                            </tr>
++                        @endforeach
++                    </tbody>
++                </table>
++            </div>
++        @else
++            <div class="text-center py-12">
++                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
++                </svg>
++                <h3 class="mt-2 text-sm font-medium text-gray-900">No enrollments found</h3>
++                <p class="mt-1 text-sm text-gray-500">Try adjusting your filters to see more results.</p>
++            </div>
++        @endif
++    </div>
++</div>
++@endsection
+diff --git a/routes/web.php b/routes/web.php
+index ce7691f..b41db88 100644
+--- a/routes/web.php
++++ b/routes/web.php
+@@ -7,6 +7,7 @@
+ use App\Http\Controllers\Admin\AdminController;
+ use App\Http\Controllers\Admin\WellnessSessionController;
+ use App\Http\Controllers\Admin\ScheduleItemController;
++use App\Http\Controllers\Admin\ReportsController;
+ use App\Http\Controllers\Auth\GoogleController;
+ use Illuminate\Support\Facades\Route;
+ 
+@@ -21,11 +22,10 @@
+ 
+ // User-only protected routes
+ Route::middleware(['user.only'])->group(function () {
+-    // Dashboard
+-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+-    Route::get('/my-schedule', [DashboardController::class, 'mySchedule'])->name('my-schedule');
++    // Default landing page - Schedule view
++    Route::get('/dashboard', [ScheduleController::class, 'index'])->name('dashboard');
+     
+-    // Schedule
++    // Schedule (main view with day 1/day 2 tabs)
+     Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
+     Route::get('/schedule/{scheduleItem}', [ScheduleController::class, 'show'])->name('schedule.show');
+     
+@@ -33,7 +33,6 @@
+     Route::get('/wellness', [WellnessController::class, 'index'])->name('wellness.index');
+     Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('wellness.show');
+     Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('wellness.enroll');
+-    Route::delete('/wellness/{session}/cancel', [WellnessController::class, 'cancel'])->name('wellness.cancel');
+     
+     // Profile
+     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+@@ -53,6 +52,9 @@
+     // Wellness Sessions Management
+     Route::resource('wellness', WellnessSessionController::class);
+     Route::post('/wellness/{wellness}/toggle-status', [WellnessSessionController::class, 'toggleStatus'])->name('wellness.toggle-status');
++    Route::post('/wellness/{wellness}/remove-enrollment', [WellnessSessionController::class, 'removeEnrollment'])->name('wellness.remove-enrollment');
++    Route::get('/wellness/{wellness}/transfer', [WellnessSessionController::class, 'showTransfer'])->name('wellness.transfer');
++    Route::post('/wellness/{wellness}/transfer-user', [WellnessSessionController::class, 'transferUser'])->name('wellness.transfer-user');
+     
+     // Schedule Items Management
+     Route::resource('schedule', ScheduleItemController::class);
+@@ -60,6 +62,10 @@
+     Route::post('/schedule/bulk-update', [ScheduleItemController::class, 'bulkUpdate'])->name('schedule.bulk-update');
+     
+     // Reports
+-    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+-    Route::get('/reports/enrollments', [AdminController::class, 'enrollmentReport'])->name('reports.enrollments');
++    Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
++    Route::get('/reports/wellness-enrollments', [ReportsController::class, 'wellnessEnrollments'])->name('reports.wellness-enrollments');
++    Route::get('/reports/unenrolled-users', [ReportsController::class, 'unenrolledUsers'])->name('reports.unenrolled-users');
++    Route::get('/reports/capacity-utilization', [ReportsController::class, 'capacityUtilization'])->name('reports.capacity-utilization');
++    Route::get('/reports/division-summary', [ReportsController::class, 'divisionSummary'])->name('reports.division-summary');
++    Route::get('/reports/user-activity', [ReportsController::class, 'userActivity'])->name('reports.user-activity');
+ });
+-- 
+2.50.1 (Apple Git-155)
+

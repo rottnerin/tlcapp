@@ -46,13 +46,22 @@
                         @enderror
                     </div>
 
-                    <div>
-                        <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                        <input type="text" id="category" name="category" value="{{ old('category') }}"
-                               placeholder="e.g., mindfulness, fitness, nutrition"
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                      @error('category') border-red-300 @enderror">
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Categories (check all that apply)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            @foreach($categories as $category)
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="category_{{ $loop->index }}" name="category[]" value="{{ $category }}"
+                                           {{ in_array($category, old('category', [])) ? 'checked' : '' }}
+                                           class="h-4 w-4 text-aes-blue border-gray-300 rounded focus:ring-aes-blue">
+                                    <label for="category_{{ $loop->index }}" class="ml-2 text-sm text-gray-700">{{ $category }}</label>
+                                </div>
+                            @endforeach
+                        </div>
                         @error('category')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        @error('category.*')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -102,13 +111,52 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
+
+                        <div>
+                            <label for="co_presenter_name" class="block text-sm font-medium text-gray-700 mb-1">Co-Presenter Name(s)</label>
+                            <input type="text" id="co_presenter_name" name="co_presenter_name" value="{{ old('co_presenter_name') }}"
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                          @error('co_presenter_name') border-red-300 @enderror">
+                            @error('co_presenter_name')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="co_presenter_email" class="block text-sm font-medium text-gray-700 mb-1">Co-Presenter Email(s)</label>
+                            <input type="email" id="co_presenter_email" name="co_presenter_email" value="{{ old('co_presenter_email') }}"
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                          @error('co_presenter_email') border-red-300 @enderror">
+                            @error('co_presenter_email')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
                 </div>
 
                 <!-- Schedule & Capacity -->
                 <div class="border-t pt-6">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Schedule & Capacity</h3>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <label for="pd_day_id" class="block text-sm font-medium text-gray-700 mb-1">
+                                PD Day Event
+                            </label>
+                            <select id="pd_day_id" name="pd_day_id"
+                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                           @error('pd_day_id') border-red-300 @enderror">
+                                <option value="">Not assigned to any PD Day</option>
+                                @foreach($pdDays as $pdDay)
+                                    <option value="{{ $pdDay->id }}" {{ old('pd_day_id') == $pdDay->id ? 'selected' : '' }}>
+                                        {{ $pdDay->title }} ({{ $pdDay->date_range }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('pd_day_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <div>
                             <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
                                 Date <span class="text-red-500">*</span>
@@ -119,30 +167,7 @@
                             @error('date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
-                        </div>
-
-                        <div>
-                            <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">
-                                Start Time <span class="text-red-500">*</span>
-                            </label>
-                            <input type="time" id="start_time" name="start_time" value="{{ old('start_time') }}" required
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                          @error('start_time') border-red-300 @enderror">
-                            @error('start_time')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">
-                                End Time <span class="text-red-500">*</span>
-                            </label>
-                            <input type="time" id="end_time" name="end_time" value="{{ old('end_time') }}" required
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                          @error('end_time') border-red-300 @enderror">
-                            @error('end_time')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                            <p class="mt-1 text-sm text-gray-500">All wellness sessions run from 2:30 PM - 3:30 PM</p>
                         </div>
 
                         <div>
@@ -204,12 +229,6 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Settings</h3>
                     <div class="space-y-4">
                         <div class="flex items-center">
-                            <input type="checkbox" id="allow_waitlist" name="allow_waitlist" value="1"
-                                   {{ old('allow_waitlist') ? 'checked' : '' }}
-                                   class="h-4 w-4 text-aes-blue border-gray-300 rounded focus:ring-aes-blue">
-                            <label for="allow_waitlist" class="ml-2 text-sm text-gray-700">
-                                Allow waitlist when session is full
-                            </label>
                         </div>
 
                         <div class="flex items-center">

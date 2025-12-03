@@ -12,6 +12,10 @@
                 <p class="text-gray-600 mt-1">Manage the professional development schedule</p>
             </div>
             <div class="flex space-x-3">
+                <a href="{{ route('admin.schedule.by-pdday') }}" 
+                   class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                    <i class="fas fa-calendar mr-2"></i>By PD Day
+                </a>
                 <button onclick="toggleBulkActions()" 
                         class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
                     <i class="fas fa-tasks mr-2"></i>Bulk Actions
@@ -220,8 +224,9 @@
                                         </a>
                                         <form action="{{ route('admin.schedule.toggle-status', $item) }}" method="POST" class="inline">
                                             @csrf
-                                            <button type="submit" class="text-gray-600 hover:text-gray-900">
-                                                <i class="fas fa-{{ $item->is_active ? 'pause' : 'play' }}"></i>
+                                            <button type="submit" class="text-gray-600 hover:text-gray-900" 
+                                                    title="{{ $item->is_active ? 'Hide from schedule' : 'Show in schedule' }}">
+                                                <i class="fas fa-{{ $item->is_active ? 'eye-slash' : 'eye' }}"></i>
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.schedule.destroy', $item) }}" method="POST" 

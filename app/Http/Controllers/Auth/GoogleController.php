@@ -53,7 +53,7 @@ class GoogleController extends Controller
                     'email' => $googleUser->email,
                     'google_id' => $googleUser->id,
                     'avatar' => $googleUser->avatar,
-                    'password' => Hash::make(Str::random(24)), // Random password since we use OAuth
+                    'password' => Hash::make(Str::random(10)), // Random 10-digit code for OAuth users
                     'email_verified_at' => now(),
                     'division_id' => User::detectDivisionFromEmail($googleUser->email),
                     'last_login_at' => now(),
