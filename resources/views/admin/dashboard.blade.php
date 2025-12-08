@@ -25,12 +25,30 @@
                 
                 <div class="flex items-center space-x-4">
                     <nav class="space-x-4">
-                        <a href="{{ route('admin.dashboard') }}" class="text-white font-medium">Dashboard</a>
-                        <a href="{{ route('admin.pddays.index') }}" class="text-indigo-200 hover:text-white">PD Days</a>
-                        <a href="{{ route('admin.wellness.index') }}" class="text-indigo-200 hover:text-white">Wellness</a>
-                        <a href="{{ route('admin.schedule.index') }}" class="text-indigo-200 hover:text-white">Schedule</a>
-                        <a href="{{ route('admin.users.index') }}" class="text-indigo-200 hover:text-white">Users</a>
-                        <a href="{{ route('admin.reports') }}" class="text-indigo-200 hover:text-white">Reports</a>
+                        <a href="{{ route('admin.pl-wednesday.index') }}" 
+                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.pl-wednesday.*') ? 'text-white font-medium' : '' }}">
+                            PL Wednesday
+                        </a>
+                        <a href="{{ route('admin.pddays.index') }}" 
+                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.pddays.*') ? 'text-white font-medium' : '' }}">
+                            PL Days
+                        </a>
+                        <a href="{{ route('admin.wellness.index') }}" 
+                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.wellness.*') ? 'text-white font-medium' : '' }}">
+                            Wellness
+                        </a>
+                        <a href="{{ route('admin.schedule.index') }}" 
+                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.schedule.*') ? 'text-white font-medium' : '' }}">
+                            Schedule
+                        </a>
+                        <a href="{{ route('admin.users.index') }}" 
+                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.users.*') ? 'text-white font-medium' : '' }}">
+                            Users
+                        </a>
+                        <a href="{{ route('admin.reports') }}" 
+                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.reports*') ? 'text-white font-medium' : '' }}">
+                            Reports
+                        </a>
                     </nav>
                     
                     <div class="flex items-center space-x-2">

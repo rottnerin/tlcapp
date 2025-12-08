@@ -4,9 +4,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\WellnessController;
+use App\Http\Controllers\PLWednesdayController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\WellnessSessionController;
 use App\Http\Controllers\Admin\ScheduleItemController;
+use App\Http\Controllers\Admin\PLWednesdayController as AdminPLWednesdayController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\PDDayController;
 use App\Http\Controllers\Admin\AdminAuthController;
@@ -43,6 +45,10 @@ Route::middleware(['user.only'])->group(function () {
     Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('wellness.show');
     Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('wellness.enroll');
     
+    // Professional Learning Wednesday
+    Route::get('/professional-learning', [PLWednesdayController::class, 'index'])->name('pl-wednesday.index');
+    Route::get('/professional-learning/{session}', [PLWednesdayController::class, 'show'])->name('pl-wednesday.show');
+    
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -78,6 +84,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // PD Days Management
     Route::resource('pddays', PDDayController::class)->except(['show']);
     Route::post('/pddays/{pdday}/toggle-active', [PDDayController::class, 'toggleActive'])->name('pddays.toggle-active');
+    
+    // PL Wednesday Management
+    Route::resource('pl-wednesday', AdminPLWednesdayController::class);
+    Route::post('/pl-wednesday/toggle-active', [AdminPLWednesdayController::class, 'toggleActive'])->name('pl-wednesday.toggle-active');
+    Route::post('/pl-wednesday/{plWednesday}/toggle-status', [AdminPLWednesdayController::class, 'toggleSessionStatus'])->name('pl-wednesday.toggle-status');
     
     // Reports
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');

@@ -1,61 +1,175 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# TLC 2.0 - Teaching and Learning Conference Application
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel-based web application for managing Professional Development (PD) Days, Wellness Sessions, and Professional Learning Wednesday sessions at the American Embassy School (AES).
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### User Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Schedule View**: Browse and view schedule items for PD Days, organized by day (Day 1/Day 2)
+- **Wellness Sessions**: View available wellness sessions and enroll in sessions
+- **PL Wednesday**: View Professional Learning sessions scheduled for Wednesday afternoons (3:00-5:00pm)
+- **Profile Management**: Update user profile information
+- **Google OAuth**: Secure authentication via Google OAuth
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Admin Features
 
-## Learning Laravel
+- **User Management**: View users, toggle admin status, and manage passwords
+- **PD Days Management**: Create, edit, and manage Professional Development Days
+- **Schedule Management**: Create and manage schedule items, bulk operations, CSV upload, and copy schedules between PD Days
+- **Wellness Session Management**: Create, edit, and manage wellness sessions with enrollment tracking and user transfers
+- **PL Wednesday Management**: 
+  - Activate/deactivate the PL Wednesday feature globally
+  - Create, edit, and manage individual PL Wednesday sessions
+  - Add multiple links/resources to each session
+  - Set session dates, times, locations, and descriptions
+- **Reports**: Generate various reports including:
+  - Wellness enrollments
+  - Unenrolled users
+  - Capacity utilization
+  - Division summary
+  - User activity
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## PL Wednesday Feature
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+The PL Wednesday feature allows administrators to manage Professional Learning sessions that occur every Wednesday afternoon from 3:00-5:00pm, starting August 6th, 2025 and ending December 16th, 2025.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Admin Capabilities
 
-## Laravel Sponsors
+- **Global Toggle**: Activate or deactivate the entire PL Wednesday feature
+- **Session Management**: Create sessions with:
+  - Title and description
+  - Location
+  - Date (must be a Wednesday within the date range)
+  - Start and end times
+  - Multiple links/resources per session
+- **Session Status**: Activate or deactivate individual sessions
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### User Experience
 
-### Premium Partners
+- All authenticated users can view PL Wednesday sessions via the "PL Wednesday" navigation tab
+- Sessions are displayed in descending order by date (most recent first)
+- Within each date, sessions are ordered by start time (earliest first)
+- Each session is displayed in its own card with AES black and gold color scheme
+- Users can view session details including all associated links and resources
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Technology Stack
 
-## Contributing
+- **Framework**: Laravel 11.x
+- **Frontend**: Blade Templates with Tailwind CSS
+- **Authentication**: Google OAuth for users, traditional login for admins
+- **Database**: SQLite (default) / MySQL / PostgreSQL
+- **PHP**: 8.2+
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Installation
 
-## Code of Conduct
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd tlcapp
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+2. Install PHP dependencies:
+```bash
+composer install
+```
 
-## Security Vulnerabilities
+3. Install Node.js dependencies:
+```bash
+npm install
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+4. Copy the environment file:
+```bash
+cp .env.example .env
+```
+
+5. Generate application key:
+```bash
+php artisan key:generate
+```
+
+6. Configure your `.env` file with database credentials and Google OAuth settings:
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/database.sqlite
+
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
+```
+
+7. Run migrations:
+```bash
+php artisan migrate
+```
+
+8. Seed the database (optional):
+```bash
+php artisan db:seed
+```
+
+9. Build frontend assets:
+```bash
+npm run build
+```
+
+10. Start the development server:
+```bash
+php artisan serve
+```
+
+11. In another terminal, start the Vite dev server (for development):
+```bash
+npm run dev
+```
+
+## Database Structure
+
+### Key Tables
+
+- `users`: User accounts with division and authentication information
+- `p_d_days`: Professional Development Days
+- `schedule_items`: Schedule items for PD Days
+- `wellness_sessions`: Wellness session offerings
+- `user_sessions`: User enrollments in wellness sessions
+- `pl_wednesday_sessions`: PL Wednesday session information
+- `pl_wednesday_links`: Links/resources associated with PL Wednesday sessions
+- `pl_wednesday_settings`: Global settings for PL Wednesday feature
+- `divisions`: User divisions (ES, MS, HS)
+
+## Admin Access
+
+Admins can log in at `/admin/login` using credentials set up in the database. Regular users authenticate via Google OAuth.
+
+## Development
+
+### Running Tests
+```bash
+php artisan test
+```
+
+### Clearing Cache
+```bash
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+php artisan route:clear
+```
+
+### Database Seeding
+The application includes several seeders for testing:
+- `AdminUserSeeder`: Creates admin user
+- `DivisionSeeder`: Creates divisions
+- `PDDaySeeder`: Creates sample PD Days
+- `ScheduleItemSeeder`: Creates sample schedule items
+- `WellnessSessionSeeder`: Creates sample wellness sessions
+- `PLWednesdaySessionSeeder`: Creates sample PL Wednesday sessions
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This application is proprietary software for the American Embassy School.
+
+## Support
+
+For issues or questions, please contact the development team.

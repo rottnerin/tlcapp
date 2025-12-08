@@ -74,6 +74,10 @@
                            class="text-white hover:text-gray-200 {{ request()->routeIs('wellness.*') ? 'text-white font-medium' : '' }}">
                             Wellness
                         </a>
+                        <a href="{{ route('pl-wednesday.index') }}"
+                           class="text-white hover:text-gray-200 {{ request()->routeIs('pl-wednesday.*') ? 'text-white font-medium' : '' }}">
+                            PL Wednesday
+                        </a>
                         <a href="https://docs.google.com/document/d/1m08jPdge3v_A1ZTUZqlkzcC0P13LY2HnQ0rtA4_uJn4/edit?usp=sharing"
                            target="_blank"
                            rel="noopener noreferrer"
@@ -105,6 +109,10 @@
                     <a href="{{ route('wellness.index') }}"
                        class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-yellow-600 rounded-md {{ request()->routeIs('wellness.*') ? 'text-white bg-yellow-600' : '' }}">
                         Wellness
+                    </a>
+                    <a href="{{ route('pl-wednesday.index') }}"
+                       class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-yellow-600 rounded-md {{ request()->routeIs('pl-wednesday.*') ? 'text-white bg-yellow-600' : '' }}">
+                        PL Wednesday
                     </a>
                     <a href="https://docs.google.com/document/d/1m08jPdge3v_A1ZTUZqlkzcC0P13LY2HnQ0rtA4_uJn4/edit?usp=sharing"
                        target="_blank"

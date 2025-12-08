@@ -49,9 +49,13 @@
                     
                     <div class="flex items-center space-x-4">
                         <nav class="space-x-4">
-                            <a href="{{ route('admin.dashboard') }}" 
-                               class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.dashboard') ? 'text-white font-medium' : '' }}">
-                                Dashboard
+                            <a href="{{ route('admin.pl-wednesday.index') }}" 
+                               class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.pl-wednesday.*') ? 'text-white font-medium' : '' }}">
+                                PL Wednesday
+                            </a>
+                            <a href="{{ route('admin.pddays.index') }}" 
+                               class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.pddays.*') ? 'text-white font-medium' : '' }}">
+                                PL Days
                             </a>
                             <a href="{{ route('admin.wellness.index') }}" 
                                class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.wellness.*') ? 'text-white font-medium' : '' }}">
