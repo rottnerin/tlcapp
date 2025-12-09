@@ -13,6 +13,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <!-- Flatpickr Date/Time Picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+    
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
@@ -95,6 +99,130 @@
     <main>
         @yield('content')
     </main>
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    <!-- Initialize Flatpickr for all date/time inputs -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DateTime picker (calendar + time)
+        document.querySelectorAll('.flatpickr-datetime').forEach(function(el) {
+            flatpickr(el, {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                altInput: true,
+                altFormat: "F j, Y at h:i K",
+                time_24hr: false,
+                minuteIncrement: 5,
+                allowInput: false,
+                clickOpens: true,
+                disableMobile: false,
+                onReady: function(selectedDates, dateStr, instance) {
+                    // Add calendar icon
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'relative';
+                    instance.input.parentNode.insertBefore(wrapper, instance.input);
+                    wrapper.appendChild(instance.input);
+                    if (instance.altInput) {
+                        wrapper.appendChild(instance.altInput);
+                        instance.altInput.classList.add('pl-10');
+                    }
+                    const icon = document.createElement('span');
+                    icon.className = 'absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none';
+                    icon.innerHTML = '<i class="fas fa-calendar-alt"></i>';
+                    wrapper.appendChild(icon);
+                }
+            });
+        });
+        
+        // Date-only picker (calendar only)
+        document.querySelectorAll('.flatpickr-date').forEach(function(el) {
+            flatpickr(el, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                allowInput: false,
+                clickOpens: true,
+                disableMobile: false,
+                onReady: function(selectedDates, dateStr, instance) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'relative';
+                    instance.input.parentNode.insertBefore(wrapper, instance.input);
+                    wrapper.appendChild(instance.input);
+                    if (instance.altInput) {
+                        wrapper.appendChild(instance.altInput);
+                        instance.altInput.classList.add('pl-10');
+                    }
+                    const icon = document.createElement('span');
+                    icon.className = 'absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none';
+                    icon.innerHTML = '<i class="fas fa-calendar-alt"></i>';
+                    wrapper.appendChild(icon);
+                }
+            });
+        });
+        
+        // Time-only picker (clock only)
+        document.querySelectorAll('.flatpickr-time').forEach(function(el) {
+            flatpickr(el, {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "H:i",
+                altInput: true,
+                altFormat: "h:i K",
+                time_24hr: false,
+                minuteIncrement: 5,
+                allowInput: false,
+                clickOpens: true,
+                disableMobile: false,
+                onReady: function(selectedDates, dateStr, instance) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'relative';
+                    instance.input.parentNode.insertBefore(wrapper, instance.input);
+                    wrapper.appendChild(instance.input);
+                    if (instance.altInput) {
+                        wrapper.appendChild(instance.altInput);
+                        instance.altInput.classList.add('pl-10');
+                    }
+                    const icon = document.createElement('span');
+                    icon.className = 'absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none';
+                    icon.innerHTML = '<i class="fas fa-clock"></i>';
+                    wrapper.appendChild(icon);
+                }
+            });
+        });
+    });
+    </script>
+    
+    <!-- Custom Flatpickr Styles -->
+    <style>
+        /* Make flatpickr inputs look consistent */
+        .flatpickr-input[readonly] {
+            background-color: white !important;
+            cursor: pointer;
+        }
+        .flatpickr-alt-input {
+            cursor: pointer !important;
+        }
+        /* Better time picker styling */
+        .flatpickr-time {
+            max-height: none !important;
+        }
+        .flatpickr-time input.flatpickr-hour,
+        .flatpickr-time input.flatpickr-minute {
+            font-size: 1.25rem !important;
+        }
+        /* Calendar hover effects */
+        .flatpickr-day:hover {
+            background: #1e40af !important;
+            border-color: #1e40af !important;
+            color: white !important;
+        }
+        .flatpickr-day.selected {
+            background: #1e40af !important;
+            border-color: #1e40af !important;
+        }
+    </style>
 
     <!-- Scripts -->
     @stack('scripts')

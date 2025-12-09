@@ -6,6 +6,9 @@
     <title>Create PL Day - AES Professional Learning Days</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="antialiased bg-gray-50">
@@ -89,7 +92,7 @@
                         name="title" 
                         id="title" 
                         value="{{ old('title') }}"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('title') border-red-500 @enderror"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('title') border-red-500 @enderror"
                         placeholder="e.g., September 2025 Professional Learning Days"
                         required
                     >
@@ -107,7 +110,7 @@
                         name="description" 
                         id="description" 
                         rows="4"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('description') border-red-500 @enderror"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('description') border-red-500 @enderror"
                         placeholder="Optional description for this PL day event..."
                     >{{ old('description') }}</textarea>
                     @error('description')
@@ -119,14 +122,15 @@
                 <div class="mb-6 grid grid-cols-2 gap-4">
                     <div>
                         <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
-                            Start Date <span class="text-red-500">*</span>
+                            <i class="fas fa-calendar-alt mr-1 text-gray-400"></i>Start Date <span class="text-red-500">*</span>
                         </label>
                         <input 
-                            type="date" 
+                            type="text" 
                             name="start_date" 
                             id="start_date" 
                             value="{{ old('start_date') }}"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('start_date') border-red-500 @enderror"
+                            placeholder="Click to select date"
+                            class="flatpickr-date w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer @error('start_date') border-red-500 @enderror"
                             required
                         >
                         @error('start_date')
@@ -136,14 +140,15 @@
 
                     <div>
                         <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
-                            End Date <span class="text-red-500">*</span>
+                            <i class="fas fa-calendar-alt mr-1 text-gray-400"></i>End Date <span class="text-red-500">*</span>
                         </label>
                         <input 
-                            type="date" 
+                            type="text" 
                             name="end_date" 
                             id="end_date" 
                             value="{{ old('end_date') }}"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('end_date') border-red-500 @enderror"
+                            placeholder="Click to select date"
+                            class="flatpickr-date w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer @error('end_date') border-red-500 @enderror"
                             required
                         >
                         @error('end_date')
@@ -202,5 +207,25 @@
             </form>
         </div>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.flatpickr-date').forEach(function(el) {
+            flatpickr(el, {
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "F j, Y",
+                allowInput: false,
+                clickOpens: true
+            });
+        });
+    });
+    </script>
+    <style>
+        .flatpickr-input[readonly] { background-color: white !important; cursor: pointer; }
+        .flatpickr-day:hover { background: #4f46e5 !important; border-color: #4f46e5 !important; color: white !important; }
+        .flatpickr-day.selected { background: #4f46e5 !important; border-color: #4f46e5 !important; }
+    </style>
 </body>
 </html>

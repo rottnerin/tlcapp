@@ -20,7 +20,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
                     <input type="text" name="title" value="{{ old('title', $plWednesday->title) }}" required
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
 
@@ -32,7 +32,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
                     <input type="text" name="location" value="{{ old('location', $plWednesday->location) }}" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -50,17 +50,23 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Start Time <span class="text-red-500">*</span></label>
-                        <input type="time" name="start_time" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <i class="fas fa-clock mr-1 text-gray-400"></i>Start Time <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="start_time" 
                                value="{{ old('start_time', $plWednesday->start_time ? \Carbon\Carbon::parse($plWednesday->start_time)->format('H:i') : '15:00') }}" 
-                               required class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               placeholder="Click to select time"
+                               required class="flatpickr-time w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">End Time <span class="text-red-500">*</span></label>
-                        <input type="time" name="end_time" 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            <i class="fas fa-clock mr-1 text-gray-400"></i>End Time <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="end_time" 
                                value="{{ old('end_time', $plWednesday->end_time ? \Carbon\Carbon::parse($plWednesday->end_time)->format('H:i') : '17:00') }}" 
-                               required class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               placeholder="Click to select time"
+                               required class="flatpickr-time w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer">
                     </div>
                 </div>
 

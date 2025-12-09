@@ -103,10 +103,11 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
-                            Date <span class="text-red-500">*</span>
+                            <i class="fas fa-calendar-alt mr-1 text-gray-400"></i>Date <span class="text-red-500">*</span>
                         </label>
-                        <input type="date" id="date" name="date" value="{{ old('date', $schedule->date->format('Y-m-d')) }}" required
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                        <input type="text" id="date" name="date" value="{{ old('date', $schedule->date->format('Y-m-d')) }}" required
+                               placeholder="Click to select date"
+                               class="flatpickr-date w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
                                       @error('date') border-red-300 @enderror">
                         @error('date')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -115,10 +116,11 @@
 
                     <div>
                         <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">
-                            Start Time <span class="text-red-500">*</span>
+                            <i class="fas fa-clock mr-1 text-gray-400"></i>Start Time <span class="text-red-500">*</span>
                         </label>
-                        <input type="time" id="start_time" name="start_time" value="{{ old('start_time', $schedule->start_time->format('H:i')) }}" required
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                        <input type="text" id="start_time" name="start_time" value="{{ old('start_time', $schedule->start_time->format('H:i')) }}" required
+                               placeholder="Click to select time"
+                               class="flatpickr-time w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
                                       @error('start_time') border-red-300 @enderror">
                         @error('start_time')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -127,10 +129,11 @@
 
                     <div>
                         <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">
-                            End Time <span class="text-red-500">*</span>
+                            <i class="fas fa-clock mr-1 text-gray-400"></i>End Time <span class="text-red-500">*</span>
                         </label>
-                        <input type="time" id="end_time" name="end_time" value="{{ old('end_time', $schedule->end_time->format('H:i')) }}" required
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                        <input type="text" id="end_time" name="end_time" value="{{ old('end_time', $schedule->end_time->format('H:i')) }}" required
+                               placeholder="Click to select time"
+                               class="flatpickr-time w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
                                       @error('end_time') border-red-300 @enderror">
                         @error('end_time')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

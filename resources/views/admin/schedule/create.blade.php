@@ -47,68 +47,6 @@
                     </div>
 
                     <div>
-                        <label for="item_type" class="block text-sm font-medium text-gray-700 mb-1">
-                            Type <span class="text-red-500">*</span>
-                        </label>
-                        <select id="item_type" name="item_type" required
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                       @error('item_type') border-red-300 @enderror">
-                            <option value="">Select type...</option>
-                            <option value="session" {{ old('item_type') == 'session' ? 'selected' : '' }}>Session</option>
-                            <option value="break" {{ old('item_type') == 'break' ? 'selected' : '' }}>Break</option>
-                            <option value="meal" {{ old('item_type') == 'meal' ? 'selected' : '' }}>Meal</option>
-                            <option value="assembly" {{ old('item_type') == 'assembly' ? 'selected' : '' }}>Assembly</option>
-                            <option value="transition" {{ old('item_type') == 'transition' ? 'selected' : '' }}>Transition</option>
-                            <option value="meeting" {{ old('item_type') == 'meeting' ? 'selected' : '' }}>Meeting</option>
-                            <option value="other" {{ old('item_type') == 'other' ? 'selected' : '' }}>Other</option>
-                        </select>
-                        @error('item_type')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="session_type" class="block text-sm font-medium text-gray-700 mb-1">
-                            Session Type <span class="text-red-500">*</span>
-                        </label>
-                        <select id="session_type" name="session_type" required
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                       @error('session_type') border-red-300 @enderror">
-                            <option value="">Select session type...</option>
-                            <option value="fixed" {{ old('session_type') == 'fixed' ? 'selected' : '' }}>Fixed Session</option>
-                            <option value="wellness" {{ old('session_type') == 'wellness' ? 'selected' : '' }}>Wellness Slot</option>
-                            <option value="keynote" {{ old('session_type') == 'keynote' ? 'selected' : '' }}>Keynote</option>
-                            <option value="break" {{ old('session_type') == 'break' ? 'selected' : '' }}>Break</option>
-                            <option value="lunch" {{ old('session_type') == 'lunch' ? 'selected' : '' }}>Lunch</option>
-                            <option value="transition" {{ old('session_type') == 'transition' ? 'selected' : '' }}>Transition</option>
-                        </select>
-                        @error('session_type')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Wellness Session Selector (shown only for wellness slots) -->
-                    <div id="wellness_session_div" class="hidden lg:col-span-2">
-                        <label for="wellness_session_id" class="block text-sm font-medium text-gray-700 mb-1">
-                            Link to Wellness Session <span class="text-orange-500">*</span>
-                        </label>
-                        <select id="wellness_session_id" name="wellness_session_id"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                       @error('wellness_session_id') border-red-300 @enderror">
-                            <option value="">Select a wellness session...</option>
-                            @foreach($wellnessSessions as $session)
-                                <option value="{{ $session->id }}" {{ old('wellness_session_id') == $session->id ? 'selected' : '' }}>
-                                    {{ $session->title }} - {{ $session->presenter_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <p class="mt-1 text-xs text-gray-500">Select the wellness session this time slot belongs to. If you don't see your wellness session, create it first in Wellness management.</p>
-                        @error('wellness_session_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
                         <label for="division_id" class="block text-sm font-medium text-gray-700 mb-1">
                             Division <span class="text-red-500">*</span>
                         </label>
@@ -170,14 +108,17 @@
 
                 <!-- Schedule -->
                 <div class="border-t pt-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Schedule</h3>
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>Schedule
+                    </h3>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
                             <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">
                                 Start Date & Time <span class="text-red-500">*</span>
                             </label>
-                            <input type="datetime-local" id="start_time" name="start_time" value="{{ old('start_time') }}" required
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                            <input type="text" id="start_time" name="start_time" value="{{ old('start_time') }}" required
+                                   placeholder="Click to select date & time"
+                                   class="flatpickr-datetime w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
                                           @error('start_time') border-red-300 @enderror">
                             @error('start_time')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -188,32 +129,18 @@
                             <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">
                                 End Date & Time <span class="text-red-500">*</span>
                             </label>
-                            <input type="datetime-local" id="end_time" name="end_time" value="{{ old('end_time') }}" required
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                            <input type="text" id="end_time" name="end_time" value="{{ old('end_time') }}" required
+                                   placeholder="Click to select date & time"
+                                   class="flatpickr-datetime w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
                                           @error('end_time') border-red-300 @enderror">
                             @error('end_time')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
-                </div>
-
-                <!-- Visual Settings -->
-                <div class="border-t pt-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Visual Settings</h3>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div>
-                            <label for="color" class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-                            <div class="flex items-center space-x-3">
-                                <input type="color" id="color" name="color" value="{{ old('color', '#3B82F6') }}"
-                                       class="h-10 w-16 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aes-blue">
-                                <span class="text-sm text-gray-600">Choose a color for calendar display</span>
-                            </div>
-                            @error('color')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+                    <p class="mt-2 text-sm text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>Click on the field to open the calendar and time selector
+                    </p>
                 </div>
 
                 <!-- Additional Information -->
@@ -231,44 +158,25 @@
                             @enderror
                         </div>
 
-                        <!-- Link Section -->
+                        <!-- Links Section -->
                         <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                            <h4 class="text-md font-medium text-gray-900 mb-3">🔗 Additional Link (Optional)</h4>
-                            <p class="text-sm text-gray-600 mb-4">Add a link that users can click to access additional resources (e.g., menu, materials, documents)</p>
-                            
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div class="flex items-center justify-between mb-3">
                                 <div>
-                                    <label for="link_title" class="block text-sm font-medium text-gray-700 mb-1">Link Title</label>
-                                    <input type="text" id="link_title" name="link_title" value="{{ old('link_title') }}"
-                                           placeholder="e.g., View Menu, Download Materials"
-                                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                                  @error('link_title') border-red-300 @enderror">
-                                    @error('link_title')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
+                                    <h4 class="text-md font-medium text-gray-900">🔗 Links (Optional)</h4>
+                                    <p class="text-sm text-gray-600">Add links that users can click to access additional resources (e.g., menu, materials, documents)</p>
                                 </div>
-
-                                <div>
-                                    <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
-                                    <input type="url" id="link_url" name="link_url" value="{{ old('link_url') }}"
-                                           placeholder="https://example.com or example.com"
-                                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                                  @error('link_url') border-red-300 @enderror">
-                                    @error('link_url')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
+                                <button type="button" id="add-link-btn"
+                                        class="px-3 py-1.5 bg-aes-blue hover:bg-blue-700 text-white text-sm rounded-md transition-colors">
+                                    <i class="fas fa-plus mr-1"></i>Add Link
+                                </button>
                             </div>
-
-                            <div class="mt-4">
-                                <label for="link_description" class="block text-sm font-medium text-gray-700 mb-1">Link Description (Optional)</label>
-                                <textarea id="link_description" name="link_description" rows="2"
-                                          placeholder="Brief description of what users will find at this link..."
-                                          class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                                 @error('link_description') border-red-300 @enderror">{{ old('link_description') }}</textarea>
-                                @error('link_description')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                            
+                            <div id="links-container" class="space-y-4">
+                                <!-- Links will be added here dynamically -->
+                            </div>
+                            
+                            <div id="no-links-message" class="text-center py-4 text-gray-500 text-sm">
+                                No links added yet. Click "Add Link" to add a resource link.
                             </div>
                         </div>
                     </div>
@@ -315,69 +223,80 @@
 </div>
 
 <script>
-// Auto-adjust end time when start time changes
-document.getElementById('start_time').addEventListener('change', function() {
-    const startTime = new Date(this.value);
-    const endTimeInput = document.getElementById('end_time');
-    
-    if (startTime && !endTimeInput.value) {
-        // Default to 1 hour duration
-        const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
-        endTimeInput.value = endTime.toISOString().slice(0, 16);
-    }
-});
-
-// Color presets
-const colorPresets = [
-    '#3B82F6', // Blue
-    '#10B981', // Green  
-    '#F59E0B', // Yellow
-    '#EF4444', // Red
-    '#8B5CF6', // Purple
-    '#06B6D4', // Cyan
-    '#84CC16', // Lime
-    '#F97316', // Orange
-];
-
-// Add color preset buttons
+// Dynamic Links Management
 document.addEventListener('DOMContentLoaded', function() {
-    const colorInput = document.getElementById('color');
-    const colorContainer = colorInput.parentElement;
-    
-    const presetContainer = document.createElement('div');
-    presetContainer.className = 'flex space-x-2 mt-2';
-    
-    colorPresets.forEach(color => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'w-6 h-6 rounded border-2 border-gray-300 hover:border-gray-400';
-        button.style.backgroundColor = color;
-        button.onclick = () => colorInput.value = color;
-        presetContainer.appendChild(button);
+    const linksContainer = document.getElementById('links-container');
+    const addLinkBtn = document.getElementById('add-link-btn');
+    const noLinksMessage = document.getElementById('no-links-message');
+    let linkIndex = 0;
+
+    function updateNoLinksMessage() {
+        const linkCards = linksContainer.querySelectorAll('.link-card');
+        noLinksMessage.style.display = linkCards.length === 0 ? 'block' : 'none';
+    }
+
+    function createLinkCard(index) {
+        const card = document.createElement('div');
+        card.className = 'link-card bg-white border border-gray-200 rounded-lg p-4 relative';
+        card.innerHTML = `
+            <button type="button" class="remove-link-btn absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors" title="Remove link">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Link Title</label>
+                    <input type="text" name="links[${index}][title]" 
+                           placeholder="e.g., View Menu, Download Materials"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
+                    <input type="url" name="links[${index}][url]" 
+                           placeholder="https://example.com"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                </div>
+            </div>
+            <div class="mt-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Link Description (Optional)</label>
+                <input type="text" name="links[${index}][description]" 
+                       placeholder="Brief description of what users will find at this link..."
+                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+            </div>
+        `;
+
+        // Add remove functionality
+        card.querySelector('.remove-link-btn').addEventListener('click', function() {
+            card.remove();
+            updateNoLinksMessage();
+        });
+
+        return card;
+    }
+
+    addLinkBtn.addEventListener('click', function() {
+        const card = createLinkCard(linkIndex);
+        linksContainer.appendChild(card);
+        linkIndex++;
+        updateNoLinksMessage();
+        
+        // Focus on the first input of the new card
+        card.querySelector('input').focus();
     });
-    
-    colorContainer.appendChild(presetContainer);
-});
 
-// Toggle wellness session selector based on session type
-document.addEventListener('DOMContentLoaded', function() {
-    const sessionTypeSelect = document.getElementById('session_type');
-    const wellnessDiv = document.getElementById('wellness_session_div');
-    const wellnessSelect = document.getElementById('wellness_session_id');
-    
-    function updateWellnessVisibility() {
-        if (sessionTypeSelect.value === 'wellness') {
-            wellnessDiv.classList.remove('hidden');
-            wellnessSelect.required = true;
-        } else {
-            wellnessDiv.classList.add('hidden');
-            wellnessSelect.required = false;
-            wellnessSelect.value = '';
-        }
-    }
-    
-    sessionTypeSelect.addEventListener('change', updateWellnessVisibility);
-    updateWellnessVisibility(); // Initialize on load
+    // Initialize with old values if any
+    @if(old('links'))
+        @foreach(old('links') as $index => $link)
+            (function() {
+                const card = createLinkCard({{ $index }});
+                linksContainer.appendChild(card);
+                card.querySelector('input[name="links[{{ $index }}][title]"]').value = "{{ $link['title'] ?? '' }}";
+                card.querySelector('input[name="links[{{ $index }}][url]"]').value = "{{ $link['url'] ?? '' }}";
+                card.querySelector('input[name="links[{{ $index }}][description]"]').value = "{{ $link['description'] ?? '' }}";
+                linkIndex = {{ $index + 1 }};
+            })();
+        @endforeach
+        updateNoLinksMessage();
+    @endif
 });
 </script>
 @endsection
