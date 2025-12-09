@@ -81,7 +81,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/schedule-copy/{pdday}', [ScheduleItemController::class, 'copySchedule'])->name('schedule.copy');
     Route::post('/schedule-upload/{pdday}', [ScheduleItemController::class, 'uploadCsv'])->name('schedule.upload-csv');
     
-    // PD Days Management
+    // PL Days Management
     Route::resource('pddays', PDDayController::class)->except(['show']);
     Route::post('/pddays/{pdday}/toggle-active', [PDDayController::class, 'toggleActive'])->name('pddays.toggle-active');
     

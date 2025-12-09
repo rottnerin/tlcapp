@@ -14,7 +14,7 @@
             <div class="flex space-x-3">
                 <a href="{{ route('admin.schedule.by-pdday') }}" 
                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                    <i class="fas fa-calendar mr-2"></i>By PD Day
+                    <i class="fas fa-calendar mr-2"></i>By PL Day
                 </a>
                 <button onclick="toggleBulkActions()" 
                         class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">

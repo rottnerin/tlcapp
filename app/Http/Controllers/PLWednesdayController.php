@@ -27,6 +27,7 @@ class PLWednesdayController extends Controller
             ->orderBy('start_time', 'asc')
             ->get();
 
+        // Group sessions by date and sort by date descending (most recent first)
         $groupedSessions = $sessions->groupBy(function ($session) {
             return $session->date->format('Y-m-d');
         })->sortKeysDesc();

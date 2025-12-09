@@ -6,7 +6,7 @@ A Laravel-based web application for managing Professional Development (PD) Days,
 
 ### User Features
 
-- **Schedule View**: Browse and view schedule items for PD Days, organized by day (Day 1/Day 2)
+- **Schedule View**: Browse and view schedule items for PL Days, organized by day (Day 1/Day 2)
 - **Wellness Sessions**: View available wellness sessions and enroll in sessions
 - **PL Wednesday**: View Professional Learning sessions scheduled for Wednesday afternoons (3:00-5:00pm)
 - **Profile Management**: Update user profile information
@@ -15,8 +15,8 @@ A Laravel-based web application for managing Professional Development (PD) Days,
 ### Admin Features
 
 - **User Management**: View users, toggle admin status, and manage passwords
-- **PD Days Management**: Create, edit, and manage Professional Development Days
-- **Schedule Management**: Create and manage schedule items, bulk operations, CSV upload, and copy schedules between PD Days
+- **PL Days Management**: Create, edit, and manage Professional Development Days
+- **Schedule Management**: Create and manage schedule items, bulk operations, CSV upload, and copy schedules between PL Days
 - **Wellness Session Management**: Create, edit, and manage wellness sessions with enrollment tracking and user transfers
 - **PL Wednesday Management**: 
   - Activate/deactivate the PL Wednesday feature globally
@@ -130,7 +130,7 @@ npm run dev
 
 - `users`: User accounts with division and authentication information
 - `p_d_days`: Professional Development Days
-- `schedule_items`: Schedule items for PD Days
+- `schedule_items`: Schedule items for PL Days
 - `wellness_sessions`: Wellness session offerings
 - `user_sessions`: User enrollments in wellness sessions
 - `pl_wednesday_sessions`: PL Wednesday session information
@@ -161,7 +161,7 @@ php artisan route:clear
 The application includes several seeders for testing:
 - `AdminUserSeeder`: Creates admin user
 - `DivisionSeeder`: Creates divisions
-- `PDDaySeeder`: Creates sample PD Days
+- `PDDaySeeder`: Creates sample PL Days
 - `ScheduleItemSeeder`: Creates sample schedule items
 - `WellnessSessionSeeder`: Creates sample wellness sessions
 - `PLWednesdaySessionSeeder`: Creates sample PL Wednesday sessions

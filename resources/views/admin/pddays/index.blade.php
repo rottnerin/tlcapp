@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PD Days Management - AES Professional Learning Days</title>
+    <title>PL Days Management - AES Professional Learning Days</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -23,14 +23,32 @@
                     </span>
                 </div>
                 
-                <div class="flex items-center space-x-4">
-                    <nav class="space-x-4">
-                        <a href="{{ route('admin.dashboard') }}" class="text-indigo-200 hover:text-white">Dashboard</a>
-                        <a href="{{ route('admin.pddays.index') }}" class="text-white font-medium">PD Days</a>
-                        <a href="{{ route('admin.wellness.index') }}" class="text-indigo-200 hover:text-white">Wellness</a>
-                        <a href="{{ route('admin.schedule.index') }}" class="text-indigo-200 hover:text-white">Schedule</a>
-                        <a href="{{ route('admin.users.index') }}" class="text-indigo-200 hover:text-white">Users</a>
-                        <a href="{{ route('admin.reports') }}" class="text-indigo-200 hover:text-white">Reports</a>
+                <div class="flex items-center space-x-2 flex-1 justify-end">
+                    <nav class="flex items-center space-x-2 flex-wrap">
+                        <a href="{{ route('admin.pl-wednesday.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.pl-wednesday.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            PL Wednesday
+                        </a>
+                        <a href="{{ route('admin.pddays.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.pddays.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            PL Days
+                        </a>
+                        <a href="{{ route('admin.wellness.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.wellness.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Wellness
+                        </a>
+                        <a href="{{ route('admin.schedule.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.schedule.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Schedule
+                        </a>
+                        <a href="{{ route('admin.users.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.users.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Users
+                        </a>
+                        <a href="{{ route('admin.reports') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.reports*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Reports
+                        </a>
                     </nav>
                     
                     <div class="flex items-center space-x-2">
@@ -53,14 +71,14 @@
         <!-- Page Header -->
         <div class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">PD Days Management</h1>
+                <h1 class="text-3xl font-bold text-gray-900">PL Days Management</h1>
                 <p class="mt-2 text-gray-600">Configure professional learning day events</p>
             </div>
             <a href="{{ route('admin.pddays.create') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-md font-semibold text-black hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg whitespace-nowrap">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                Add New PD Day
+                Add New PL Day
             </a>
         </div>
 
@@ -95,7 +113,7 @@
             </div>
         @endif
 
-        <!-- PD Days List -->
+        <!-- PL Days List -->
         <div class="bg-white shadow-sm rounded-lg overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -173,7 +191,7 @@
                                     </a>
 
                                     <!-- Delete -->
-                                    <form method="POST" action="{{ route('admin.pddays.destroy', $pdDay) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this PD Day? This action cannot be undone.');">
+                                    <form method="POST" action="{{ route('admin.pddays.destroy', $pdDay) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this PL Day? This action cannot be undone.');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-900" title="Delete">
@@ -191,9 +209,9 @@
                                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 400px">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
-                                <p class="mt-2 text-sm">No PD Days configured yet.</p>
+                                <p class="mt-2 text-sm">No PL Days configured yet.</p>
                                 <a href="{{ route('admin.pddays.create') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700">
-                                    Create Your First PD Day
+                                    Create Your First PL Day
                                 </a>
                             </td>
                         </tr>
@@ -219,7 +237,7 @@
                 </div>
                 <div class="ml-3">
                     <p class="text-sm text-blue-700">
-                        <strong>Note:</strong> Only one PD Day can be active at a time. The active PD Day determines which events are displayed to users on the public-facing site. When you activate a PD Day, all other PD Days will be automatically deactivated.
+                        <strong>Note:</strong> Only one PL Day can be active at a time. The active PL Day determines which events are displayed to users on the public-facing site. When you activate a PL Day, all other PL Days will be automatically deactivated.
                     </p>
                 </div>
             </div>

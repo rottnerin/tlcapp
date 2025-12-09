@@ -23,7 +23,7 @@
                 <div class="flex items-center space-x-4">
                     <nav class="space-x-4">
                         <a href="{{ route('admin.dashboard') }}" class="text-indigo-200 hover:text-white">Dashboard</a>
-                        <a href="{{ route('admin.pddays.index') }}" class="text-indigo-200 hover:text-white">PD Days</a>
+                        <a href="{{ route('admin.pddays.index') }}" class="text-indigo-200 hover:text-white">PL Days</a>
                         <a href="{{ route('admin.wellness.index') }}" class="text-indigo-200 hover:text-white">Wellness</a>
                         <a href="{{ route('admin.schedule.by-pdday') }}" class="text-white font-medium">Schedule</a>
                         <a href="{{ route('admin.users.index') }}" class="text-indigo-200 hover:text-white">Users</a>
@@ -50,10 +50,10 @@
         <!-- Page Header -->
         <div class="mb-8">
             <a href="{{ route('admin.schedule.by-pdday') }}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                ← Back to Schedule by PD Days
+                ← Back to Schedule by PL Days
             </a>
             <h1 class="mt-2 text-3xl font-bold text-gray-900">Copy Schedule Items</h1>
-            <p class="mt-2 text-gray-600">Copy schedule items from another PD day to {{ $pdDay->title }}</p>
+                    <p class="mt-2 text-gray-600">Copy schedule items from another PL day to {{ $pdDay->title }}</p>
         </div>
 
         <!-- Form -->
@@ -63,7 +63,7 @@
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <p class="mt-2 text-sm text-gray-500">No other PD days with schedule items available to copy from.</p>
+                    <p class="mt-2 text-sm text-gray-500">No other PL days with schedule items available to copy from.</p>
                     <a href="{{ route('admin.schedule.by-pdday') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                         Back to Schedule
                     </a>
@@ -72,14 +72,14 @@
                 <form method="POST" action="{{ route('admin.schedule.copy', $pdDay) }}">
                     @csrf
 
-                    <!-- Target PD Day Info -->
+                    <!-- Target PL Day Info -->
                     <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
-                        <p class="text-sm font-medium text-indigo-900">Target PD Day</p>
+                        <p class="text-sm font-medium text-indigo-900">Target PL Day</p>
                         <p class="text-lg font-bold text-indigo-900 mt-1">{{ $pdDay->title }}</p>
                         <p class="text-sm text-indigo-700">{{ $pdDay->date_range }}</p>
                     </div>
 
-                    <!-- Source PD Day Selection -->
+                    <!-- Source PL Day Selection -->
                     <div class="mb-6">
                         <label for="source_pd_day_id" class="block text-sm font-medium text-gray-700 mb-2">
                             Copy From <span class="text-red-500">*</span>
@@ -91,7 +91,7 @@
                             required
                             onchange="updateSourceInfo()"
                         >
-                            <option value="">Select a PD day to copy from...</option>
+                            <option value="">Select a PL day to copy from...</option>
                             @foreach($sourcePdDays as $source)
                                 <option value="{{ $source->id }}" data-schedule-count="{{ $source->scheduleItems()->count() }}">
                                     {{ $source->title }} ({{ $source->date_range }}) - {{ $source->scheduleItems()->count() }} items

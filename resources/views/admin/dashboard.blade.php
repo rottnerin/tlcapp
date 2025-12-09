@@ -23,30 +23,30 @@
                     </span>
                 </div>
                 
-                <div class="flex items-center space-x-4">
-                    <nav class="space-x-4">
+                <div class="flex items-center space-x-2 flex-1 justify-end">
+                    <nav class="flex items-center space-x-2 flex-wrap">
                         <a href="{{ route('admin.pl-wednesday.index') }}" 
-                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.pl-wednesday.*') ? 'text-white font-medium' : '' }}">
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.pl-wednesday.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
                             PL Wednesday
                         </a>
                         <a href="{{ route('admin.pddays.index') }}" 
-                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.pddays.*') ? 'text-white font-medium' : '' }}">
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.pddays.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
                             PL Days
                         </a>
                         <a href="{{ route('admin.wellness.index') }}" 
-                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.wellness.*') ? 'text-white font-medium' : '' }}">
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.wellness.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
                             Wellness
                         </a>
                         <a href="{{ route('admin.schedule.index') }}" 
-                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.schedule.*') ? 'text-white font-medium' : '' }}">
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.schedule.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
                             Schedule
                         </a>
                         <a href="{{ route('admin.users.index') }}" 
-                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.users.*') ? 'text-white font-medium' : '' }}">
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.users.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
                             Users
                         </a>
                         <a href="{{ route('admin.reports') }}" 
-                           class="text-indigo-200 hover:text-white {{ request()->routeIs('admin.reports*') ? 'text-white font-medium' : '' }}">
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.reports*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
                             Reports
                         </a>
                     </nav>

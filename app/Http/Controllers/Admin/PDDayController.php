@@ -51,7 +51,7 @@ class PDDayController extends Controller
 
         return redirect()
             ->route('admin.pddays.index')
-            ->with('success', 'PD Day created successfully.');
+            ->with('success', 'PL Day created successfully.');
     }
 
     /**
@@ -84,7 +84,7 @@ class PDDayController extends Controller
 
         return redirect()
             ->route('admin.pddays.index')
-            ->with('success', 'PD Day updated successfully.');
+            ->with('success', 'PL Day updated successfully.');
     }
 
     /**
@@ -106,7 +106,7 @@ class PDDayController extends Controller
 
         return redirect()
             ->back()
-            ->with('success', "PD Day {$status} successfully.");
+            ->with('success', "PL Day {$status} successfully.");
     }
 
     /**
@@ -120,13 +120,13 @@ class PDDayController extends Controller
         if ($sessionsCount > 0) {
             return redirect()
                 ->back()
-                ->with('error', "Cannot delete PD Day with {$sessionsCount} associated sessions. Please delete or reassign sessions first.");
+                ->with('error', "Cannot delete PL Day with {$sessionsCount} associated sessions. Please delete or reassign sessions first.");
         }
 
         $pdday->delete();
 
         return redirect()
             ->route('admin.pddays.index')
-            ->with('success', 'PD Day deleted successfully.');
+            ->with('success', 'PL Day deleted successfully.');
     }
 }

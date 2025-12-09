@@ -47,8 +47,8 @@ class PLWednesdayController extends Controller
             }
         }
 
-        $sessions = $query->orderBy('date')
-            ->orderBy('start_time')
+        $sessions = $query->orderBy('date', 'desc')
+            ->orderBy('start_time', 'asc')
             ->paginate(20);
 
         return view('admin.pl-wednesday.index', compact('sessions', 'settings'));
@@ -257,8 +257,13 @@ class PLWednesdayController extends Controller
      */
     public function destroy($pl_wednesday)
     {
-        $plWednesday = PLWednesdaySession::findOrFail($pl_wednesday);
-        $plWednesday->delete();
+        // Route model binding in AppServiceProvider should provide the model instance
+        // But if it doesn't, fall back to finding it
+        if (!($pl_wednesday instanceof PLWednesdaySession)) {
+            $pl_wednesday = PLWednesdaySession::findOrFail($pl_wednesday);
+        }
+        
+        $pl_wednesday->delete();
 
         return redirect()->route('admin.pl-wednesday.index')
             ->with('success', 'PL Wednesday session deleted successfully!');

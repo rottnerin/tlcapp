@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\ScheduleItem;
 use App\Models\Division;
 use App\Models\PDDay;
+use App\Models\PLWednesdaySetting;
 use Carbon\Carbon;
 
 class ScheduleController extends Controller
@@ -20,6 +21,19 @@ class ScheduleController extends Controller
         
         // Get active PD Day
         $activePDDay = PDDay::getActive();
+        
+        // Check if there are any active schedule items in PL Days
+        $hasActivePLDaysSessions = false;
+        if ($activePDDay) {
+            $hasActivePLDaysSessions = ScheduleItem::active()
+                ->where('pd_day_id', $activePDDay->id)
+                ->exists();
+        }
+        
+        // If no active PL Days sessions and PL Wednesday is active, redirect to PL Wednesday
+        if (!$hasActivePLDaysSessions && PLWednesdaySetting::isActive()) {
+            return redirect()->route('pl-wednesday.index');
+        }
         
         // Generate date range from PD Day if available
         $eventDates = [];

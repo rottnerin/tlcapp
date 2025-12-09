@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Edit PD Day - AES Professional Learning Days</title>
+    <title>Edit PL Day - AES Professional Learning Days</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -20,14 +20,32 @@
                     </span>
                 </div>
                 
-                <div class="flex items-center space-x-4">
-                    <nav class="space-x-4">
-                        <a href="{{ route('admin.dashboard') }}" class="text-indigo-200 hover:text-white">Dashboard</a>
-                        <a href="{{ route('admin.pddays.index') }}" class="text-white font-medium">PD Days</a>
-                        <a href="{{ route('admin.wellness.index') }}" class="text-indigo-200 hover:text-white">Wellness</a>
-                        <a href="{{ route('admin.schedule.index') }}" class="text-indigo-200 hover:text-white">Schedule</a>
-                        <a href="{{ route('admin.users.index') }}" class="text-indigo-200 hover:text-white">Users</a>
-                        <a href="{{ route('admin.reports') }}" class="text-indigo-200 hover:text-white">Reports</a>
+                <div class="flex items-center space-x-2 flex-1 justify-end">
+                    <nav class="flex items-center space-x-2 flex-wrap">
+                        <a href="{{ route('admin.pl-wednesday.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.pl-wednesday.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            PL Wednesday
+                        </a>
+                        <a href="{{ route('admin.pddays.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.pddays.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            PL Days
+                        </a>
+                        <a href="{{ route('admin.wellness.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.wellness.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Wellness
+                        </a>
+                        <a href="{{ route('admin.schedule.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.schedule.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Schedule
+                        </a>
+                        <a href="{{ route('admin.users.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.users.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Users
+                        </a>
+                        <a href="{{ route('admin.reports') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.reports*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Reports
+                        </a>
                     </nav>
                     
                     <div class="flex items-center space-x-2">
@@ -50,9 +68,9 @@
         <!-- Page Header -->
         <div class="mb-8">
             <a href="{{ route('admin.pddays.index') }}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                ← Back to PD Days
+                ← Back to PL Days
             </a>
-            <h1 class="mt-2 text-3xl font-bold text-gray-900">Edit PD Day</h1>
+            <h1 class="mt-2 text-3xl font-bold text-gray-900">Edit PL Day</h1>
             <p class="mt-2 text-gray-600">Update professional learning day event details</p>
         </div>
 
@@ -150,9 +168,9 @@
                         </div>
                         <div class="ml-3 text-sm">
                             <label for="is_active" class="font-medium text-gray-700">
-                                Set as Active PD Day
+                                Set as Active PL Day
                             </label>
-                            <p class="text-gray-500">If checked, this will become the active PD day and all others will be deactivated.</p>
+                            <p class="text-gray-500">If checked, this will become the active PL day and all others will be deactivated.</p>
                         </div>
                     </div>
                 </div>
@@ -172,7 +190,7 @@
                         Cancel
                     </a>
                     <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Update PD Day
+                        Update PL Day
                     </button>
                 </div>
             </form>

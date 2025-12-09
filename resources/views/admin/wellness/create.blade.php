@@ -70,7 +70,7 @@
                         <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
                         <input type="text" id="location" name="location" value="{{ old('location') }}"
                                placeholder="e.g., Gym, Library, Room 101"
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                       @error('location') border-red-300 @enderror">
                         @error('location')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -85,7 +85,7 @@
                         <div>
                             <label for="presenter_name" class="block text-sm font-medium text-gray-700 mb-1">Presenter Name</label>
                             <input type="text" id="presenter_name" name="presenter_name" value="{{ old('presenter_name') }}"
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                           @error('presenter_name') border-red-300 @enderror">
                             @error('presenter_name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -95,7 +95,7 @@
                         <div>
                             <label for="presenter_email" class="block text-sm font-medium text-gray-700 mb-1">Presenter Email</label>
                             <input type="email" id="presenter_email" name="presenter_email" value="{{ old('presenter_email') }}"
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                           @error('presenter_email') border-red-300 @enderror">
                             @error('presenter_email')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -105,7 +105,7 @@
                         <div class="lg:col-span-2">
                             <label for="presenter_bio" class="block text-sm font-medium text-gray-700 mb-1">Presenter Bio</label>
                             <textarea id="presenter_bio" name="presenter_bio" rows="3"
-                                      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                              @error('presenter_bio') border-red-300 @enderror">{{ old('presenter_bio') }}</textarea>
                             @error('presenter_bio')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -115,7 +115,7 @@
                         <div>
                             <label for="co_presenter_name" class="block text-sm font-medium text-gray-700 mb-1">Co-Presenter Name(s)</label>
                             <input type="text" id="co_presenter_name" name="co_presenter_name" value="{{ old('co_presenter_name') }}"
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                           @error('co_presenter_name') border-red-300 @enderror">
                             @error('co_presenter_name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -125,7 +125,7 @@
                         <div>
                             <label for="co_presenter_email" class="block text-sm font-medium text-gray-700 mb-1">Co-Presenter Email(s)</label>
                             <input type="email" id="co_presenter_email" name="co_presenter_email" value="{{ old('co_presenter_email') }}"
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                           @error('co_presenter_email') border-red-300 @enderror">
                             @error('co_presenter_email')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -140,12 +140,12 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
                             <label for="pd_day_id" class="block text-sm font-medium text-gray-700 mb-1">
-                                PD Day Event
+                                PL Day Event
                             </label>
                             <select id="pd_day_id" name="pd_day_id"
-                                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                            @error('pd_day_id') border-red-300 @enderror">
-                                <option value="">Not assigned to any PD Day</option>
+                                <option value="">Not assigned to any PL Day</option>
                                 @foreach($pdDays as $pdDay)
                                     <option value="{{ $pdDay->id }}" {{ old('pd_day_id') == $pdDay->id ? 'selected' : '' }}>
                                         {{ $pdDay->title }} ({{ $pdDay->date_range }})
@@ -162,7 +162,7 @@
                                 Date <span class="text-red-500">*</span>
                             </label>
                             <input type="date" id="date" name="date" value="{{ old('date') }}" required
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                           @error('date') border-red-300 @enderror">
                             @error('date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -176,7 +176,7 @@
                             </label>
                             <input type="number" id="max_participants" name="max_participants" 
                                    value="{{ old('max_participants', 15) }}" min="1" max="200" required
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                           @error('max_participants') border-red-300 @enderror">
                             @error('max_participants')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -193,7 +193,7 @@
                             <label for="equipment_needed" class="block text-sm font-medium text-gray-700 mb-1">Equipment Needed</label>
                             <textarea id="equipment_needed" name="equipment_needed" rows="2"
                                       placeholder="e.g., yoga mats, comfortable clothing, water bottle"
-                                      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                              @error('equipment_needed') border-red-300 @enderror">{{ old('equipment_needed') }}</textarea>
                             @error('equipment_needed')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -204,7 +204,7 @@
                             <label for="special_requirements" class="block text-sm font-medium text-gray-700 mb-1">Special Requirements</label>
                             <textarea id="special_requirements" name="special_requirements" rows="2"
                                       placeholder="e.g., fitness level requirements, dietary restrictions"
-                                      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                              @error('special_requirements') border-red-300 @enderror">{{ old('special_requirements') }}</textarea>
                             @error('special_requirements')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -215,7 +215,7 @@
                             <label for="preparation_notes" class="block text-sm font-medium text-gray-700 mb-1">Preparation Notes</label>
                             <textarea id="preparation_notes" name="preparation_notes" rows="2"
                                       placeholder="What participants should know or do before the session"
-                                      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                              @error('preparation_notes') border-red-300 @enderror">{{ old('preparation_notes') }}</textarea>
                             @error('preparation_notes')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

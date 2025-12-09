@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Schedule by PD Days - AES Professional Learning Days</title>
+    <title>Schedule by PL Days - AES Professional Learning Days</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -23,7 +23,7 @@
                 <div class="flex items-center space-x-4">
                     <nav class="space-x-4">
                         <a href="{{ route('admin.dashboard') }}" class="text-indigo-200 hover:text-white">Dashboard</a>
-                        <a href="{{ route('admin.pddays.index') }}" class="text-indigo-200 hover:text-white">PD Days</a>
+                        <a href="{{ route('admin.pddays.index') }}" class="text-indigo-200 hover:text-white">PL Days</a>
                         <a href="{{ route('admin.wellness.index') }}" class="text-indigo-200 hover:text-white">Wellness</a>
                         <a href="{{ route('admin.schedule.index') }}" class="text-indigo-200 hover:text-white">Schedule</a>
                         <a href="{{ route('admin.users.index') }}" class="text-indigo-200 hover:text-white">Users</a>
@@ -50,8 +50,8 @@
         <!-- Page Header -->
         <div class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Schedule by PD Days</h1>
-                <p class="mt-2 text-gray-600">Manage schedule items grouped by PD day events</p>
+                <h1 class="text-3xl font-bold text-gray-900">Schedule by PL Days</h1>
+                <p class="mt-2 text-gray-600">Manage schedule items grouped by PL day events</p>
             </div>
             <a href="{{ route('admin.schedule.create') }}" class="inline-flex items-center px-6 py-3 bg-indigo-600 border border-transparent rounded-md font-semibold text-black hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-lg whitespace-nowrap">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +74,7 @@
             </div>
         @endif
 
-        <!-- PD Days Schedule Sections -->
+        <!-- PL Days Schedule Sections -->
         <div class="space-y-6">
             @forelse($pdDaysWithCounts as $item)
                 @php
@@ -84,7 +84,7 @@
                 @endphp
                 
                 <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                    <!-- PD Day Header -->
+                    <!-- PL Day Header -->
                     <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
                         <div class="flex items-center justify-between">
                             <div class="flex-1">
@@ -107,7 +107,7 @@
                         </div>
                     </div>
 
-                    <!-- PD Day Content -->
+                    <!-- PL Day Content -->
                     <div class="p-6">
                         @if($scheduleCount > 0)
                             <!-- Schedule Items List -->
@@ -176,7 +176,7 @@
                                 <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:400px">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
-                                <p class="mt-2 text-sm text-gray-500">No schedule items for this PD day yet</p>
+                                <p class="mt-2 text-sm text-gray-500">No schedule items for this PL day yet</p>
                                 <div class="mt-4 flex flex-col sm:flex-row justify-center gap-3">
                                     <a href="{{ route('admin.schedule.create', ['pd_day_id' => $pdDay->id]) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm font-medium">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +189,7 @@
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                             </svg>
-                                            Copy from Other PD Day
+                                            Copy from Other PL Day
                                         </a>
                                     @endif
                                     <button type="button" onclick="document.getElementById('csv-form-{{ $pdDay->id }}').classList.toggle('hidden')" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium">
@@ -240,9 +240,9 @@
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
-                    <p class="mt-2 text-sm text-gray-500">No PD days configured yet. Create a PD day first.</p>
+                    <p class="mt-2 text-sm text-gray-500">No PL days configured yet. Create a PL day first.</p>
                     <a href="{{ route('admin.pddays.create') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-                        Create PD Day
+                        Create PL Day
                     </a>
                 </div>
             @endforelse

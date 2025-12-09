@@ -19,25 +19,25 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
                     <input type="text" name="title" value="{{ old('title') }}" required
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea name="description" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('description') }}</textarea>
+                    <textarea name="description" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('description') }}</textarea>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
                     <input type="text" name="location" value="{{ old('location') }}" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date (Wednesday) <span class="text-red-500">*</span></label>
-                        <select name="date" required class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select name="date" required class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="">Select Wednesday</option>
                             @foreach($wednesdayDates as $wedDate)
                                 <option value="{{ $wedDate['value'] }}" {{ old('date') == $wedDate['value'] ? 'selected' : '' }}>
@@ -51,13 +51,13 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Start Time <span class="text-red-500">*</span></label>
                         <input type="time" name="start_time" value="{{ old('start_time', '15:00') }}" required
-                               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">End Time <span class="text-red-500">*</span></label>
                         <input type="time" name="end_time" value="{{ old('end_time', '17:00') }}" required
-                               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                 </div>
 
@@ -97,7 +97,7 @@ function addLink(title = '', url = '', description = '') {
     container.insertAdjacentHTML('beforeend', `
         <div class="link-item border border-gray-200 rounded-lg p-4 bg-gray-50">
             <div class="flex justify-between mb-4">
-                <h4 class="text-sm font-medium">Link ${linkCount + 1}</h4>
+                <h4 class="text-sm font-medium text-gray-900">Link ${linkCount + 1}</h4>
                 <button type="button" onclick="this.closest('.link-item').remove()" class="text-red-600 text-sm">
                     <i class="fas fa-trash"></i> Remove
                 </button>
@@ -106,17 +106,17 @@ function addLink(title = '', url = '', description = '') {
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Link Title</label>
                     <input type="text" name="links[${linkCount}][title]" value="${title}" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">URL</label>
                     <input type="url" name="links[${linkCount}][url]" value="${url}" 
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="https://...">
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900" placeholder="https://...">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
                     <textarea name="links[${linkCount}][description]" rows="2" 
-                              class="w-full border border-gray-300 rounded-lg px-3 py-2">${description}</textarea>
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-900">${description}</textarea>
                 </div>
             </div>
         </div>

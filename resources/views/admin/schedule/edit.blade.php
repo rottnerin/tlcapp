@@ -30,7 +30,7 @@
                             Title <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="title" name="title" value="{{ old('title', $schedule->title) }}" required
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                       @error('title') border-red-300 @enderror">
                         @error('title')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -40,7 +40,7 @@
                     <div class="lg:col-span-2">
                         <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                         <textarea id="description" name="description" rows="3"
-                                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                          @error('description') border-red-300 @enderror">{{ old('description', $schedule->description) }}</textarea>
                         @error('description')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -52,7 +52,7 @@
                             Session Type <span class="text-red-500">*</span>
                         </label>
                         <select id="session_type" name="session_type" required
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                        @error('session_type') border-red-300 @enderror">
                             <option value="">Select Type</option>
                             <option value="fixed" {{ old('session_type', $schedule->session_type) == 'fixed' ? 'selected' : '' }}>Fixed</option>
@@ -72,7 +72,7 @@
                             Link to Wellness Session <span class="text-orange-500">*</span>
                         </label>
                         <select id="wellness_session_id" name="wellness_session_id"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                        @error('wellness_session_id') border-red-300 @enderror"
                                 {{ $schedule->session_type === 'wellness' ? 'required' : '' }}>
                             <option value="">Select a wellness session...</option>
@@ -91,7 +91,7 @@
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
                         <input type="text" id="location" name="location" value="{{ old('location', $schedule->location) }}"
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                       @error('location') border-red-300 @enderror">
                         @error('location')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -106,7 +106,7 @@
                             Date <span class="text-red-500">*</span>
                         </label>
                         <input type="date" id="date" name="date" value="{{ old('date', $schedule->date->format('Y-m-d')) }}" required
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                       @error('date') border-red-300 @enderror">
                         @error('date')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -118,7 +118,7 @@
                             Start Time <span class="text-red-500">*</span>
                         </label>
                         <input type="time" id="start_time" name="start_time" value="{{ old('start_time', $schedule->start_time->format('H:i')) }}" required
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                       @error('start_time') border-red-300 @enderror">
                         @error('start_time')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -130,7 +130,7 @@
                             End Time <span class="text-red-500">*</span>
                         </label>
                         <input type="time" id="end_time" name="end_time" value="{{ old('end_time', $schedule->end_time->format('H:i')) }}" required
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                       @error('end_time') border-red-300 @enderror">
                         @error('end_time')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -143,7 +143,7 @@
                     <div>
                         <label for="presenter_primary" class="block text-sm font-medium text-gray-700 mb-1">Primary Presenter</label>
                         <input type="text" id="presenter_primary" name="presenter_primary" value="{{ old('presenter_primary', $schedule->presenter_primary) }}"
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                       @error('presenter_primary') border-red-300 @enderror">
                         @error('presenter_primary')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -153,7 +153,7 @@
                     <div>
                         <label for="presenter_secondary" class="block text-sm font-medium text-gray-700 mb-1">Secondary Presenter</label>
                         <input type="text" id="presenter_secondary" name="presenter_secondary" value="{{ old('presenter_secondary', $schedule->presenter_secondary) }}"
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                       @error('presenter_secondary') border-red-300 @enderror">
                         @error('presenter_secondary')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -163,7 +163,7 @@
                     <div class="lg:col-span-2">
                         <label for="presenter_bio" class="block text-sm font-medium text-gray-700 mb-1">Presenter Bio</label>
                         <textarea id="presenter_bio" name="presenter_bio" rows="3"
-                                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                          @error('presenter_bio') border-red-300 @enderror">{{ old('presenter_bio', $schedule->presenter_bio) }}</textarea>
                         @error('presenter_bio')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -176,7 +176,7 @@
                     <div>
                         <label for="max_participants" class="block text-sm font-medium text-gray-700 mb-1">Max Participants</label>
                         <input type="number" id="max_participants" name="max_participants" value="{{ old('max_participants', $schedule->max_participants) }}" min="1" max="500"
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                       @error('max_participants') border-red-300 @enderror">
                         @error('max_participants')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -197,7 +197,7 @@
                     <div>
                         <label for="equipment_needed" class="block text-sm font-medium text-gray-700 mb-1">Equipment Needed</label>
                         <textarea id="equipment_needed" name="equipment_needed" rows="3"
-                                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                          @error('equipment_needed') border-red-300 @enderror">{{ old('equipment_needed', $schedule->equipment_needed) }}</textarea>
                         @error('equipment_needed')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -207,7 +207,7 @@
                     <div>
                         <label for="special_requirements" class="block text-sm font-medium text-gray-700 mb-1">Special Requirements</label>
                         <textarea id="special_requirements" name="special_requirements" rows="3"
-                                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                          @error('special_requirements') border-red-300 @enderror">{{ old('special_requirements', $schedule->special_requirements) }}</textarea>
                         @error('special_requirements')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -224,7 +224,7 @@
                                 <label for="link_title" class="block text-sm font-medium text-gray-700 mb-1">Link Title</label>
                                 <input type="text" id="link_title" name="link_title" value="{{ old('link_title', $schedule->link_title) }}"
                                        placeholder="e.g., View Menu, Download Materials"
-                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                               @error('link_title') border-red-300 @enderror">
                                 @error('link_title')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -235,7 +235,7 @@
                                 <label for="link_url" class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
                                 <input type="url" id="link_url" name="link_url" value="{{ old('link_url', $schedule->link_url) }}"
                                        placeholder="https://example.com or example.com"
-                                       class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                       class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                               @error('link_url') border-red-300 @enderror">
                                 @error('link_url')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -247,7 +247,7 @@
                             <label for="link_description" class="block text-sm font-medium text-gray-700 mb-1">Link Description (Optional)</label>
                             <textarea id="link_description" name="link_description" rows="2"
                                       placeholder="Brief description of what users will find at this link..."
-                                      class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                      class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                              @error('link_description') border-red-300 @enderror">{{ old('link_description', $schedule->link_description) }}</textarea>
                             @error('link_description')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -276,15 +276,15 @@
                     @enderror
                 </div>
 
-                <!-- PD Day -->
+                <!-- PL Day -->
                 <div>
                     <label for="pd_day_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        PD Day Event
+                        PL Day Event
                     </label>
                     <select id="pd_day_id" name="pd_day_id"
-                            class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                            class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                    @error('pd_day_id') border-red-300 @enderror">
-                        <option value="">Not assigned to any PD Day</option>
+                        <option value="">Not assigned to any PL Day</option>
                         @foreach($pdDays as $pdDay)
                             <option value="{{ $pdDay->id }}" {{ old('pd_day_id', $schedule->pd_day_id) == $pdDay->id ? 'selected' : '' }}>
                                 {{ $pdDay->title }} ({{ $pdDay->date_range }})
