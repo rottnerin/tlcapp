@@ -107,7 +107,7 @@
                         </label>
                         <input type="text" id="date" name="date" value="{{ old('date', $schedule->date->format('Y-m-d')) }}" required
                                placeholder="Click to select date"
-                               class="flatpickr-date w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
+                               class="date-picker w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
                                       @error('date') border-red-300 @enderror">
                         @error('date')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -115,26 +115,52 @@
                     </div>
 
                     <div>
-                        <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
                             <i class="fas fa-clock mr-1 text-gray-400"></i>Start Time <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="start_time" name="start_time" value="{{ old('start_time', $schedule->start_time->format('H:i')) }}" required
-                               placeholder="Click to select time"
-                               class="flatpickr-time w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
-                                      @error('start_time') border-red-300 @enderror">
+                        <div class="time-picker-group @error('start_time') border-red-300 @enderror">
+                            <input type="hidden" name="start_time" id="start_time_hidden" value="{{ old('start_time', $schedule->start_time->format('H:i')) }}" required>
+                            <select class="time-hour border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                                @for($h = 1; $h <= 12; $h++)
+                                    <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}">{{ $h }}</option>
+                                @endfor
+                            </select>
+                            <select class="time-minute border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                                @for($m = 0; $m < 60; $m += 5)
+                                    <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
+                                @endfor
+                            </select>
+                            <select class="time-ampm border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
                         @error('start_time')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
                             <i class="fas fa-clock mr-1 text-gray-400"></i>End Time <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="end_time" name="end_time" value="{{ old('end_time', $schedule->end_time->format('H:i')) }}" required
-                               placeholder="Click to select time"
-                               class="flatpickr-time w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
-                                      @error('end_time') border-red-300 @enderror">
+                        <div class="time-picker-group @error('end_time') border-red-300 @enderror">
+                            <input type="hidden" name="end_time" id="end_time_hidden" value="{{ old('end_time', $schedule->end_time->format('H:i')) }}" required>
+                            <select class="time-hour border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                                @for($h = 1; $h <= 12; $h++)
+                                    <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}">{{ $h }}</option>
+                                @endfor
+                            </select>
+                            <select class="time-minute border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                                @for($m = 0; $m < 60; $m += 5)
+                                    <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
+                                @endfor
+                            </select>
+                            <select class="time-ampm border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
                         @error('end_time')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

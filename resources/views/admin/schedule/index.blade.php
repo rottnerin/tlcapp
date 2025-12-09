@@ -56,7 +56,7 @@
                         <span class="text-sm font-medium text-gray-700">
                             <span id="selectedCount">0</span> items selected
                         </span>
-                        <select name="action" required class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                        <select name="action" required class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                             <option value="">Choose action...</option>
                             <option value="activate">Activate</option>
                             <option value="deactivate">Deactivate</option>
@@ -82,12 +82,12 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                     <input type="text" name="search" value="{{ request('search') }}"
                            placeholder="Title, presenter, location..."
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                 </div>
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Division</label>
-                    <select name="division_id" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                    <select name="division_id" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                         <option value="">All Divisions</option>
                         @foreach($divisions as $division)
                             <option value="{{ $division->id }}" {{ request('division_id') == $division->id ? 'selected' : '' }}>
@@ -99,7 +99,7 @@
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                    <select name="session_type" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                    <select name="session_type" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                         <option value="">All Types</option>
                         @foreach($types as $type)
                             <option value="{{ $type }}" {{ request('session_type') == $type ? 'selected' : '' }}>
@@ -111,7 +111,7 @@
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <select name="date" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                    <select name="date" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                         <option value="">All Dates</option>
                         @foreach($availableDates as $date)
                             <option value="{{ $date }}" {{ request('date') == $date ? 'selected' : '' }}>
@@ -123,7 +123,7 @@
                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                    <select name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                         <option value="">All Status</option>
                         <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                         <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
@@ -190,7 +190,7 @@
                         <tr>
                             <th class="px-6 py-4 text-left">
                                 <input type="checkbox" id="selectAll" onchange="toggleAllCheckboxes()" 
-                                       class="h-4 w-4 text-aes-blue border-gray-300 rounded focus:ring-aes-blue">
+                                       class="h-4 w-4 text-aes-blue border-gray-300 rounded bg-white focus:ring-aes-blue">
                             </th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Division</th>
@@ -206,7 +206,7 @@
                                 <td class="px-6 py-4">
                                     <input type="checkbox" name="selected_items[]" value="{{ $item->id }}" 
                                            onchange="updateSelectedCount()"
-                                           class="h-4 w-4 text-aes-blue border-gray-300 rounded focus:ring-aes-blue item-checkbox">
+                                           class="h-4 w-4 text-aes-blue border-gray-300 rounded bg-white focus:ring-aes-blue item-checkbox">
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">

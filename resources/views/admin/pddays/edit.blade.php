@@ -7,8 +7,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="antialiased bg-gray-50">
@@ -131,7 +130,7 @@
                             id="start_date" 
                             value="{{ old('start_date', $pdday->start_date->format('Y-m-d')) }}"
                             placeholder="Click to select date"
-                            class="flatpickr-date w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer @error('start_date') border-red-500 @enderror"
+                            class="date-picker w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer @error('start_date') border-red-500 @enderror"
                             required
                         >
                         @error('start_date')
@@ -149,7 +148,7 @@
                             id="end_date" 
                             value="{{ old('end_date', $pdday->end_date->format('Y-m-d')) }}"
                             placeholder="Click to select date"
-                            class="flatpickr-date w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer @error('end_date') border-red-500 @enderror"
+                            class="date-picker w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer @error('end_date') border-red-500 @enderror"
                             required
                         >
                         @error('end_date')
@@ -202,24 +201,30 @@
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment/moment.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.flatpickr-date').forEach(function(el) {
-            flatpickr(el, {
-                dateFormat: "Y-m-d",
-                altInput: true,
-                altFormat: "F j, Y",
-                allowInput: false,
-                clickOpens: true
+        document.querySelectorAll('.date-picker').forEach(function(el) {
+            const picker = new Pikaday({
+                field: el,
+                format: 'YYYY-MM-DD',
+                showDaysInNextAndPreviousMonths: true,
+                enableSelectionDaysInNextAndPreviousMonths: true,
+                onSelect: function(date) {
+                    el.value = moment(date).format('YYYY-MM-DD');
+                }
             });
+            if (el.value) {
+                picker.setDate(moment(el.value, 'YYYY-MM-DD').toDate());
+            }
         });
     });
     </script>
     <style>
-        .flatpickr-input[readonly] { background-color: white !important; cursor: pointer; }
-        .flatpickr-day:hover { background: #4f46e5 !important; border-color: #4f46e5 !important; color: white !important; }
-        .flatpickr-day.selected { background: #4f46e5 !important; border-color: #4f46e5 !important; }
+        .pika-single { z-index: 9999 !important; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .pika-button:hover { background: #4f46e5 !important; color: white !important; }
+        .pika-day.is-selected { background: #4f46e5 !important; color: white !important; }
     </style>
 </body>
 </html>
