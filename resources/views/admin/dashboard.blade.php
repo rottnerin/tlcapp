@@ -6,6 +6,7 @@
     <title>Admin Dashboard - AES Professional Learning Days</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         .admin-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
@@ -85,26 +86,138 @@
             @endif
         </div>
 
-        <!-- Quick Actions -->
+        <!-- Feature Settings -->
         <div class="mt-6 bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <a href="{{ route('admin.users.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg text-center transition duration-200">
-                    <div class="text-lg font-medium">👥 Manage Users</div>
-                    <div class="text-sm opacity-90">View and edit user accounts</div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Feature Settings</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Wellness Feature Toggle -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-md font-medium text-gray-900">Wellness Feature</h4>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Control visibility of Wellness sessions for regular users
+                            </p>
+                        </div>
+                        <form action="{{ route('admin.toggle-wellness') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                    class="px-4 py-2 rounded-lg font-medium transition-colors {{ $wellnessSetting && $wellnessSetting->is_active ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-700 hover:bg-gray-400' }}">
+                                {{ $wellnessSetting && $wellnessSetting->is_active ? 'Active' : 'Inactive' }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- PL Days Feature Toggle -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h4 class="text-md font-medium text-gray-900">PL Days Feature</h4>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Control visibility of Schedule/PL Days for regular users
+                            </p>
+                        </div>
+                        <form action="{{ route('admin.toggle-pl-days') }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" 
+                                    class="px-4 py-2 rounded-lg font-medium transition-colors {{ $plDaysSetting && $plDaysSetting->is_active ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-700 hover:bg-gray-400' }}">
+                                {{ $plDaysSetting && $plDaysSetting->is_active ? 'Active' : 'Inactive' }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions - Direct Create Links -->
+        <div class="mt-6 bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-bolt text-yellow-500 mr-2"></i>Quick Actions
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                <a href="{{ route('admin.schedule.create') }}" class="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg text-center transition duration-200 group">
+                    <div class="text-2xl mb-1">📅</div>
+                    <div class="text-sm font-medium">+ Schedule Item</div>
                 </a>
-                <a href="{{ route('admin.wellness.index') }}" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-lg text-center transition duration-200">
-                    <div class="text-lg font-medium">🧘 Wellness Sessions</div>
-                    <div class="text-sm opacity-90">Manage wellness offerings</div>
+                <a href="{{ route('admin.wellness.create') }}" class="bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg text-center transition duration-200 group">
+                    <div class="text-2xl mb-1">🧘</div>
+                    <div class="text-sm font-medium">+ Wellness Session</div>
                 </a>
-                <a href="{{ route('admin.schedule.index') }}" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg text-center transition duration-200">
-                    <div class="text-lg font-medium">📅 Schedule Items</div>
-                    <div class="text-sm opacity-90">Manage event schedule</div>
+                <a href="{{ route('admin.pddays.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-lg text-center transition duration-200 group">
+                    <div class="text-2xl mb-1">📆</div>
+                    <div class="text-sm font-medium">+ PL Day</div>
                 </a>
-                <a href="{{ route('admin.reports') }}" class="bg-orange-600 hover:bg-orange-700 text-white p-4 rounded-lg text-center transition duration-200">
-                    <div class="text-lg font-medium">📊 Reports</div>
-                    <div class="text-sm opacity-90">View analytics & reports</div>
+                <a href="{{ route('admin.pl-wednesday.create') }}" class="bg-teal-600 hover:bg-teal-700 text-white p-3 rounded-lg text-center transition duration-200 group">
+                    <div class="text-2xl mb-1">📚</div>
+                    <div class="text-sm font-medium">+ PL Wednesday</div>
                 </a>
+                <a href="{{ route('admin.users.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg text-center transition duration-200 group">
+                    <div class="text-2xl mb-1">👥</div>
+                    <div class="text-sm font-medium">Manage Users</div>
+                </a>
+                <a href="{{ route('admin.reports') }}" class="bg-orange-600 hover:bg-orange-700 text-white p-3 rounded-lg text-center transition duration-200 group">
+                    <div class="text-2xl mb-1">📊</div>
+                    <div class="text-sm font-medium">View Reports</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Management Sections with Inline Add Buttons -->
+        <div class="mt-6 bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Manage Content</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-2xl">📅</span>
+                        <a href="{{ route('admin.schedule.create') }}" class="text-xs bg-purple-100 hover:bg-purple-200 text-purple-700 px-2 py-1 rounded transition-colors">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </a>
+                    </div>
+                    <a href="{{ route('admin.schedule.index') }}" class="block">
+                        <div class="font-medium text-gray-900">Schedule Items</div>
+                        <div class="text-sm text-gray-500">{{ $stats['total_schedule_items'] }} items</div>
+                    </a>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-green-300 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-2xl">🧘</span>
+                        <a href="{{ route('admin.wellness.create') }}" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded transition-colors">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </a>
+                    </div>
+                    <a href="{{ route('admin.wellness.index') }}" class="block">
+                        <div class="font-medium text-gray-900">Wellness Sessions</div>
+                        <div class="text-sm text-gray-500">{{ $stats['total_wellness_sessions'] }} sessions</div>
+                    </a>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-indigo-300 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-2xl">📆</span>
+                        <a href="{{ route('admin.pddays.create') }}" class="text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-1 rounded transition-colors">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </a>
+                    </div>
+                    <a href="{{ route('admin.pddays.index') }}" class="block">
+                        <div class="font-medium text-gray-900">PL Days</div>
+                        <div class="text-sm text-gray-500">Manage PL days</div>
+                    </a>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-teal-300 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-2xl">📚</span>
+                        <a href="{{ route('admin.pl-wednesday.create') }}" class="text-xs bg-teal-100 hover:bg-teal-200 text-teal-700 px-2 py-1 rounded transition-colors">
+                            <i class="fas fa-plus mr-1"></i>Add
+                        </a>
+                    </div>
+                    <a href="{{ route('admin.pl-wednesday.index') }}" class="block">
+                        <div class="font-medium text-gray-900">PL Wednesday</div>
+                        <div class="text-sm text-gray-500">Manage sessions</div>
+                    </a>
+                </div>
             </div>
         </div>
 

@@ -16,6 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'user.only' => \App\Http\Middleware\UserOnly::class,
             'no.admin' => \App\Http\Middleware\NoAdminAccess::class,
         ]);
+        
+        // Redirect unauthenticated admin requests to the admin login page
+        $middleware->redirectGuestsTo(fn ($request) => 
+            str_starts_with($request->path(), 'admin') 
+                ? route('admin.login') 
+                : route('google.login')
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

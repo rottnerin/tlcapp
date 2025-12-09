@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ScheduleItem;
+use App\Models\ScheduleItemLink;
 use App\Models\Division;
 use App\Models\PDDay;
 use App\Models\WellnessSession;
@@ -30,10 +31,13 @@ class ScheduleItemController extends Controller
             });
         }
 
-        // Division filter
+        // Division filter - include items with the selected division OR items with no divisions (All Divisions)
         if ($request->filled('division_id')) {
-            $query->whereHas('divisions', function($q) use ($request) {
-                $q->where('divisions.id', $request->division_id);
+            $divisionId = $request->division_id;
+            $query->where(function($q) use ($divisionId) {
+                $q->whereHas('divisions', function($subQ) use ($divisionId) {
+                    $subQ->where('divisions.id', $divisionId);
+                })->orWhereDoesntHave('divisions'); // Include "All Divisions" items
             });
         }
 
@@ -100,47 +104,53 @@ class ScheduleItemController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'item_type' => 'required|in:session,break,meal,assembly,transition,meeting,other',
             'division_id' => 'required|exists:divisions,id',
+            'pd_day_id' => 'nullable|exists:p_d_days,id',
             'presenter_name' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
-            'color' => 'nullable|string|max:7|regex:/^#[0-9A-Fa-f]{6}$/',
             'notes' => 'nullable|string',
-            'link_title' => 'nullable|string|max:255',
-            'link_url' => 'nullable|url|max:500',
-            'link_description' => 'nullable|string|max:1000',
             'is_required' => 'boolean',
             'is_active' => 'boolean',
+            'links' => 'nullable|array',
+            'links.*.title' => 'nullable|string|max:255',
+            'links.*.url' => 'nullable|url|max:500',
+            'links.*.description' => 'nullable|string|max:1000',
         ]);
-
-        // Check for time conflicts within the same division
-        $conflict = ScheduleItem::where('division_id', $validated['division_id'])
-            ->where('is_active', true)
-            ->where(function($query) use ($validated) {
-                $query->whereBetween('start_time', [$validated['start_time'], $validated['end_time']])
-                      ->orWhereBetween('end_time', [$validated['start_time'], $validated['end_time']])
-                      ->orWhere(function($q) use ($validated) {
-                          $q->where('start_time', '<=', $validated['start_time'])
-                            ->where('end_time', '>=', $validated['end_time']);
-                      });
-            })
-            ->exists();
-
-        if ($conflict) {
-            return back()
-                ->withInput()
-                ->withErrors(['start_time' => 'This time conflicts with an existing schedule item for this division.']);
-        }
 
         $validated['is_required'] = $request->has('is_required');
         $validated['is_active'] = $request->has('is_active') ? true : false;
         
         // Extract date from start_time for the date field
         $validated['date'] = Carbon::parse($validated['start_time'])->format('Y-m-d');
+        
+        // Map pd_day_id to p_d_day_id for the database column
+        if (isset($validated['pd_day_id'])) {
+            $validated['p_d_day_id'] = $validated['pd_day_id'];
+            unset($validated['pd_day_id']);
+        }
+        
+        // Remove links from validated data (will be handled separately)
+        $links = $validated['links'] ?? [];
+        unset($validated['links']);
 
-        ScheduleItem::create($validated);
+        $scheduleItem = ScheduleItem::create($validated);
+        
+        // Create links
+        $order = 0;
+        foreach ($links as $linkData) {
+            // Only create link if both title and url are provided
+            if (!empty($linkData['title']) && !empty($linkData['url'])) {
+                ScheduleItemLink::create([
+                    'schedule_item_id' => $scheduleItem->id,
+                    'title' => $linkData['title'],
+                    'url' => $linkData['url'],
+                    'description' => $linkData['description'] ?? null,
+                    'order' => $order++,
+                ]);
+            }
+        }
 
         return redirect()->route('admin.schedule.index')
             ->with('success', 'Schedule item created successfully!');

@@ -9,6 +9,8 @@ use App\Models\ScheduleItem;
 use App\Models\WellnessSession;
 use App\Models\Division;
 use App\Models\UserSession;
+use App\Models\WellnessSetting;
+use App\Models\PLDaysSetting;
 use Carbon\Carbon;
 
 class AdminController extends Controller
@@ -43,11 +45,19 @@ class AdminController extends Controller
         // Division breakdown
         $divisionStats = Division::withCount('users')->get();
 
+        // Initialize and get feature settings
+        WellnessSetting::initialize();
+        PLDaysSetting::initialize();
+        $wellnessSetting = WellnessSetting::getActive();
+        $plDaysSetting = PLDaysSetting::getActive();
+
         return view('admin.dashboard', compact(
             'stats', 
             'recentUsers', 
             'popularSessions', 
-            'divisionStats'
+            'divisionStats',
+            'wellnessSetting',
+            'plDaysSetting'
         ));
     }
 
@@ -127,46 +137,6 @@ class AdminController extends Controller
     }
 
     /**
-     * Enrollment reports
-     */
-    public function enrollmentReport(Request $request)
-    {
-        $startDate = $request->get('start_date', Carbon::now()->startOfMonth());
-        $endDate = $request->get('end_date', Carbon::now()->endOfMonth());
-
-        // Wellness session enrollments
-        $wellnessEnrollments = UserSession::whereNotNull('wellness_session_id')
-            ->whereBetween('enrolled_at', [$startDate, $endDate])
-            ->with(['user', 'wellnessSession'])
-            ->get()
-            ->groupBy('wellness_session_id');
-
-        // Schedule item enrollments  
-        $scheduleEnrollments = UserSession::whereNotNull('schedule_item_id')
-            ->whereBetween('enrolled_at', [$startDate, $endDate])
-            ->with(['user', 'scheduleItem'])
-            ->get()
-            ->groupBy('schedule_item_id');
-
-        // Division breakdown
-        $divisionBreakdown = UserSession::whereBetween('enrolled_at', [$startDate, $endDate])
-            ->with('user.division')
-            ->get()
-            ->groupBy('user.division.name')
-            ->map(function($enrollments) {
-                return $enrollments->count();
-            });
-
-        return view('admin.reports.enrollments', compact(
-            'wellnessEnrollments',
-            'scheduleEnrollments', 
-            'divisionBreakdown',
-            'startDate',
-            'endDate'
-        ));
-    }
-
-    /**
      * General reports dashboard
      */
     public function reports()
@@ -194,5 +164,35 @@ class AdminController extends Controller
             ->get();
 
         return view('admin.reports.index', compact('capacityData', 'enrollmentTrends'));
+    }
+
+    /**
+     * Toggle Wellness feature activation
+     */
+    public function toggleWellness()
+    {
+        WellnessSetting::initialize();
+        $settings = WellnessSetting::getActive();
+        
+        $settings->update(['is_active' => !$settings->is_active]);
+        
+        $status = $settings->is_active ? 'activated' : 'deactivated';
+        
+        return back()->with('success', "Wellness feature {$status} successfully!");
+    }
+
+    /**
+     * Toggle PL Days feature activation
+     */
+    public function togglePLDays()
+    {
+        PLDaysSetting::initialize();
+        $settings = PLDaysSetting::getActive();
+        
+        $settings->update(['is_active' => !$settings->is_active]);
+        
+        $status = $settings->is_active ? 'activated' : 'deactivated';
+        
+        return back()->with('success', "PL Days feature {$status} successfully!");
     }
 }

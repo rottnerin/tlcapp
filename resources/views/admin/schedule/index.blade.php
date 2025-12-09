@@ -130,12 +130,56 @@
                     </select>
                 </div>
                 
-                <div class="flex items-end">
-                    <button type="submit" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition-colors">
+                <div class="flex items-end space-x-2">
+                    <button type="submit" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition-colors">
                         <i class="fas fa-search mr-2"></i>Filter
                     </button>
+                    @if(request()->hasAny(['search', 'division_id', 'session_type', 'date', 'status']))
+                        <a href="{{ route('admin.schedule.index') }}" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-md transition-colors" title="Clear all filters">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
                 </div>
             </form>
+            
+            @if(request()->hasAny(['search', 'division_id', 'session_type', 'date', 'status']))
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <span class="text-sm text-gray-600">Active filters:</span>
+                    @if(request('search'))
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            Search: "{{ request('search') }}"
+                            <a href="{{ route('admin.schedule.index', request()->except('search')) }}" class="ml-1.5 text-blue-500 hover:text-blue-700">&times;</a>
+                        </span>
+                    @endif
+                    @if(request('division_id'))
+                        @php $selectedDivision = $divisions->find(request('division_id')); @endphp
+                        @if($selectedDivision)
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Division: {{ $selectedDivision->name }}
+                                <a href="{{ route('admin.schedule.index', request()->except('division_id')) }}" class="ml-1.5 text-green-500 hover:text-green-700">&times;</a>
+                            </span>
+                        @endif
+                    @endif
+                    @if(request('session_type'))
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            Type: {{ ucfirst(request('session_type')) }}
+                            <a href="{{ route('admin.schedule.index', request()->except('session_type')) }}" class="ml-1.5 text-purple-500 hover:text-purple-700">&times;</a>
+                        </span>
+                    @endif
+                    @if(request('date'))
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Date: {{ \Carbon\Carbon::parse(request('date'))->format('M j, Y') }}
+                            <a href="{{ route('admin.schedule.index', request()->except('date')) }}" class="ml-1.5 text-yellow-500 hover:text-yellow-700">&times;</a>
+                        </span>
+                    @endif
+                    @if(request('status'))
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Status: {{ ucfirst(request('status')) }}
+                            <a href="{{ route('admin.schedule.index', request()->except('status')) }}" class="ml-1.5 text-gray-500 hover:text-gray-700">&times;</a>
+                        </span>
+                    @endif
+                </div>
+            @endif
         </div>
 
         <!-- Schedule Items Table -->
