@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'AES Professional Learning Days')</title>
+    
+    <!-- Dark Mode Script - Respects system preference -->
+    <script>
+        // Check for saved theme preference or default to system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const storedTheme = localStorage.getItem('theme');
+        const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+        
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -31,14 +43,17 @@
         /* Better contrast backgrounds */
         .bg-admin-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .bg-content { background-color: #f8fafc; }
+        .dark .bg-content { background-color: #111827; }
         .shadow-content { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .dark .shadow-content { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2); }
         .shadow-card { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .dark .shadow-card { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3); }
     </style>
 </head>
-<body class="font-sans antialiased bg-content min-h-screen">
+<body class="font-sans antialiased bg-content dark:bg-gray-900 min-h-screen transition-colors duration-200">
     <!-- Admin Navigation Bar -->
     @if(auth()->check() && auth()->user()->is_admin)
-        <nav class="bg-indigo-800 shadow-lg">
+        <nav class="bg-indigo-800 dark:bg-indigo-900 shadow-lg">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center">
@@ -79,6 +94,11 @@
                         </nav>
                         
                         <div class="flex items-center space-x-2">
+                            <!-- Dark Mode Toggle -->
+                            <button id="darkModeToggle" class="p-2 text-white hover:text-yellow-200 rounded-md transition-colors" title="Toggle dark mode">
+                                <i class="fas fa-moon dark:hidden"></i>
+                                <i class="fas fa-sun hidden dark:inline"></i>
+                            </button>
                             @if(auth()->user()->avatar)
                                 <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}" class="w-8 h-8 rounded-full">
                             @endif
@@ -102,6 +122,28 @@
     <!-- Pikaday JS -->
     <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment/moment.js"></script>
+    
+    <!-- Dark Mode Toggle Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', function() {
+                const html = document.documentElement;
+                const isDark = html.classList.contains('dark');
+                
+                if (isDark) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+        }
+    });
+    </script>
     
     <!-- Initialize Date/Time Pickers -->
     <script>
@@ -223,6 +265,10 @@
             border-radius: 8px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
+        .dark .pika-single {
+            background-color: #1f2937 !important;
+            color: #f9fafb !important;
+        }
         .pika-button:hover {
             background: #1e40af !important;
             color: white !important;
@@ -230,6 +276,12 @@
         .pika-day.is-selected {
             background: #1e40af !important;
             color: white !important;
+        }
+        .dark .pika-day {
+            color: #f9fafb !important;
+        }
+        .dark .pika-day:hover {
+            background: #374151 !important;
         }
         .time-picker-group {
             display: flex;

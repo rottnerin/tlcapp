@@ -3,13 +3,13 @@
 @section('title', 'Manage Schedule Items')
 
 @section('content')
-<div class="min-h-screen bg-content py-8">
+<div class="min-h-screen bg-content dark:bg-gray-900 py-8 transition-colors duration-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Schedule Items</h1>
-                <p class="text-gray-600 mt-1">Manage the professional development schedule</p>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Schedule Items</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Manage the professional development schedule</p>
             </div>
             <div class="flex space-x-3">
                 <a href="{{ route('admin.schedule.by-pdday') }}" 
@@ -29,7 +29,7 @@
 
         <!-- Success Message -->
         @if(session('success'))
-            <div class="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-lg mb-6 shadow-content">
+            <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 px-6 py-4 rounded-lg mb-6 shadow-content">
                 <div class="flex items-center">
                     <i class="fas fa-check-circle mr-2"></i>
                     {{ session('success') }}
@@ -39,7 +39,7 @@
 
         <!-- Error Message -->
         @if(session('error'))
-            <div class="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg mb-6 shadow-content">
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 px-6 py-4 rounded-lg mb-6 shadow-content">
                 <div class="flex items-center">
                     <i class="fas fa-exclamation-triangle mr-2"></i>
                     {{ session('error') }}
@@ -48,15 +48,15 @@
         @endif
 
         <!-- Bulk Actions Bar (Hidden by default) -->
-        <div id="bulkActionsBar" class="hidden bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 shadow-content">
+        <div id="bulkActionsBar" class="hidden bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6 shadow-content">
             <form action="{{ route('admin.schedule.bulk-update') }}" method="POST" id="bulkForm">
                 @csrf
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
-                        <span class="text-sm font-medium text-gray-700">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
                             <span id="selectedCount">0</span> items selected
                         </span>
-                        <select name="action" required class="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                        <select name="action" required class="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                             <option value="">Choose action...</option>
                             <option value="activate">Activate</option>
                             <option value="deactivate">Deactivate</option>
@@ -67,7 +67,7 @@
                         </button>
                     </div>
                     <button type="button" onclick="toggleBulkActions()" 
-                            class="text-gray-500 hover:text-gray-700">
+                            class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -75,19 +75,19 @@
         </div>
 
         <!-- Filters -->
-        <div class="bg-white rounded-lg shadow-card mb-8 p-6 border">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card mb-8 p-6 border dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Filters</h3>
             <form method="GET" action="{{ route('admin.schedule.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
                     <input type="text" name="search" value="{{ request('search') }}"
                            placeholder="Title, presenter, location..."
-                           class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                           class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Division</label>
-                    <select name="division_id" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Division</label>
+                    <select name="division_id" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                         <option value="">All Divisions</option>
                         @foreach($divisions as $division)
                             <option value="{{ $division->id }}" {{ request('division_id') == $division->id ? 'selected' : '' }}>
@@ -98,8 +98,8 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                    <select name="session_type" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+                    <select name="session_type" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                         <option value="">All Types</option>
                         @foreach($types as $type)
                             <option value="{{ $type }}" {{ request('session_type') == $type ? 'selected' : '' }}>
@@ -110,8 +110,8 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                    <select name="date" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                    <select name="date" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                         <option value="">All Dates</option>
                         @foreach($availableDates as $date)
                             <option value="{{ $date }}" {{ request('date') == $date ? 'selected' : '' }}>
@@ -122,8 +122,8 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                    <select name="status" class="w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                    <select name="status" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                         <option value="">All Status</option>
                         <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                         <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
@@ -144,7 +144,7 @@
             
             @if(request()->hasAny(['search', 'division_id', 'session_type', 'date', 'status']))
                 <div class="mt-4 flex flex-wrap gap-2">
-                    <span class="text-sm text-gray-600">Active filters:</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">Active filters:</span>
                     @if(request('search'))
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             Search: "{{ request('search') }}"
@@ -183,30 +183,30 @@
         </div>
 
         <!-- Schedule Items Table -->
-        <div class="bg-white rounded-lg shadow-card overflow-hidden border">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card overflow-hidden border dark:border-gray-700">
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
                             <th class="px-6 py-4 text-left">
                                 <input type="checkbox" id="selectAll" onchange="toggleAllCheckboxes()" 
-                                       class="h-4 w-4 text-aes-blue border-gray-300 rounded bg-white focus:ring-aes-blue">
+                                       class="h-4 w-4 text-aes-blue border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 focus:ring-aes-blue">
                             </th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Division</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Item</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Division</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date & Time</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse($scheduleItems as $item)
-                            <tr class="hover:bg-gray-50" data-item-color="{{ $item->color }}">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors" data-item-color="{{ $item->color }}">
                                 <td class="px-6 py-4">
                                     <input type="checkbox" name="selected_items[]" value="{{ $item->id }}" 
                                            onchange="updateSelectedCount()"
-                                           class="h-4 w-4 text-aes-blue border-gray-300 rounded bg-white focus:ring-aes-blue item-checkbox">
+                                           class="h-4 w-4 text-aes-blue border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 focus:ring-aes-blue item-checkbox">
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
@@ -214,19 +214,19 @@
                                             <div class="w-3 h-3 rounded-full mr-3" style="background-color: {{ $item->color }}"></div>
                                         @endif
                                         <div>
-                                            <div class="text-sm font-medium text-gray-900">{{ $item->title }}</div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $item->title }}</div>
                                             @if($item->presenter_name)
-                                                <div class="text-sm text-gray-500">{{ $item->presenter_name }}</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $item->presenter_name }}</div>
                                             @endif
                                             @if($item->location)
-                                                <div class="text-sm text-gray-500">
+                                                <div class="text-sm text-gray-500 dark:text-gray-400">
                                                     <i class="fas fa-map-marker-alt mr-1"></i>{{ $item->location }}
                                                 </div>
                                             @endif
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-900">
+                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                                     @if($item->divisions->count() > 0)
                                         @foreach($item->divisions as $division)
                                             <span class="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full mr-1 mb-1">
@@ -234,12 +234,12 @@
                                             </span>
                                         @endforeach
                                     @else
-                                        <span class="text-gray-500">All Divisions</span>
+                                        <span class="text-gray-500 dark:text-gray-400">All Divisions</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-900">
+                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
                                     <div>{{ \Carbon\Carbon::parse($item->start_time)->format('M j, Y') }}</div>
-                                    <div class="text-gray-500">
+                                    <div class="text-gray-500 dark:text-gray-400">
                                         {{ \Carbon\Carbon::parse($item->start_time)->format('g:i A') }} - 
                                         {{ \Carbon\Carbon::parse($item->end_time)->format('g:i A') }}
                                     </div>
@@ -286,9 +286,9 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                     No schedule items found. 
-                                    <a href="{{ route('admin.schedule.create') }}" class="text-aes-blue hover:underline">
+                                    <a href="{{ route('admin.schedule.create') }}" class="text-aes-blue dark:text-blue-400 hover:underline">
                                         Create your first schedule item
                                     </a>
                                 </td>

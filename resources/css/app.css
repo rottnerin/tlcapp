@@ -9,3 +9,158 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Ensure all admin inputs have black text on white background */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="number"],
+input[type="url"],
+input[type="tel"],
+input[type="search"],
+textarea,
+select {
+    color: #111827 !important; /* text-gray-900 */
+    background-color: #ffffff !important; /* bg-white */
+}
+
+/* Dark mode inputs */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"],
+.dark input[type="number"],
+.dark input[type="url"],
+.dark input[type="tel"],
+.dark input[type="search"],
+.dark textarea,
+.dark select {
+    color: #f9fafb !important; /* text-gray-50 */
+    background-color: #374151 !important; /* bg-gray-700 */
+    border-color: #4b5563 !important; /* border-gray-600 */
+}
+
+/* Ensure inputs maintain black text when focused */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+input[type="tel"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
+    color: #111827 !important; /* text-gray-900 */
+    background-color: #ffffff !important; /* bg-white */
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="date"]:focus,
+.dark input[type="time"]:focus,
+.dark input[type="datetime-local"]:focus,
+.dark input[type="number"]:focus,
+.dark input[type="url"]:focus,
+.dark input[type="tel"]:focus,
+.dark input[type="search"]:focus,
+.dark textarea:focus,
+.dark select:focus {
+    color: #f9fafb !important;
+    background-color: #4b5563 !important; /* bg-gray-600 */
+    border-color: #1e40af !important; /* border-aes-blue */
+}
+
+/* Ensure checkboxes have white backgrounds */
+input[type="checkbox"] {
+    background-color: #ffffff !important; /* bg-white */
+    border-color: #d1d5db !important; /* border-gray-300 */
+}
+
+.dark input[type="checkbox"] {
+    background-color: #374151 !important; /* bg-gray-700 */
+    border-color: #4b5563 !important; /* border-gray-600 */
+}
+
+input[type="checkbox"]:checked {
+    background-color: #1e40af !important; /* bg-aes-blue */
+    border-color: #1e40af !important;
+}
+
+.dark input[type="checkbox"]:checked {
+    background-color: #1e40af !important; /* bg-aes-blue */
+    border-color: #1e40af !important;
+}
+
+input[type="checkbox"]:focus {
+    background-color: #ffffff !important;
+    border-color: #1e40af !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.dark input[type="checkbox"]:focus {
+    background-color: #374151 !important;
+    border-color: #1e40af !important;
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.3);
+}
+
+/* Dark mode table styles */
+.dark table {
+    color: #f9fafb;
+}
+
+.dark thead {
+    background-color: #374151;
+}
+
+.dark tbody tr {
+    border-color: #4b5563;
+}
+
+.dark tbody tr:hover {
+    background-color: #374151;
+}
+
+/* Dark mode card/panel styles */
+.dark .bg-white {
+    background-color: #1f2937 !important;
+}
+
+/* Dark mode text colors */
+.dark .text-gray-900 {
+    color: #f9fafb !important;
+}
+
+.dark .text-gray-800 {
+    color: #f3f4f6 !important;
+}
+
+.dark .text-gray-700 {
+    color: #e5e7eb !important;
+}
+
+.dark .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+.dark .text-gray-500 {
+    color: #9ca3af !important;
+}
+
+/* Dark mode borders */
+.dark .border-gray-200 {
+    border-color: #4b5563 !important;
+}
+
+.dark .border-gray-300 {
+    border-color: #4b5563 !important;
+}

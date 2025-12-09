@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,16 +15,28 @@
 
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <!-- Dark Mode Script -->
+    <script>
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const storedTheme = localStorage.getItem('theme');
+        const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
 
     <!-- AES Brand Styles -->
     <style>
         .aes-primary { background: linear-gradient(135deg, #4CAF50 0%, #2196F3 50%, #FF9800 100%); }
         .aes-bg { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        .dark .aes-bg { background: linear-gradient(135deg, #1f2937 0%, #111827 100%); }
         .division-es { border-left: 4px solid #4CAF50; }
         .division-ms { border-left: 4px solid #2196F3; }
         .division-hs { border-left: 4px solid #FF9800; }
         .session-card { transition: all 0.3s ease; }
         .session-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .dark .session-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
         .line-clamp-3 {
             overflow: hidden;
             display: -webkit-box;
@@ -35,7 +47,7 @@
 
     @stack('styles')
 </head>
-<body class="antialiased bg-gray-50 aes-bg">
+<body class="antialiased bg-gray-50 dark:bg-gray-900 aes-bg transition-colors duration-200">
     <!-- Navigation -->
     <nav class="shadow-lg border-b" style="background-color: #000;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,18 +78,24 @@
 
                 <div class="flex items-center space-x-4">
                     <nav class="space-x-4">
-                        <a href="{{ route('dashboard') }}"
-                           class="text-white hover:text-gray-200 {{ request()->routeIs('dashboard') || request()->routeIs('schedule.*') ? 'text-white font-medium' : '' }}">
-                            Schedule
-                        </a>
-                        <a href="{{ route('wellness.index') }}"
-                           class="text-white hover:text-gray-200 {{ request()->routeIs('wellness.*') ? 'text-white font-medium' : '' }}">
-                            Wellness
-                        </a>
-                        <a href="{{ route('pl-wednesday.index') }}"
-                           class="text-white hover:text-gray-200 {{ request()->routeIs('pl-wednesday.*') ? 'text-white font-medium' : '' }}">
-                            PL Wednesday
-                        </a>
+                        @if($plDaysActive ?? true)
+                            <a href="{{ route('dashboard') }}"
+                               class="text-white hover:text-gray-200 {{ request()->routeIs('dashboard') || request()->routeIs('schedule.*') ? 'text-white font-medium' : '' }}">
+                                Schedule
+                            </a>
+                        @endif
+                        @if($wellnessActive ?? true)
+                            <a href="{{ route('wellness.index') }}"
+                               class="text-white hover:text-gray-200 {{ request()->routeIs('wellness.*') ? 'text-white font-medium' : '' }}">
+                                Wellness
+                            </a>
+                        @endif
+                        @if($plWednesdayActive ?? false)
+                            <a href="{{ route('pl-wednesday.index') }}"
+                               class="text-white hover:text-gray-200 {{ request()->routeIs('pl-wednesday.*') ? 'text-white font-medium' : '' }}">
+                                PL Wednesday
+                            </a>
+                        @endif
                         <a href="https://docs.google.com/document/d/1m08jPdge3v_A1ZTUZqlkzcC0P13LY2HnQ0rtA4_uJn4/edit?usp=sharing"
                            target="_blank"
                            rel="noopener noreferrer"
@@ -87,6 +105,11 @@
                     </nav>
 
                     <div class="flex items-center space-x-2">
+                        <!-- Dark Mode Toggle -->
+                        <button id="darkModeToggle" class="p-2 text-white hover:text-gray-200 rounded-md transition-colors" title="Toggle dark mode">
+                            <i class="fas fa-moon dark:hidden"></i>
+                            <i class="fas fa-sun hidden dark:inline"></i>
+                        </button>
                         @if(auth()->check() && auth()->user()->avatar)
                             <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}" class="w-8 h-8 rounded-full">
                         @endif
@@ -102,18 +125,24 @@
             <!-- Mobile Menu (Hidden by default) -->
             <div id="mobile-menu" class="hidden md:hidden" style="border-top: 1px solid rgba(255,255,255,0.2);">
                 <div class="px-2 pt-2 pb-3 space-y-1">
-                    <a href="{{ route('dashboard') }}"
-                       class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-yellow-600 rounded-md {{ request()->routeIs('dashboard') || request()->routeIs('schedule.*') ? 'text-white bg-yellow-600' : '' }}">
-                        Schedule
-                    </a>
-                    <a href="{{ route('wellness.index') }}"
-                       class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-yellow-600 rounded-md {{ request()->routeIs('wellness.*') ? 'text-white bg-yellow-600' : '' }}">
-                        Wellness
-                    </a>
-                    <a href="{{ route('pl-wednesday.index') }}"
-                       class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-yellow-600 rounded-md {{ request()->routeIs('pl-wednesday.*') ? 'text-white bg-yellow-600' : '' }}">
-                        PL Wednesday
-                    </a>
+                    @if($plDaysActive ?? true)
+                        <a href="{{ route('dashboard') }}"
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-yellow-600 rounded-md {{ request()->routeIs('dashboard') || request()->routeIs('schedule.*') ? 'text-white bg-yellow-600' : '' }}">
+                            Schedule
+                        </a>
+                    @endif
+                    @if($wellnessActive ?? true)
+                        <a href="{{ route('wellness.index') }}"
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-yellow-600 rounded-md {{ request()->routeIs('wellness.*') ? 'text-white bg-yellow-600' : '' }}">
+                            Wellness
+                        </a>
+                    @endif
+                    @if($plWednesdayActive ?? false)
+                        <a href="{{ route('pl-wednesday.index') }}"
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-yellow-600 rounded-md {{ request()->routeIs('pl-wednesday.*') ? 'text-white bg-yellow-600' : '' }}">
+                            PL Wednesday
+                        </a>
+                    @endif
                     <a href="https://docs.google.com/document/d/1m08jPdge3v_A1ZTUZqlkzcC0P13LY2HnQ0rtA4_uJn4/edit?usp=sharing"
                        target="_blank"
                        rel="noopener noreferrer"
@@ -142,7 +171,7 @@
         </div>
     </nav>
 
-    <!-- Mobile Menu Script -->
+    <!-- Mobile Menu & Dark Mode Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -151,6 +180,23 @@
             mobileMenuButton.addEventListener('click', function() {
                 mobileMenu.classList.toggle('hidden');
             });
+            
+            // Dark Mode Toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function() {
+                    const html = document.documentElement;
+                    const isDark = html.classList.contains('dark');
+                    
+                    if (isDark) {
+                        html.classList.remove('dark');
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        html.classList.add('dark');
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
+            }
         });
     </script>
 

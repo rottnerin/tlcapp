@@ -3,22 +3,22 @@
 @section('title', 'Edit Schedule Item')
 
 @section('content')
-<div class="min-h-screen bg-content py-8">
+<div class="min-h-screen bg-content dark:bg-gray-900 py-8 transition-colors duration-200">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center mb-4">
                 <a href="{{ route('admin.schedule.index') }}" 
-                   class="text-aes-blue hover:text-blue-700 mr-4 font-medium">
+                   class="text-aes-blue dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mr-4 font-medium">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Schedule Items
                 </a>
             </div>
-            <h1 class="text-3xl font-bold text-gray-900">Edit Schedule Item</h1>
-            <p class="text-gray-600 mt-1">Update the schedule item information</p>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Edit Schedule Item</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">Update the schedule item information</p>
         </div>
 
         <!-- Form -->
-        <div class="bg-white rounded-lg shadow-card border">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-card border dark:border-gray-700">
             <form action="{{ route('admin.schedule.update', $schedule) }}" method="POST" class="p-8 space-y-8">
                 @csrf
                 @method('PUT')
@@ -102,67 +102,67 @@
                 <!-- Date and Time -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div>
-                        <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
-                            <i class="fas fa-calendar-alt mr-1 text-gray-400"></i>Date <span class="text-red-500">*</span>
+                        <label for="date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-calendar-alt mr-1 text-gray-400 dark:text-gray-500"></i>Date <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="date" name="date" value="{{ old('date', $schedule->date->format('Y-m-d')) }}" required
                                placeholder="Click to select date"
-                               class="date-picker w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
-                                      @error('date') border-red-300 @enderror">
+                               class="date-picker w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
+                                      @error('date') border-red-300 dark:border-red-600 @enderror">
                         @error('date')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            <i class="fas fa-clock mr-1 text-gray-400"></i>Start Time <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-clock mr-1 text-gray-400 dark:text-gray-500"></i>Start Time <span class="text-red-500">*</span>
                         </label>
-                        <div class="time-picker-group @error('start_time') border-red-300 @enderror">
+                        <div class="time-picker-group @error('start_time') border-red-300 dark:border-red-600 @enderror">
                             <input type="hidden" name="start_time" id="start_time_hidden" value="{{ old('start_time', $schedule->start_time->format('H:i')) }}" required>
-                            <select class="time-hour border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                            <select class="time-hour border border-gray-300 dark:border-gray-600 rounded-md px-2 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                                 @for($h = 1; $h <= 12; $h++)
                                     <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}">{{ $h }}</option>
                                 @endfor
                             </select>
-                            <select class="time-minute border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                            <select class="time-minute border border-gray-300 dark:border-gray-600 rounded-md px-2 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                                 @for($m = 0; $m < 60; $m += 5)
                                     <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
                                 @endfor
                             </select>
-                            <select class="time-ampm border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                            <select class="time-ampm border border-gray-300 dark:border-gray-600 rounded-md px-2 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                                 <option value="AM">AM</option>
                                 <option value="PM">PM</option>
                             </select>
                         </div>
                         @error('start_time')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            <i class="fas fa-clock mr-1 text-gray-400"></i>End Time <span class="text-red-500">*</span>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-clock mr-1 text-gray-400 dark:text-gray-500"></i>End Time <span class="text-red-500">*</span>
                         </label>
-                        <div class="time-picker-group @error('end_time') border-red-300 @enderror">
+                        <div class="time-picker-group @error('end_time') border-red-300 dark:border-red-600 @enderror">
                             <input type="hidden" name="end_time" id="end_time_hidden" value="{{ old('end_time', $schedule->end_time->format('H:i')) }}" required>
-                            <select class="time-hour border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                            <select class="time-hour border border-gray-300 dark:border-gray-600 rounded-md px-2 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                                 @for($h = 1; $h <= 12; $h++)
                                     <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}">{{ $h }}</option>
                                 @endfor
                             </select>
-                            <select class="time-minute border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                            <select class="time-minute border border-gray-300 dark:border-gray-600 rounded-md px-2 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                                 @for($m = 0; $m < 60; $m += 5)
                                     <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
                                 @endfor
                             </select>
-                            <select class="time-ampm border border-gray-300 rounded-md px-2 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                            <select class="time-ampm border border-gray-300 dark:border-gray-600 rounded-md px-2 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-aes-blue">
                                 <option value="AM">AM</option>
                                 <option value="PM">PM</option>
                             </select>
                         </div>
                         @error('end_time')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
