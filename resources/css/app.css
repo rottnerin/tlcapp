@@ -129,38 +129,3 @@ input[type="checkbox"]:focus {
 .dark tbody tr:hover {
     background-color: #374151;
 }
-
-/* Dark mode card/panel styles */
-.dark .bg-white {
-    background-color: #1f2937 !important;
-}
-
-/* Dark mode text colors */
-.dark .text-gray-900 {
-    color: #f9fafb !important;
-}
-
-.dark .text-gray-800 {
-    color: #f3f4f6 !important;
-}
-
-.dark .text-gray-700 {
-    color: #e5e7eb !important;
-}
-
-.dark .text-gray-600 {
-    color: #d1d5db !important;
-}
-
-.dark .text-gray-500 {
-    color: #9ca3af !important;
-}
-
-/* Dark mode borders */
-.dark .border-gray-200 {
-    border-color: #4b5563 !important;
-}
-
-.dark .border-gray-300 {
-    border-color: #4b5563 !important;
-}
