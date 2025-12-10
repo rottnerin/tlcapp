@@ -21,7 +21,7 @@ class PLWednesdayController extends Controller
         PLWednesdaySetting::initialize();
         $settings = PLWednesdaySetting::getActive();
 
-        $query = PLWednesdaySession::with('links');
+        $query = PLWednesdaySession::with(['links', 'division']);
 
         // Search functionality
         if ($request->filled('search')) {

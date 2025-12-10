@@ -189,35 +189,70 @@
 
             <!-- Feature Toggles -->
             <div class="card rounded-2xl p-6 shadow-sm">
-                <h2 class="text-lg font-semibold mb-4" style="color: #1e293b;">Feature Settings</h2>
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between p-3 rounded-xl" style="background: #f8fafc;">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: #d1fae5;">
-                                <i class="fas fa-heart text-sm" style="color: #059669;"></i>
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-lg font-semibold" style="color: #1e293b;">Feature Settings</h2>
+                    <span class="px-2 py-0.5 text-xs font-medium rounded-full" style="background: #fef3c7; color: #b45309;">
+                        <i class="fas fa-eye-slash mr-1"></i>Controls Visibility
+                    </span>
+                </div>
+                <p class="text-xs mb-4" style="color: #64748b;">
+                    Toggle features on/off. Disabled features will be hidden from the user dashboard.
+                </p>
+                <div class="space-y-3">
+                    <!-- Wellness Toggle -->
+                    <div class="p-4 rounded-xl" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: {{ $wellnessSetting && $wellnessSetting->is_active ? '#d1fae5' : '#f1f5f9' }};">
+                                    <i class="fas fa-heart" style="color: {{ $wellnessSetting && $wellnessSetting->is_active ? '#059669' : '#94a3b8' }};"></i>
+                                </div>
+                                <div>
+                                    <span class="text-sm font-semibold block" style="color: #1e293b;">Wellness Sessions</span>
+                                    <span class="text-xs" style="color: {{ $wellnessSetting && $wellnessSetting->is_active ? '#059669' : '#ef4444' }};">
+                                        {{ $wellnessSetting && $wellnessSetting->is_active ? '● Visible to users' : '○ Hidden from users' }}
+                                    </span>
+                                </div>
                             </div>
-                            <span class="text-sm font-medium" style="color: #475569;">Wellness</span>
+                            <form action="{{ route('admin.toggle-wellness') }}" method="POST">
+                                @csrf
+                                <button type="submit" 
+                                        class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                        style="background: {{ $wellnessSetting && $wellnessSetting->is_active ? '#10b981' : '#d1d5db' }}; focus:ring-color: #10b981;"
+                                        role="switch"
+                                        aria-checked="{{ $wellnessSetting && $wellnessSetting->is_active ? 'true' : 'false' }}">
+                                    <span class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                                          style="transform: translateX({{ $wellnessSetting && $wellnessSetting->is_active ? '1.25rem' : '0' }});"></span>
+                                </button>
+                            </form>
                         </div>
-                        <form action="{{ route('admin.toggle-wellness') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" style="background: {{ $wellnessSetting && $wellnessSetting->is_active ? '#10b981' : '#cbd5e1' }};">
-                                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" style="transform: translateX({{ $wellnessSetting && $wellnessSetting->is_active ? '1.25rem' : '0.25rem' }});"></span>
-                            </button>
-                        </form>
                     </div>
-                    <div class="flex items-center justify-between p-3 rounded-xl" style="background: #f8fafc;">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: #ede9fe;">
-                                <i class="fas fa-calendar-alt text-sm" style="color: #7c3aed;"></i>
+                    
+                    <!-- PL Days Toggle -->
+                    <div class="p-4 rounded-xl" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: {{ $plDaysSetting && $plDaysSetting->is_active ? '#ede9fe' : '#f1f5f9' }};">
+                                    <i class="fas fa-calendar-alt" style="color: {{ $plDaysSetting && $plDaysSetting->is_active ? '#7c3aed' : '#94a3b8' }};"></i>
+                                </div>
+                                <div>
+                                    <span class="text-sm font-semibold block" style="color: #1e293b;">PL Days</span>
+                                    <span class="text-xs" style="color: {{ $plDaysSetting && $plDaysSetting->is_active ? '#059669' : '#ef4444' }};">
+                                        {{ $plDaysSetting && $plDaysSetting->is_active ? '● Visible to users' : '○ Hidden from users' }}
+                                    </span>
+                                </div>
                             </div>
-                            <span class="text-sm font-medium" style="color: #475569;">PL Days</span>
+                            <form action="{{ route('admin.toggle-pl-days') }}" method="POST">
+                                @csrf
+                                <button type="submit" 
+                                        class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                        style="background: {{ $plDaysSetting && $plDaysSetting->is_active ? '#10b981' : '#d1d5db' }}; focus:ring-color: #10b981;"
+                                        role="switch"
+                                        aria-checked="{{ $plDaysSetting && $plDaysSetting->is_active ? 'true' : 'false' }}">
+                                    <span class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
+                                          style="transform: translateX({{ $plDaysSetting && $plDaysSetting->is_active ? '1.25rem' : '0' }});"></span>
+                                </button>
+                            </form>
                         </div>
-                        <form action="{{ route('admin.toggle-pl-days') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors" style="background: {{ $plDaysSetting && $plDaysSetting->is_active ? '#10b981' : '#cbd5e1' }};">
-                                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" style="transform: translateX({{ $plDaysSetting && $plDaysSetting->is_active ? '1.25rem' : '0.25rem' }});"></span>
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>

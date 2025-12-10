@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\WellnessSession;
 use App\Models\UserSession;
 use App\Models\PDDay;
+use App\Models\WellnessSetting;
 use Carbon\Carbon;
 
 class WellnessController extends Controller
@@ -15,6 +16,12 @@ class WellnessController extends Controller
      */
     public function index(Request $request)
     {
+        // Check if Wellness feature is enabled
+        WellnessSetting::initialize();
+        if (!WellnessSetting::isActive()) {
+            abort(404);
+        }
+
         $user = auth()->user();
         
         // Get active PD Day
@@ -81,6 +88,12 @@ class WellnessController extends Controller
      */
     public function show(WellnessSession $session)
     {
+        // Check if Wellness feature is enabled
+        WellnessSetting::initialize();
+        if (!WellnessSetting::isActive()) {
+            abort(404);
+        }
+
         $user = auth()->user();
         
         // Load relationships
@@ -115,6 +128,12 @@ class WellnessController extends Controller
      */
     public function enroll(Request $request, WellnessSession $session)
     {
+        // Check if Wellness feature is enabled
+        WellnessSetting::initialize();
+        if (!WellnessSetting::isActive()) {
+            abort(404);
+        }
+
         $user = auth()->user();
         
         // Check if user is already enrolled in this specific session

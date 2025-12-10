@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
+use App\Models\ScheduleItemLink;
 
 class ScheduleItem extends Model
 {
@@ -57,6 +58,14 @@ class ScheduleItem extends Model
     public function wellnessSession(): BelongsTo
     {
         return $this->belongsTo(WellnessSession::class);
+    }
+
+    /**
+     * Get the links for this schedule item
+     */
+    public function links(): HasMany
+    {
+        return $this->hasMany(ScheduleItemLink::class)->ordered();
     }
 
     /**

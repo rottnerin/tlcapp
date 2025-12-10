@@ -7,6 +7,7 @@ use App\Models\ScheduleItem;
 use App\Models\Division;
 use App\Models\PDDay;
 use App\Models\PLWednesdaySetting;
+use App\Models\PLDaysSetting;
 use Carbon\Carbon;
 
 class ScheduleController extends Controller
@@ -16,6 +17,16 @@ class ScheduleController extends Controller
      */
     public function index(Request $request)
     {
+        // Check if PL Days feature is enabled
+        PLDaysSetting::initialize();
+        if (!PLDaysSetting::isActive()) {
+            // If PL Wednesday is active, redirect there, otherwise 404
+            if (PLWednesdaySetting::isActive()) {
+                return redirect()->route('pl-wednesday.index');
+            }
+            abort(404);
+        }
+
         $user = auth()->user(); 
         $divisions = Division::active()->get();
         
@@ -144,6 +155,12 @@ class ScheduleController extends Controller
      */
     public function show(ScheduleItem $scheduleItem)
     {
+        // Check if PL Days feature is enabled
+        PLDaysSetting::initialize();
+        if (!PLDaysSetting::isActive()) {
+            abort(404);
+        }
+
         $user = auth()->user();
         
         // Load relationships

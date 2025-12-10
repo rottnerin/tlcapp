@@ -1,70 +1,46 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Copy Schedule - AES Professional Learning Days</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="antialiased bg-gray-50">
-    <!-- Admin Navigation -->
-    <nav class="bg-indigo-800 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <span class="text-white text-lg font-bold">🛠️ AES Admin Panel</span>
-                    <span class="ml-4 px-3 py-1 text-xs font-medium bg-yellow-400 text-yellow-900 rounded-full">
-                        Administrator
-                    </span>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <nav class="space-x-4">
-                        <a href="{{ route('admin.dashboard') }}" class="text-indigo-200 hover:text-white">Dashboard</a>
-                        <a href="{{ route('admin.pddays.index') }}" class="text-indigo-200 hover:text-white">PL Days</a>
-                        <a href="{{ route('admin.wellness.index') }}" class="text-indigo-200 hover:text-white">Wellness</a>
-                        <a href="{{ route('admin.schedule.by-pdday') }}" class="text-white font-medium">Schedule</a>
-                        <a href="{{ route('admin.users.index') }}" class="text-indigo-200 hover:text-white">Users</a>
-                        <a href="{{ route('admin.reports') }}" class="text-indigo-200 hover:text-white">Reports</a>
-                    </nav>
-                    
-                    <div class="flex items-center space-x-2">
-                        @if(auth()->user()->avatar)
-                            <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}" class="w-8 h-8 rounded-full">
-                        @endif
-                        <span class="text-sm text-indigo-200">{{ auth()->user()->name }}</span>
-                        <form method="POST" action="{{ route('admin.logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="text-sm text-red-300 hover:text-red-100">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
+@extends('layouts.app')
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <!-- Page Header -->
-        <div class="mb-8">
-            <a href="{{ route('admin.schedule.by-pdday') }}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                ← Back to Schedule by PL Days
+@section('title', 'Copy Schedule')
+
+@section('content')
+<style>
+    .card { background: #ffffff; border: 1px solid #e2e8f0; }
+    .form-input { 
+        background: #ffffff; 
+        border: 1px solid #e2e8f0; 
+        color: #1e293b;
+        transition: all 0.15s ease;
+    }
+    .form-input:focus { 
+        border-color: #2563eb; 
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+</style>
+
+<div class="min-h-screen py-8" style="background: #f1f5f9;">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <a href="{{ route('admin.schedule.by-pdday') }}" 
+               class="inline-flex items-center text-sm font-medium mb-4" style="color: #2563eb;">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Schedule by PL Days
             </a>
-            <h1 class="mt-2 text-3xl font-bold text-gray-900">Copy Schedule Items</h1>
-                    <p class="mt-2 text-gray-600">Copy schedule items from another PL day to {{ $pdDay->title }}</p>
+            <h1 class="text-2xl font-bold" style="color: #1e293b;">Copy Schedule Items</h1>
+            <p class="mt-1" style="color: #64748b;">Copy schedule items from another PL day to {{ $pdDay->title }}</p>
         </div>
 
-        <!-- Form -->
-        <div class="max-w-2xl bg-white shadow-sm rounded-lg p-6">
+        <!-- Form Card -->
+        <div class="card rounded-2xl shadow-sm p-6">
             @if($sourcePdDays->isEmpty())
                 <div class="text-center py-12">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p class="mt-2 text-sm text-gray-500">No other PL days with schedule items available to copy from.</p>
-                    <a href="{{ route('admin.schedule.by-pdday') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: #f1f5f9;">
+                        <i class="fas fa-check-circle text-2xl" style="color: #94a3b8;"></i>
+                    </div>
+                    <p class="text-sm" style="color: #64748b;">No other PL days with schedule items available to copy from.</p>
+                    <a href="{{ route('admin.schedule.by-pdday') }}" 
+                       class="mt-4 inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white"
+                       style="background: #2563eb;">
                         Back to Schedule
                     </a>
                 </div>
@@ -73,24 +49,20 @@
                     @csrf
 
                     <!-- Target PL Day Info -->
-                    <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
-                        <p class="text-sm font-medium text-indigo-900">Target PL Day</p>
-                        <p class="text-lg font-bold text-indigo-900 mt-1">{{ $pdDay->title }}</p>
-                        <p class="text-sm text-indigo-700">{{ $pdDay->date_range }}</p>
+                    <div class="mb-6 p-4 rounded-xl" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                        <p class="text-sm font-medium" style="color: #1e40af;">Target PL Day</p>
+                        <p class="text-lg font-bold mt-1" style="color: #1e3a8a;">{{ $pdDay->title }}</p>
+                        <p class="text-sm" style="color: #3b82f6;">{{ $pdDay->date_range }}</p>
                     </div>
 
                     <!-- Source PL Day Selection -->
                     <div class="mb-6">
-                        <label for="source_pd_day_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Copy From <span class="text-red-500">*</span>
+                        <label for="source_pd_day_id" class="block text-sm font-medium mb-2" style="color: #475569;">
+                            Copy From <span style="color: #dc2626;">*</span>
                         </label>
-                        <select 
-                            name="source_pd_day_id" 
-                            id="source_pd_day_id"
-                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('source_pd_day_id') border-red-500 @else border-gray-300 @enderror"
-                            required
-                            onchange="updateSourceInfo()"
-                        >
+                        <select name="source_pd_day_id" id="source_pd_day_id" required
+                                onchange="updateSourceInfo()"
+                                class="w-full rounded-lg px-4 py-2.5 form-input @error('source_pd_day_id') border-red-500 @enderror">
                             <option value="">Select a PL day to copy from...</option>
                             @foreach($sourcePdDays as $source)
                                 <option value="{{ $source->id }}" data-schedule-count="{{ $source->scheduleItems()->count() }}">
@@ -99,39 +71,39 @@
                             @endforeach
                         </select>
                         @error('source_pd_day_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <!-- Source Info Preview -->
-                    <div id="source-info" class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg hidden">
-                        <p class="text-sm font-medium text-gray-900">Source Schedule Preview</p>
-                        <p class="text-sm text-gray-600 mt-2">Will copy <strong id="item-count">0</strong> schedule items</p>
+                    <div id="source-info" class="mb-6 p-4 rounded-xl hidden" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                        <p class="text-sm font-medium" style="color: #1e293b;">
+                            <i class="fas fa-clipboard-list mr-2" style="color: #64748b;"></i>Source Schedule Preview
+                        </p>
+                        <p class="text-sm mt-2" style="color: #64748b;">Will copy <strong id="item-count" style="color: #1e293b;">0</strong> schedule items</p>
                     </div>
 
                     <!-- Info Box -->
-                    <div class="mb-6 bg-blue-50 border-l-4 border-blue-400 p-4">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-blue-700">
-                                    All schedule items from the selected PD day will be copied with the same details. Links and divisions will also be copied.
-                                </p>
-                            </div>
+                    <div class="mb-6 p-4 rounded-xl" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle mr-3 mt-0.5" style="color: #3b82f6;"></i>
+                            <p class="text-sm" style="color: #1e40af;">
+                                All schedule items from the selected PL day will be copied with the same details. Links and divisions will also be copied.
+                            </p>
                         </div>
                     </div>
 
                     <!-- Form Actions -->
-                    <div class="flex items-center justify-end space-x-3">
-                        <a href="{{ route('admin.schedule.by-pdday') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <div class="flex items-center justify-end space-x-4">
+                        <a href="{{ route('admin.schedule.by-pdday') }}" 
+                           class="px-6 py-2.5 rounded-lg font-medium transition-colors"
+                           style="background: #ffffff; border: 1px solid #e2e8f0; color: #475569;">
                             Cancel
                         </a>
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Copy Schedule
+                        <button type="submit" 
+                                class="px-6 py-2.5 rounded-lg font-medium text-white transition-colors"
+                                style="background: #2563eb;">
+                            <i class="fas fa-copy mr-2"></i>Copy Schedule
                         </button>
                     </div>
                 </form>
@@ -154,6 +126,6 @@
                 </script>
             @endif
         </div>
-    </main>
-</body>
-</html>
+    </div>
+</div>
+@endsection

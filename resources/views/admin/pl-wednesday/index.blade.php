@@ -64,6 +64,7 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Division</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Links</th>
@@ -79,6 +80,9 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
                                     <div class="font-medium">{{ $session->title }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    {{ $session->division ? $session->division->name : '—' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     {{ $session->formatted_time }}
@@ -110,7 +114,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                                     No sessions found. <a href="{{ route('admin.pl-wednesday.create') }}" class="text-indigo-600">Create one</a>.
                                 </td>
                             </tr>

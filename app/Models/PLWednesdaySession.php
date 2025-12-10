@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
 
 class PLWednesdaySession extends Model
@@ -22,6 +23,7 @@ class PLWednesdaySession extends Model
         'end_time',
         'duration',
         'is_active',
+        'division_id',
     ];
 
     protected $casts = [
@@ -38,6 +40,14 @@ class PLWednesdaySession extends Model
     public function links(): HasMany
     {
         return $this->hasMany(PLWednesdayLink::class, 'pl_wednesday_session_id')->orderBy('order');
+    }
+
+    /**
+     * Get the division this session belongs to
+     */
+    public function division(): BelongsTo
+    {
+        return $this->belongsTo(Division::class);
     }
 
     /**

@@ -97,4 +97,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports/capacity-utilization', [ReportsController::class, 'capacityUtilization'])->name('reports.capacity-utilization');
     Route::get('/reports/division-summary', [ReportsController::class, 'divisionSummary'])->name('reports.division-summary');
     Route::get('/reports/user-activity', [ReportsController::class, 'userActivity'])->name('reports.user-activity');
+    
+    // Feature Toggles
+    Route::post('/toggle-wellness', [AdminController::class, 'toggleWellness'])->name('toggle-wellness');
+    Route::post('/toggle-pl-days', [AdminController::class, 'togglePLDays'])->name('toggle-pl-days');
 });
