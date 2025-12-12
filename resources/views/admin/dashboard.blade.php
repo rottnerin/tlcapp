@@ -31,9 +31,6 @@
                         </div>
                         <span class="text-white text-lg font-semibold tracking-tight">AES Admin</span>
                     </div>
-                    <span class="px-2.5 py-1 text-xs font-semibold bg-amber-400 text-amber-900 rounded-md">
-                        Admin
-                    </span>
                 </div>
                 
                 <div class="flex items-center space-x-1">
@@ -90,14 +87,14 @@
             <h1 class="text-2xl font-bold" style="color: #1e293b;">Welcome back, {{ explode(' ', auth()->user()->name)[0] }}</h1>
             <p style="color: #64748b;" class="mt-1">Here's what's happening with your platform today.</p>
         </div>
-
-        @if (session('success'))
+            
+            @if (session('success'))
             <div class="mb-6 p-4 rounded-xl flex items-center" style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46;">
                 <i class="fas fa-check-circle mr-3"></i>{{ session('success') }}
-            </div>
-        @endif
+                </div>
+            @endif
 
-        @if (session('error'))
+            @if (session('error'))
             <div class="mb-6 p-4 rounded-xl flex items-center" style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;">
                 <i class="fas fa-exclamation-circle mr-3"></i>{{ session('error') }}
             </div>
@@ -127,26 +124,26 @@
                         <i class="fas fa-calendar-alt text-lg" style="color: #7c3aed;"></i>
                     </div>
                 </div>
-            </div>
-            
+        </div>
+
             <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid #e2e8f0;">
-                <div class="flex items-center justify-between">
-                    <div>
+                    <div class="flex items-center justify-between">
+                        <div>
                         <p class="text-sm font-medium" style="color: #64748b;">Wellness Sessions</p>
                         <p class="text-3xl font-bold mt-1" style="color: #1e293b;">{{ $stats['total_wellness_sessions'] }}</p>
-                    </div>
+                        </div>
                     <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: #d1fae5;">
                         <i class="fas fa-heart text-lg" style="color: #059669;"></i>
                     </div>
+                    </div>
                 </div>
-            </div>
-            
+
             <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid #e2e8f0;">
-                <div class="flex items-center justify-between">
-                    <div>
+                    <div class="flex items-center justify-between">
+                        <div>
                         <p class="text-sm font-medium" style="color: #64748b;">Enrollments</p>
                         <p class="text-3xl font-bold mt-1" style="color: #1e293b;">{{ $stats['total_enrollments'] }}</p>
-                    </div>
+                        </div>
                     <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: #fef3c7;">
                         <i class="fas fa-user-check text-lg" style="color: #d97706;"></i>
                     </div>
@@ -156,7 +153,7 @@
 
         <!-- Quick Actions & Feature Settings Row -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Quick Actions -->
+        <!-- Quick Actions -->
             <div class="lg:col-span-2 card rounded-2xl p-6 shadow-sm">
                 <h2 class="text-lg font-semibold mb-4" style="color: #1e293b;">Quick Actions</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -165,27 +162,27 @@
                             <i class="fas fa-plus text-white"></i>
                         </div>
                         <span class="text-sm font-medium" style="color: #6d28d9;">Schedule</span>
-                    </a>
+                </a>
                     <a href="{{ route('admin.wellness.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: #ecfdf5; border-color: #6ee7b7;">
                         <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: #059669;">
                             <i class="fas fa-plus text-white"></i>
                         </div>
                         <span class="text-sm font-medium" style="color: #047857;">Wellness</span>
-                    </a>
+                </a>
                     <a href="{{ route('admin.pddays.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: #eff6ff; border-color: #93c5fd;">
                         <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: #2563eb;">
                             <i class="fas fa-plus text-white"></i>
                         </div>
                         <span class="text-sm font-medium" style="color: #1d4ed8;">PL Day</span>
-                    </a>
+                </a>
                     <a href="{{ route('admin.pl-wednesday.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: #f0fdfa; border-color: #5eead4;">
                         <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: #0d9488;">
                             <i class="fas fa-plus text-white"></i>
                         </div>
                         <span class="text-sm font-medium" style="color: #0f766e;">PL Wed</span>
-                    </a>
-                </div>
+                </a>
             </div>
+        </div>
 
             <!-- Feature Toggles -->
             <div class="card rounded-2xl p-6 shadow-sm">
@@ -240,7 +237,7 @@
                                         {{ $plDaysSetting && $plDaysSetting->is_active ? '● Visible to users' : '○ Hidden from users' }}
                                     </span>
                                 </div>
-                            </div>
+            </div>
                             <form action="{{ route('admin.toggle-pl-days') }}" method="POST">
                                 @csrf
                                 <button type="submit" 
@@ -252,9 +249,9 @@
                                           style="transform: translateX({{ $plDaysSetting && $plDaysSetting->is_active ? '1.25rem' : '0' }});"></span>
                                 </button>
                             </form>
-                        </div>
-                    </div>
-                </div>
+            </div>
+            </div>
+            </div>
             </div>
         </div>
 
@@ -299,8 +296,8 @@
                 </div>
                 <p class="text-sm font-medium" style="color: #64748b;">PL Wednesday</p>
             </a>
-        </div>
-
+                </div>
+                
         <!-- Two Column Layout -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <!-- Recent Registrations -->
@@ -312,42 +309,42 @@
                     </a>
                 </div>
                 <div class="p-4">
-                    @if($recentUsers->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($recentUsers as $user)
+                @if($recentUsers->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($recentUsers as $user)
                                 <div class="flex items-center justify-between p-3 rounded-xl" style="background: #f8fafc;">
-                                    <div class="flex items-center space-x-3">
-                                        @if($user->avatar)
+                                <div class="flex items-center space-x-3">
+                                    @if($user->avatar)
                                             <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-10 h-10 rounded-full">
-                                        @else
+                                    @else
                                             <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: #e2e8f0;">
                                                 <span class="text-sm font-medium" style="color: #64748b;">{{ substr($user->name, 0, 1) }}</span>
-                                            </div>
-                                        @endif
-                                        <div>
+                                        </div>
+                                    @endif
+                                    <div>
                                             <p class="text-sm font-medium" style="color: #1e293b;">{{ $user->name }}</p>
                                             <p class="text-xs" style="color: #64748b;">{{ $user->email }}</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center space-x-2">
-                                        @if($user->division)
+                                    @if($user->division)
                                             <span class="px-2 py-1 text-xs font-medium rounded-md" style="background: #dbeafe; color: #1d4ed8;">{{ $user->division->name }}</span>
-                                        @endif
-                                        @if($user->is_admin)
+                                    @endif
+                                    @if($user->is_admin)
                                             <span class="px-2 py-1 text-xs font-medium rounded-md" style="background: #fee2e2; color: #991b1b;">Admin</span>
-                                        @endif
-                                    </div>
+                                    @endif
                                 </div>
-                            @endforeach
-                        </div>
-                    @else
+                            </div>
+                        @endforeach
+                    </div>
+                @else
                         <div class="text-center py-8">
                             <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background: #f1f5f9;">
                                 <i class="fas fa-users" style="color: #94a3b8;"></i>
                             </div>
                             <p class="text-sm" style="color: #64748b;">No recent registrations</p>
                         </div>
-                    @endif
+                @endif
                 </div>
             </div>
 
@@ -360,14 +357,14 @@
                     </a>
                 </div>
                 <div class="p-4">
-                    @if($popularSessions->count() > 0)
-                        <div class="space-y-3">
+                @if($popularSessions->count() > 0)
+                    <div class="space-y-3">
                             @foreach($popularSessions->take(5) as $session)
                                 <div class="flex items-center justify-between p-3 rounded-xl" style="background: #f8fafc;">
                                     <div class="flex-1 min-w-0 mr-4">
                                         <p class="text-sm font-medium truncate" style="color: #1e293b;">{{ $session->title }}</p>
                                         <p class="text-xs truncate" style="color: #64748b;">
-                                            {{ $session->start_time->format('M j, g:i A') }}
+                                        {{ $session->start_time->format('M j, g:i A') }}
                                             @if($session->location) • {{ Str::limit($session->location, 25) }} @endif
                                         </p>
                                     </div>
@@ -377,15 +374,15 @@
                                     </div>
                                 </div>
                             @endforeach
-                        </div>
+                                </div>
                     @else
                         <div class="text-center py-8">
                             <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background: #f1f5f9;">
                                 <i class="fas fa-heart" style="color: #94a3b8;"></i>
                             </div>
                             <p class="text-sm" style="color: #64748b;">No wellness sessions yet</p>
-                        </div>
-                    @endif
+                    </div>
+                @endif
                 </div>
             </div>
         </div>
@@ -397,7 +394,7 @@
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    @foreach($divisionStats as $division)
+                @foreach($divisionStats as $division)
                         @php
                             $colors = [
                                 'ES' => ['bg' => '#dcfce7', 'text' => '#166534'],
@@ -413,7 +410,7 @@
                             <div class="text-xs" style="color: #64748b;">{{ $division->name }}</div>
                         </div>
                     @endforeach
-                </div>
+                    </div>
             </div>
         </div>
     </div>

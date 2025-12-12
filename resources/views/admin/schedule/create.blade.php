@@ -120,34 +120,6 @@
                             @enderror
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="session_type" class="block text-sm font-medium form-label mb-1">Session Type</label>
-                            <select id="session_type" name="session_type"
-                                    class="w-full rounded-lg px-4 py-2.5 form-input @error('session_type') border-red-500 @enderror">
-                                <option value="general" {{ old('session_type') == 'general' ? 'selected' : '' }}>General</option>
-                                <option value="workshop" {{ old('session_type') == 'workshop' ? 'selected' : '' }}>Workshop</option>
-                                <option value="keynote" {{ old('session_type') == 'keynote' ? 'selected' : '' }}>Keynote</option>
-                                <option value="breakout" {{ old('session_type') == 'breakout' ? 'selected' : '' }}>Breakout</option>
-                            </select>
-                            @error('session_type')
-                                <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label for="color" class="block text-sm font-medium form-label mb-1">Color Tag</label>
-                            <div class="flex items-center space-x-3">
-                                <input type="color" id="color" name="color" value="{{ old('color', '#3b82f6') }}"
-                                       class="h-10 w-16 rounded cursor-pointer" style="border: 1px solid #e2e8f0;">
-                                <span class="text-sm" style="color: #64748b;">Choose a color to identify this item</span>
-                            </div>
-                            @error('color')
-                                <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Schedule -->
@@ -162,28 +134,14 @@
                             <label class="block text-sm font-medium form-label mb-1">
                                 Start Date & Time <span style="color: #dc2626;">*</span>
                             </label>
-                            <div class="datetime-picker-group @error('start_time') border-red-500 @enderror">
-                                <input type="hidden" name="start_time" id="start_time_hidden" value="{{ old('start_time') }}" required>
-                                <input type="text" id="start_time_date" 
-                                       placeholder="Select date"
-                                       class="date-picker w-full rounded-lg px-4 py-2.5 form-input cursor-pointer">
-                                <div class="flex space-x-2 mt-2">
-                                    <select class="time-hour flex-1 rounded-lg px-3 py-2.5 form-input">
-                                        @for($h = 1; $h <= 12; $h++)
-                                            <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}">{{ $h }}</option>
-                                        @endfor
-                                    </select>
-                                    <select class="time-minute flex-1 rounded-lg px-3 py-2.5 form-input">
-                                        @for($m = 0; $m < 60; $m += 5)
-                                            <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
-                                        @endfor
-                                    </select>
-                                    <select class="time-ampm flex-1 rounded-lg px-3 py-2.5 form-input">
-                                        <option value="AM">AM</option>
-                                        <option value="PM">PM</option>
-                                    </select>
-                                </div>
-                            </div>
+                            <input type="text" 
+                                   name="start_time" 
+                                   id="start_time" 
+                                   value="{{ old('start_time', \Carbon\Carbon::now()->setTime(9, 0)->format('Y-m-d H:i')) }}" 
+                                   required
+                                   placeholder="Select date and time"
+                                   class="w-full rounded-lg px-4 py-2.5 form-input flatpickr-input @error('start_time') border-red-500 @enderror"
+                                   readonly>
                             @error('start_time')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                             @enderror
@@ -193,36 +151,19 @@
                             <label class="block text-sm font-medium form-label mb-1">
                                 End Date & Time <span style="color: #dc2626;">*</span>
                             </label>
-                            <div class="datetime-picker-group @error('end_time') border-red-500 @enderror">
-                                <input type="hidden" name="end_time" id="end_time_hidden" value="{{ old('end_time') }}" required>
-                                <input type="text" id="end_time_date" 
-                                       placeholder="Select date"
-                                       class="date-picker w-full rounded-lg px-4 py-2.5 form-input cursor-pointer">
-                                <div class="flex space-x-2 mt-2">
-                                    <select class="time-hour flex-1 rounded-lg px-3 py-2.5 form-input">
-                                        @for($h = 1; $h <= 12; $h++)
-                                            <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}">{{ $h }}</option>
-                                        @endfor
-                                    </select>
-                                    <select class="time-minute flex-1 rounded-lg px-3 py-2.5 form-input">
-                                        @for($m = 0; $m < 60; $m += 5)
-                                            <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
-                                        @endfor
-                                    </select>
-                                    <select class="time-ampm flex-1 rounded-lg px-3 py-2.5 form-input">
-                                        <option value="AM">AM</option>
-                                        <option value="PM">PM</option>
-                                    </select>
-                                </div>
-                            </div>
+                            <input type="text" 
+                                   name="end_time" 
+                                   id="end_time" 
+                                   value="{{ old('end_time', \Carbon\Carbon::now()->setTime(10, 0)->format('Y-m-d H:i')) }}" 
+                                   required
+                                   placeholder="Select date and time"
+                                   class="w-full rounded-lg px-4 py-2.5 form-input flatpickr-input @error('end_time') border-red-500 @enderror"
+                                   readonly>
                             @error('end_time')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
-                    <p class="text-sm" style="color: #64748b;">
-                        <i class="fas fa-info-circle mr-1"></i>Click the date field to open calendar, use dropdowns for time
-                    </p>
                 </div>
 
                 <!-- Settings -->
@@ -232,16 +173,6 @@
                     </h2>
                 </div>
                 <div class="p-6 space-y-4">
-                    <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" id="is_required" name="is_required" value="1"
-                               {{ old('is_required') ? 'checked' : '' }}
-                               class="h-5 w-5 rounded" style="accent-color: #2563eb;">
-                        <div>
-                            <span class="font-medium" style="color: #1e293b;">Required Session</span>
-                            <p class="text-sm" style="color: #64748b;">This is a required item (mandatory attendance)</p>
-                        </div>
-                    </label>
-
                     <label class="flex items-center space-x-3 cursor-pointer">
                         <input type="checkbox" id="is_active" name="is_active" value="1"
                                {{ old('is_active', true) ? 'checked' : '' }}

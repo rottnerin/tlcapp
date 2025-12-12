@@ -7,7 +7,7 @@
     .card { background: #ffffff; border: 1px solid #e2e8f0; }
     .pdday-header { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
 </style>
-
+                    
 <div class="min-h-screen py-8" style="background: #f1f5f9;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Page Header -->

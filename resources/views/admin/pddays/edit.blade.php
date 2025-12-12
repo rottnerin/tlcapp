@@ -19,7 +19,7 @@
     .form-label { color: #475569; }
     .section-title { color: #1e293b; border-bottom: 1px solid #e2e8f0; }
 </style>
-
+                    
 <div class="min-h-screen py-8" style="background: #f1f5f9;">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
@@ -82,7 +82,8 @@
                             </label>
                             <input type="text" name="start_date" id="start_date" value="{{ old('start_date', $pdday->start_date->format('Y-m-d')) }}" required
                                    placeholder="Click to select date"
-                                   class="date-picker w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('start_date') border-red-500 @enderror">
+                                   class="flatpickr-date w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('start_date') border-red-500 @enderror"
+                                   readonly>
                             @error('start_date')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                             @enderror
@@ -94,7 +95,8 @@
                             </label>
                             <input type="text" name="end_date" id="end_date" value="{{ old('end_date', $pdday->end_date->format('Y-m-d')) }}" required
                                    placeholder="Click to select date"
-                                   class="date-picker w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('end_date') border-red-500 @enderror">
+                                   class="flatpickr-date w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('end_date') border-red-500 @enderror"
+                                   readonly>
                             @error('end_date')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                             @enderror
@@ -119,7 +121,7 @@
                         </div>
                     </label>
 
-                    <!-- Associated Sessions Info -->
+                <!-- Associated Sessions Info -->
                     <div class="p-4 rounded-xl" style="background: #f8fafc; border: 1px solid #e2e8f0;">
                         <h3 class="text-sm font-semibold mb-2" style="color: #1e293b;">
                             <i class="fas fa-link mr-2" style="color: #64748b;"></i>Associated Sessions

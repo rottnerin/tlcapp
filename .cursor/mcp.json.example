@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "playwright-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "playwright-mcp"
+      ]
+    }
+  }
+}

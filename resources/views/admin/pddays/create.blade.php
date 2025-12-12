@@ -19,7 +19,7 @@
     .form-label { color: #475569; }
     .section-title { color: #1e293b; border-bottom: 1px solid #e2e8f0; }
 </style>
-
+                    
 <div class="min-h-screen py-8" style="background: #f1f5f9;">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
@@ -81,7 +81,8 @@
                             </label>
                             <input type="text" name="start_date" id="start_date" value="{{ old('start_date') }}" required
                                    placeholder="Click to select date"
-                                   class="date-picker w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('start_date') border-red-500 @enderror">
+                                   class="flatpickr-date w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('start_date') border-red-500 @enderror"
+                                   readonly>
                             @error('start_date')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                             @enderror
@@ -93,7 +94,8 @@
                             </label>
                             <input type="text" name="end_date" id="end_date" value="{{ old('end_date') }}" required
                                    placeholder="Click to select date"
-                                   class="date-picker w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('end_date') border-red-500 @enderror">
+                                   class="flatpickr-date w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('end_date') border-red-500 @enderror"
+                                   readonly>
                             @error('end_date')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                             @enderror

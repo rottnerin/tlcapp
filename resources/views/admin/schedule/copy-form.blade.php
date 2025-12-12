@@ -61,7 +61,7 @@
                             Copy From <span style="color: #dc2626;">*</span>
                         </label>
                         <select name="source_pd_day_id" id="source_pd_day_id" required
-                                onchange="updateSourceInfo()"
+                            onchange="updateSourceInfo()"
                                 class="w-full rounded-lg px-4 py-2.5 form-input @error('source_pd_day_id') border-red-500 @enderror">
                             <option value="">Select a PL day to copy from...</option>
                             @foreach($sourcePdDays as $source)
@@ -89,7 +89,7 @@
                             <i class="fas fa-info-circle mr-3 mt-0.5" style="color: #3b82f6;"></i>
                             <p class="text-sm" style="color: #1e40af;">
                                 All schedule items from the selected PL day will be copied with the same details. Links and divisions will also be copied.
-                            </p>
+                                </p>
                         </div>
                     </div>
 

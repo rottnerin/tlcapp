@@ -52,60 +52,30 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             <i class="fas fa-clock mr-1 text-gray-400"></i>Start Time <span class="text-red-500">*</span>
                         </label>
-                        <div class="time-picker-group">
-                            @php
-                                $startTime = old('start_time', '15:00');
-                                $startHour24 = (int) substr($startTime, 0, 2);
-                                $startHour12 = $startHour24 % 12 || 12;
-                                $startMinute = substr($startTime, 3, 2);
-                                $startAmPm = $startHour24 >= 12 ? 'PM' : 'AM';
-                            @endphp
-                            <input type="hidden" name="start_time" id="start_time_hidden" value="{{ $startTime }}" required>
-                            <select class="time-hour border border-gray-300 rounded-lg px-3 py-3 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                @for($h = 1; $h <= 12; $h++)
-                                    <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}" {{ $startHour12 == $h ? 'selected' : '' }}>{{ $h }}</option>
-                                @endfor
-                            </select>
-                            <select class="time-minute border border-gray-300 rounded-lg px-3 py-3 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                @for($m = 0; $m < 60; $m += 5)
-                                    <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" {{ (int)$startMinute == $m ? 'selected' : '' }}>{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
-                                @endfor
-                            </select>
-                            <select class="time-ampm border border-gray-300 rounded-lg px-3 py-3 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="AM" {{ $startAmPm == 'AM' ? 'selected' : '' }}>AM</option>
-                                <option value="PM" {{ $startAmPm == 'PM' ? 'selected' : '' }}>PM</option>
-                            </select>
-                        </div>
+                        <input type="text" 
+                               name="start_time" 
+                               id="start_time" 
+                               value="{{ old('start_time', '15:00') }}" 
+                               required
+                               placeholder="Select time"
+                               class="flatpickr-time w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                               readonly>
+                        @error('start_time')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">
                             <i class="fas fa-clock mr-1 text-gray-400"></i>End Time <span class="text-red-500">*</span>
                         </label>
-                        <div class="time-picker-group">
-                            @php
-                                $endTime = old('end_time', '17:00');
-                                $endHour24 = (int) substr($endTime, 0, 2);
-                                $endHour12 = $endHour24 % 12 || 12;
-                                $endMinute = substr($endTime, 3, 2);
-                                $endAmPm = $endHour24 >= 12 ? 'PM' : 'AM';
-                            @endphp
-                            <input type="hidden" name="end_time" id="end_time_hidden" value="{{ $endTime }}" required>
-                            <select class="time-hour border border-gray-300 rounded-lg px-3 py-3 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                @for($h = 1; $h <= 12; $h++)
-                                    <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}" {{ $endHour12 == $h ? 'selected' : '' }}>{{ $h }}</option>
-                                @endfor
-                            </select>
-                            <select class="time-minute border border-gray-300 rounded-lg px-3 py-3 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                @for($m = 0; $m < 60; $m += 5)
-                                    <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" {{ (int)$endMinute == $m ? 'selected' : '' }}>{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
-                                @endfor
-                            </select>
-                            <select class="time-ampm border border-gray-300 rounded-lg px-3 py-3 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="AM" {{ $endAmPm == 'AM' ? 'selected' : '' }}>AM</option>
-                                <option value="PM" {{ $endAmPm == 'PM' ? 'selected' : '' }}>PM</option>
-                            </select>
-                        </div>
+                        <input type="text" 
+                               name="end_time" 
+                               id="end_time" 
+                               value="{{ old('end_time', '17:00') }}" 
+                               required
+                               placeholder="Select time"
+                               class="flatpickr-time w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                               readonly>
+                        @error('end_time')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </div>
 

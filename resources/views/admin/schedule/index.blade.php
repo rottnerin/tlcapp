@@ -170,7 +170,6 @@
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Item</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Division</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Date & Time</th>
-                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Type</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Status</th>
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider" style="color: #64748b;">Actions</th>
                         </tr>
@@ -222,17 +221,6 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    @if($item->is_required)
-                                        <span class="inline-block px-2.5 py-1 text-xs font-medium rounded-full" style="background: #fef3c7; color: #b45309;">
-                                            Required
-                                        </span>
-                                    @else
-                                        <span class="inline-block px-2.5 py-1 text-xs font-medium rounded-full" style="background: #f1f5f9; color: #64748b;">
-                                            Optional
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4">
                                     @if($item->is_active)
                                         <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full" style="background: #dcfce7; color: #166534;">
                                             Active
@@ -273,7 +261,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center">
+                                <td colspan="6" class="px-6 py-12 text-center">
                                     <div class="flex flex-col items-center">
                                         <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4" style="background: #f1f5f9;">
                                             <i class="fas fa-calendar-alt text-2xl" style="color: #94a3b8;"></i>

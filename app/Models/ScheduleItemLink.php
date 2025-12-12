@@ -56,3 +56,5 @@ class ScheduleItemLink extends Model
         return $this->url;
     }
 }
+
+

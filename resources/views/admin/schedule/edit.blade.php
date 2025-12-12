@@ -24,10 +24,10 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-6">
-            <a href="{{ route('admin.schedule.index') }}" 
+                <a href="{{ route('admin.schedule.index') }}" 
                class="inline-flex items-center text-sm font-medium mb-4" style="color: #2563eb;">
-                <i class="fas fa-arrow-left mr-2"></i>Back to Schedule Items
-            </a>
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Schedule Items
+                </a>
             <h1 class="text-2xl font-bold" style="color: #1e293b;">Edit Schedule Item</h1>
             <p class="mt-1" style="color: #64748b;">Update the schedule item information</p>
         </div>
@@ -66,20 +66,20 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
+                    <div>
                             <label for="session_type" class="block text-sm font-medium form-label mb-1">
                                 Session Type <span style="color: #dc2626;">*</span>
-                            </label>
-                            <select id="session_type" name="session_type" required
+                        </label>
+                        <select id="session_type" name="session_type" required
                                     class="w-full rounded-lg px-4 py-2.5 form-input @error('session_type') border-red-500 @enderror">
-                                <option value="">Select Type</option>
-                                <option value="fixed" {{ old('session_type', $schedule->session_type) == 'fixed' ? 'selected' : '' }}>Fixed</option>
-                                <option value="wellness" {{ old('session_type', $schedule->session_type) == 'wellness' ? 'selected' : '' }}>Wellness</option>
-                                <option value="keynote" {{ old('session_type', $schedule->session_type) == 'keynote' ? 'selected' : '' }}>Keynote</option>
-                                <option value="break" {{ old('session_type', $schedule->session_type) == 'break' ? 'selected' : '' }}>Break</option>
-                                <option value="lunch" {{ old('session_type', $schedule->session_type) == 'lunch' ? 'selected' : '' }}>Lunch</option>
-                            </select>
-                            @error('session_type')
+                            <option value="">Select Type</option>
+                            <option value="fixed" {{ old('session_type', $schedule->session_type) == 'fixed' ? 'selected' : '' }}>Fixed</option>
+                            <option value="wellness" {{ old('session_type', $schedule->session_type) == 'wellness' ? 'selected' : '' }}>Wellness</option>
+                            <option value="keynote" {{ old('session_type', $schedule->session_type) == 'keynote' ? 'selected' : '' }}>Keynote</option>
+                            <option value="break" {{ old('session_type', $schedule->session_type) == 'break' ? 'selected' : '' }}>Break</option>
+                            <option value="lunch" {{ old('session_type', $schedule->session_type) == 'lunch' ? 'selected' : '' }}>Lunch</option>
+                        </select>
+                        @error('session_type')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                             @enderror
                         </div>
@@ -90,7 +90,7 @@
                                    class="w-full rounded-lg px-4 py-2.5 form-input @error('location') border-red-500 @enderror">
                             @error('location')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
+                        @enderror
                         </div>
                     </div>
 
@@ -123,40 +123,19 @@
                     </h2>
                 </div>
                 <div class="p-6 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label for="date" class="block text-sm font-medium form-label mb-1">
-                                Date <span style="color: #dc2626;">*</span>
-                            </label>
-                            <input type="text" id="date" name="date" value="{{ old('date', $schedule->date->format('Y-m-d')) }}" required
-                                   placeholder="Click to select date"
-                                   class="date-picker w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('date') border-red-500 @enderror">
-                            @error('date')
-                                <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
-                        </div>
-
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium form-label mb-1">
-                                Start Time <span style="color: #dc2626;">*</span>
+                                Start Date & Time <span style="color: #dc2626;">*</span>
                             </label>
-                            <div class="time-picker-group flex space-x-2">
-                                <input type="hidden" name="start_time" id="start_time_hidden" value="{{ old('start_time', $schedule->start_time->format('H:i')) }}" required>
-                                <select class="time-hour flex-1 rounded-lg px-3 py-2.5 form-input">
-                                    @for($h = 1; $h <= 12; $h++)
-                                        <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}">{{ $h }}</option>
-                                    @endfor
-                                </select>
-                                <select class="time-minute flex-1 rounded-lg px-3 py-2.5 form-input">
-                                    @for($m = 0; $m < 60; $m += 5)
-                                        <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
-                                    @endfor
-                                </select>
-                                <select class="time-ampm flex-1 rounded-lg px-3 py-2.5 form-input">
-                                    <option value="AM">AM</option>
-                                    <option value="PM">PM</option>
-                                </select>
-                            </div>
+                            <input type="text" 
+                                   name="start_time" 
+                                   id="start_time" 
+                                   value="{{ old('start_time', $schedule->start_time->format('Y-m-d H:i')) }}" 
+                                   required
+                                   placeholder="Select date and time"
+                                   class="w-full rounded-lg px-4 py-2.5 form-input flatpickr-datetime @error('start_time') border-red-500 @enderror"
+                                   readonly>
                             @error('start_time')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                             @enderror
@@ -164,25 +143,16 @@
 
                         <div>
                             <label class="block text-sm font-medium form-label mb-1">
-                                End Time <span style="color: #dc2626;">*</span>
+                                End Date & Time <span style="color: #dc2626;">*</span>
                             </label>
-                            <div class="time-picker-group flex space-x-2">
-                                <input type="hidden" name="end_time" id="end_time_hidden" value="{{ old('end_time', $schedule->end_time->format('H:i')) }}" required>
-                                <select class="time-hour flex-1 rounded-lg px-3 py-2.5 form-input">
-                                    @for($h = 1; $h <= 12; $h++)
-                                        <option value="{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}">{{ $h }}</option>
-                                    @endfor
-                                </select>
-                                <select class="time-minute flex-1 rounded-lg px-3 py-2.5 form-input">
-                                    @for($m = 0; $m < 60; $m += 5)
-                                        <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
-                                    @endfor
-                                </select>
-                                <select class="time-ampm flex-1 rounded-lg px-3 py-2.5 form-input">
-                                    <option value="AM">AM</option>
-                                    <option value="PM">PM</option>
-                                </select>
-                            </div>
+                            <input type="text" 
+                                   name="end_time" 
+                                   id="end_time" 
+                                   value="{{ old('end_time', $schedule->end_time->format('Y-m-d H:i')) }}" 
+                                   required
+                                   placeholder="Select date and time"
+                                   class="w-full rounded-lg px-4 py-2.5 form-input flatpickr-datetime @error('end_time') border-red-500 @enderror"
+                                   readonly>
                             @error('end_time')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                             @enderror
@@ -198,22 +168,22 @@
                 </div>
                 <div class="p-6 space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
+                    <div>
                             <label for="presenter_primary" class="block text-sm font-medium form-label mb-1">Primary Presenter</label>
-                            <input type="text" id="presenter_primary" name="presenter_primary" value="{{ old('presenter_primary', $schedule->presenter_primary) }}"
+                        <input type="text" id="presenter_primary" name="presenter_primary" value="{{ old('presenter_primary', $schedule->presenter_primary) }}"
                                    class="w-full rounded-lg px-4 py-2.5 form-input @error('presenter_primary') border-red-500 @enderror">
-                            @error('presenter_primary')
+                        @error('presenter_primary')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        @enderror
+                    </div>
 
-                        <div>
+                    <div>
                             <label for="presenter_secondary" class="block text-sm font-medium form-label mb-1">Secondary Presenter</label>
-                            <input type="text" id="presenter_secondary" name="presenter_secondary" value="{{ old('presenter_secondary', $schedule->presenter_secondary) }}"
+                        <input type="text" id="presenter_secondary" name="presenter_secondary" value="{{ old('presenter_secondary', $schedule->presenter_secondary) }}"
                                    class="w-full rounded-lg px-4 py-2.5 form-input @error('presenter_secondary') border-red-500 @enderror">
-                            @error('presenter_secondary')
+                        @error('presenter_secondary')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
+                        @enderror
                         </div>
                     </div>
 
@@ -235,28 +205,28 @@
                 </div>
                 <div class="p-6 space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
+                    <div>
                             <label for="max_participants" class="block text-sm font-medium form-label mb-1">Max Participants</label>
-                            <input type="number" id="max_participants" name="max_participants" value="{{ old('max_participants', $schedule->max_participants) }}" min="1" max="500"
+                        <input type="number" id="max_participants" name="max_participants" value="{{ old('max_participants', $schedule->max_participants) }}" min="1" max="500"
                                    class="w-full rounded-lg px-4 py-2.5 form-input @error('max_participants') border-red-500 @enderror">
-                            @error('max_participants')
+                        @error('max_participants')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        @enderror
+                    </div>
 
-                        <div class="flex items-center">
-                            <input type="hidden" name="is_active" value="0">
+                    <div class="flex items-center">
+                        <input type="hidden" name="is_active" value="0">
                             <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" id="is_active" name="is_active" value="1" 
-                                       {{ old('is_active', $schedule->is_active) ? 'checked' : '' }}
+                        <input type="checkbox" id="is_active" name="is_active" value="1" 
+                               {{ old('is_active', $schedule->is_active) ? 'checked' : '' }}
                                        class="h-5 w-5 rounded" style="accent-color: #2563eb;">
                                 <div>
                                     <span class="font-medium" style="color: #1e293b;">Active</span>
                                     <p class="text-sm" style="color: #64748b;">Item is visible in schedule</p>
                                 </div>
                             </label>
-                        </div>
                     </div>
+                </div>
 
                     <div>
                         <label for="equipment_needed" class="block text-sm font-medium form-label mb-1">Equipment Needed</label>
@@ -275,9 +245,9 @@
                             <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
                         @enderror
                     </div>
-                </div>
+                    </div>
 
-                <!-- Link Section -->
+                    <!-- Link Section -->
                 <div class="p-6 section-title">
                     <h2 class="text-lg font-semibold" style="color: #1e293b;">
                         <i class="fas fa-link mr-2" style="color: #64748b;"></i>Additional Link (Optional)
@@ -285,37 +255,37 @@
                 </div>
                 <div class="p-6 space-y-6">
                     <p class="text-sm" style="color: #64748b;">Add a link that users can click to access additional resources</p>
-                    
+                        
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
+                            <div>
                             <label for="link_title" class="block text-sm font-medium form-label mb-1">Link Title</label>
-                            <input type="text" id="link_title" name="link_title" value="{{ old('link_title', $schedule->link_title) }}"
-                                   placeholder="e.g., View Menu, Download Materials"
+                                <input type="text" id="link_title" name="link_title" value="{{ old('link_title', $schedule->link_title) }}"
+                                       placeholder="e.g., View Menu, Download Materials"
                                    class="w-full rounded-lg px-4 py-2.5 form-input @error('link_title') border-red-500 @enderror">
-                            @error('link_title')
+                                @error('link_title')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
-                        </div>
+                                @enderror
+                            </div>
 
-                        <div>
+                            <div>
                             <label for="link_url" class="block text-sm font-medium form-label mb-1">Link URL</label>
-                            <input type="url" id="link_url" name="link_url" value="{{ old('link_url', $schedule->link_url) }}"
+                                <input type="url" id="link_url" name="link_url" value="{{ old('link_url', $schedule->link_url) }}"
                                    placeholder="https://example.com"
                                    class="w-full rounded-lg px-4 py-2.5 form-input @error('link_url') border-red-500 @enderror">
-                            @error('link_url')
+                                @error('link_url')
                                 <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
+                                @enderror
+                            </div>
                         </div>
-                    </div>
 
                     <div>
                         <label for="link_description" class="block text-sm font-medium form-label mb-1">Link Description</label>
-                        <textarea id="link_description" name="link_description" rows="2"
-                                  placeholder="Brief description of what users will find at this link..."
+                            <textarea id="link_description" name="link_description" rows="2"
+                                      placeholder="Brief description of what users will find at this link..."
                                   class="w-full rounded-lg px-4 py-2.5 form-input @error('link_description') border-red-500 @enderror">{{ old('link_description', $schedule->link_description) }}</textarea>
-                        @error('link_description')
+                            @error('link_description')
                             <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                        @enderror
+                            @enderror
                     </div>
                 </div>
 
@@ -326,37 +296,37 @@
                     </h2>
                 </div>
                 <div class="p-6 space-y-6">
-                    <div>
+                <div>
                         <label class="block text-sm font-medium form-label mb-3">Target Divisions</label>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            @foreach($divisions as $division)
+                        @foreach($divisions as $division)
                                 <label class="flex items-center space-x-3 cursor-pointer p-3 rounded-lg" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                                    <input type="checkbox" id="division_{{ $division->id }}" name="divisions[]" value="{{ $division->id }}"
-                                           {{ in_array($division->id, old('divisions', $schedule->divisions->pluck('id')->toArray())) ? 'checked' : '' }}
+                                <input type="checkbox" id="division_{{ $division->id }}" name="divisions[]" value="{{ $division->id }}"
+                                       {{ in_array($division->id, old('divisions', $schedule->divisions->pluck('id')->toArray())) ? 'checked' : '' }}
                                            class="h-4 w-4 rounded" style="accent-color: #2563eb;">
                                     <span class="text-sm font-medium" style="color: #1e293b;">{{ $division->name }}</span>
                                 </label>
-                            @endforeach
-                        </div>
-                        @error('divisions')
-                            <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                        @enderror
+                        @endforeach
                     </div>
-
-                    <div>
-                        <label for="pd_day_id" class="block text-sm font-medium form-label mb-1">PL Day Event</label>
-                        <select id="pd_day_id" name="pd_day_id"
-                                class="w-full rounded-lg px-4 py-2.5 form-input @error('pd_day_id') border-red-500 @enderror">
-                            <option value="">Not assigned to any PL Day</option>
-                            @foreach($pdDays as $pdDay)
-                                <option value="{{ $pdDay->id }}" {{ old('pd_day_id', $schedule->pd_day_id) == $pdDay->id ? 'selected' : '' }}>
-                                    {{ $pdDay->title }} ({{ $pdDay->date_range }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('pd_day_id')
+                    @error('divisions')
                             <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                        @enderror
+                    @enderror
+                </div>
+
+                <div>
+                        <label for="pd_day_id" class="block text-sm font-medium form-label mb-1">PL Day Event</label>
+                    <select id="pd_day_id" name="pd_day_id"
+                                class="w-full rounded-lg px-4 py-2.5 form-input @error('pd_day_id') border-red-500 @enderror">
+                        <option value="">Not assigned to any PL Day</option>
+                        @foreach($pdDays as $pdDay)
+                            <option value="{{ $pdDay->id }}" {{ old('pd_day_id', $schedule->pd_day_id) == $pdDay->id ? 'selected' : '' }}>
+                                {{ $pdDay->title }} ({{ $pdDay->date_range }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('pd_day_id')
+                            <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
+                    @enderror
                     </div>
                 </div>
 
