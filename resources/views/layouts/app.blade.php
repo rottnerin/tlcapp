@@ -13,9 +13,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Pikaday Date Picker -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
-    
     <!-- Flatpickr Date/Time Picker -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     
@@ -106,165 +103,11 @@
         @yield('content')
     </main>
 
-    <!-- Pikaday JS -->
-    <script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment/moment.js"></script>
-    
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     
-    <!-- Initialize Date/Time Pickers -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Date picker (calendar)
-        document.querySelectorAll('.date-picker').forEach(function(el) {
-            const picker = new Pikaday({
-                field: el,
-                format: 'YYYY-MM-DD',
-                showDaysInNextAndPreviousMonths: true,
-                enableSelectionDaysInNextAndPreviousMonths: true,
-                onSelect: function(date) {
-                    el.value = moment(date).format('YYYY-MM-DD');
-                }
-            });
-            
-            // Set initial value if exists
-            if (el.value) {
-                picker.setDate(moment(el.value, 'YYYY-MM-DD').toDate());
-            }
-        });
-        
-        // DateTime picker - split into date + time dropdowns
-        document.querySelectorAll('.datetime-picker-group').forEach(function(group) {
-            const dateInput = group.querySelector('.date-picker');
-            const hourSelect = group.querySelector('.time-hour');
-            const minuteSelect = group.querySelector('.time-minute');
-            const ampmSelect = group.querySelector('.time-ampm');
-            const hiddenInput = group.querySelector('input[type="hidden"]');
-            
-            // Initialize date picker
-            const picker = new Pikaday({
-                field: dateInput,
-                format: 'YYYY-MM-DD',
-                showDaysInNextAndPreviousMonths: true,
-                enableSelectionDaysInNextAndPreviousMonths: true,
-                onSelect: function(date) {
-                    dateInput.value = moment(date).format('YYYY-MM-DD');
-                    updateDateTime();
-                }
-            });
-            
-            // Set initial values
-            if (hiddenInput && hiddenInput.value) {
-                const dt = moment(hiddenInput.value, ['YYYY-MM-DD HH:mm', 'YYYY-MM-DD HH:mm:ss']);
-                if (dt.isValid()) {
-                    dateInput.value = dt.format('YYYY-MM-DD');
-                    picker.setDate(dt.toDate());
-                    
-                    const hour24 = dt.hour();
-                    const hour12 = hour24 % 12 || 12;
-                    // Round minute to nearest 5-minute increment
-                    const roundedMinute = Math.round(dt.minute() / 5) * 5;
-                    hourSelect.value = hour12.toString().padStart(2, '0');
-                    minuteSelect.value = roundedMinute.toString().padStart(2, '0');
-                    ampmSelect.value = hour24 >= 12 ? 'PM' : 'AM';
-                }
-            }
-            
-            // Update hidden input when time changes
-            function updateDateTime() {
-                if (!dateInput.value) return;
-                
-                const hour12 = parseInt(hourSelect.value);
-                const minute = parseInt(minuteSelect.value);
-                const ampm = ampmSelect.value;
-                const hour24 = ampm === 'PM' && hour12 !== 12 ? hour12 + 12 : (ampm === 'AM' && hour12 === 12 ? 0 : hour12);
-                
-                const datetime = moment(dateInput.value + ' ' + hour24.toString().padStart(2, '0') + ':' + minute.toString().padStart(2, '0'), 'YYYY-MM-DD HH:mm');
-                hiddenInput.value = datetime.format('YYYY-MM-DD HH:mm');
-            }
-            
-            [hourSelect, minuteSelect, ampmSelect].forEach(function(select) {
-                select.addEventListener('change', updateDateTime);
-            });
-        });
-        
-        // Time picker - dropdowns only
-        document.querySelectorAll('.time-picker-group').forEach(function(group) {
-            const hourSelect = group.querySelector('.time-hour');
-            const minuteSelect = group.querySelector('.time-minute');
-            const ampmSelect = group.querySelector('.time-ampm');
-            const hiddenInput = group.querySelector('input[type="hidden"]');
-            
-            // Set initial values
-            if (hiddenInput && hiddenInput.value) {
-                // Handle both 'HH:mm' and 'YYYY-MM-DD HH:mm' formats
-                const timeStr = hiddenInput.value.includes(' ') ? hiddenInput.value.split(' ')[1] : hiddenInput.value;
-                const [hour24, minute] = timeStr.split(':').map(Number);
-                const hour12 = hour24 % 12 || 12;
-                // Round minute to nearest 5-minute increment
-                const roundedMinute = Math.round(minute / 5) * 5;
-                hourSelect.value = hour12.toString().padStart(2, '0');
-                minuteSelect.value = roundedMinute.toString().padStart(2, '0');
-                ampmSelect.value = hour24 >= 12 ? 'PM' : 'AM';
-            }
-            
-            // Update hidden input when time changes
-            function updateTime() {
-                const hour12 = parseInt(hourSelect.value);
-                const minute = parseInt(minuteSelect.value);
-                const ampm = ampmSelect.value;
-                const hour24 = ampm === 'PM' && hour12 !== 12 ? hour12 + 12 : (ampm === 'AM' && hour12 === 12 ? 0 : hour12);
-                
-                hiddenInput.value = hour24.toString().padStart(2, '0') + ':' + minute.toString().padStart(2, '0');
-            }
-            
-            [hourSelect, minuteSelect, ampmSelect].forEach(function(select) {
-                select.addEventListener('change', updateTime);
-            });
-        });
-    });
-    </script>
-    
     <!-- Custom Picker Styles -->
     <style>
-        .pika-single {
-            z-index: 9999 !important;
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            background: #ffffff;
-        }
-        .pika-button:hover {
-            background: #2563eb !important;
-            color: white !important;
-        }
-        .pika-day.is-selected {
-            background: #2563eb !important;
-            color: white !important;
-        }
-        .time-picker-group {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        .time-picker-group select {
-            flex: 1;
-            min-width: 0;
-        }
-        .datetime-picker-group {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        .datetime-picker-group .date-picker {
-            flex: 2;
-            min-width: 0;
-        }
-        .datetime-picker-group select {
-            flex: 1;
-            min-width: 0;
-        }
-        
         /* Flatpickr Custom Styling */
         .flatpickr-calendar {
             border-radius: 12px;
