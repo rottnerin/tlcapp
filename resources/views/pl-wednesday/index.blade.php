@@ -308,50 +308,6 @@
         transform: translateX(4px);
     }
 
-    /* Stats Cards */
-    .stat-card {
-        background: white;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-icon {
-        width: 3rem;
-        height: 3rem;
-        margin: 0 auto 0.75rem;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .stat-icon svg {
-        width: 1.5rem;
-        height: 1.5rem;
-        color: white;
-    }
-
-    .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #2d3748;
-        line-height: 1;
-        margin-bottom: 0.25rem;
-    }
-
-    .stat-label {
-        font-size: 0.875rem;
-        color: #64748b;
-    }
-
     /* Empty State */
     .empty-state {
         text-align: center;
@@ -504,45 +460,6 @@
                 <p class="text-gray-600 max-w-md mx-auto">We're preparing exciting learning opportunities for you. Check back soon to discover upcoming sessions!</p>
             </div>
         @else
-            <!-- Stats Overview -->
-            @php
-                $totalSessions = $groupedSessions->flatten()->count();
-                $totalDates = $groupedSessions->count();
-                $upcomingSessions = $groupedSessions->flatten()->filter(function($session) {
-                    return $session->date >= now()->startOfDay();
-                })->count();
-            @endphp
-            
-            <div class="grid grid-cols-3 gap-4 md:gap-6 mb-10">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                        </svg>
-                    </div>
-                    <div class="stat-number">{{ $totalSessions }}</div>
-                    <div class="stat-label">Total Sessions</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #68c587 0%, #4CAF50 100%);">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <div class="stat-number">{{ $totalDates }}</div>
-                    <div class="stat-label">Learning Days</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #f5a68a 0%, #FF9800 100%);">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                    </div>
-                    <div class="stat-number">{{ $upcomingSessions }}</div>
-                    <div class="stat-label">Upcoming</div>
-                </div>
-            </div>
-
             <!-- Sessions by Date -->
             @php
                 $cardColors = ['lavender', 'mint', 'peach', 'sky', 'rose', 'sage'];
