@@ -3,208 +3,73 @@
 @section('title', $session->title . ' - AES Professional Learning Days')
 
 @section('content')
-<style>
-    /* Page container with light background */
-    .pl-wednesday-show-container {
-        background: linear-gradient(to bottom right, #f9fafb, #f0f4f8, #e0e7ff);
-        min-height: 100vh;
-        padding: 2rem 0;
-    }
-
-    /* Main content card */
-    .session-detail-card {
-        background: white;
-        border-radius: 1rem;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        padding: 2.5rem;
-        border: 1px solid #e5e7eb;
-    }
-
-    /* Back button */
-    .back-button {
-        color: #3b82f6;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .back-button:hover {
-        color: #2563eb;
-        transform: translateX(-2px);
-    }
-
-    /* Session title */
-    .session-title {
-        font-size: 2.25rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 1.5rem;
-        line-height: 1.2;
-    }
-
-    /* Info badges */
-    .info-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: #eff6ff;
-        color: #1e40af;
-        padding: 0.625rem 1rem;
-        border-radius: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-
-    .info-badge i {
-        color: #3b82f6;
-    }
-
-    /* Section headers */
-    .section-header {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .section-header:first-of-type {
-        margin-top: 0;
-    }
-
-    /* Description text */
-    .description-text {
-        color: #4b5563;
-        line-height: 1.7;
-        font-size: 1rem;
-        white-space: pre-wrap;
-    }
-
-    /* Links section */
-    .links-section {
-        border-top: 2px solid #e5e7eb;
-        padding-top: 1.5rem;
-        margin-top: 2rem;
-    }
-
-    .link-card {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.75rem;
-        padding: 1.25rem;
-        transition: all 0.2s ease;
-    }
-
-    .link-card:hover {
-        background: #f3f4f6;
-        border-color: #c7d2fe;
-        transform: translateX(4px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .link-title {
-        font-weight: 600;
-        color: #1f2937;
-        font-size: 1rem;
-        transition: color 0.2s ease;
-    }
-
-    .link-card:hover .link-title {
-        color: #3b82f6;
-    }
-
-    .link-description {
-        color: #6b7280;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-    }
-
-    .external-link-icon {
-        color: #9ca3af;
-        transition: all 0.2s ease;
-    }
-
-    .link-card:hover .external-link-icon {
-        color: #3b82f6;
-        transform: translate(2px, -2px);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .session-detail-card {
-            padding: 1.5rem;
-        }
-
-        .session-title {
-            font-size: 1.75rem;
-        }
-    }
-</style>
-
-<div class="pl-wednesday-show-container">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Back Button -->
-        <a href="{{ route('pl-wednesday.index') }}" class="back-button">
-            <i class="fas fa-arrow-left"></i>
-            <span>Back to Professional Learning</span>
+<div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div class="mb-6">
+        <a href="{{ route('pl-wednesday.index') }}" class="text-blue-600 hover:text-blue-800 inline-flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Professional Learning
         </a>
+    </div>
 
-        <!-- Session Detail Card -->
-        <div class="session-detail-card">
-            <!-- Session Title -->
-            <h1 class="session-title">{{ $session->title }}</h1>
-            
-            <!-- Session Info Badges -->
-            <div class="flex flex-wrap gap-3 mb-6">
-                <div class="info-badge">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>{{ $session->date->format('l, F j, Y') }}</span>
-                </div>
-                <div class="info-badge">
-                    <i class="fas fa-clock"></i>
-                    <span>{{ $session->formatted_time }}</span>
-                </div>
-                @if($session->location)
-                    <div class="info-badge">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>{{ $session->location }}</span>
-                    </div>
-                @endif
+    <div class="bg-white rounded-lg shadow-sm border p-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">{{ $session->title }}</h1>
+        
+        <div class="flex flex-wrap gap-4 mb-6 text-sm">
+            <div class="flex items-center text-gray-600">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                {{ $session->date->format('l, F j, Y') }}
             </div>
-
-            <!-- Description -->
-            @if($session->description)
-                <div>
-                    <h2 class="section-header">Description</h2>
-                    <div class="description-text">{{ $session->description }}</div>
-                </div>
-            @endif
-
-            <!-- Resources & Links -->
-            @if($session->links->count() > 0)
-                <div class="links-section">
-                    <h2 class="section-header">Resources & Links</h2>
-                    <div class="space-y-3">
-                        @foreach($session->links as $link)
-                            <div class="link-card">
-                                <a href="{{ $link->formatted_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between group">
-                                    <div class="flex-1">
-                                        <h3 class="link-title">{{ $link->title }}</h3>
-                                        @if($link->description)
-                                            <p class="link-description">{{ $link->description }}</p>
-                                        @endif
-                                    </div>
-                                    <i class="fas fa-external-link-alt external-link-icon ml-4"></i>
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
+            <div class="flex items-center text-gray-600">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ $session->formatted_time }}
+            </div>
+            @if($session->location)
+                <div class="flex items-center text-gray-600">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    {{ $session->location }}
                 </div>
             @endif
         </div>
+
+        @if($session->description)
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">Description</h2>
+                <div class="text-gray-700 whitespace-pre-wrap">{{ $session->description }}</div>
+            </div>
+        @endif
+
+        @if($session->links->count() > 0)
+            <div class="border-t pt-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-3">Resources & Links</h2>
+                <div class="space-y-3">
+                    @foreach($session->links as $link)
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+                            <a href="{{ $link->formatted_url }}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between group">
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-gray-900 group-hover:text-blue-600">{{ $link->title }}</h3>
+                                    @if($link->description)
+                                        <p class="text-sm text-gray-600 mt-1">{{ $link->description }}</p>
+                                    @endif
+                                </div>
+                                <svg class="w-5 h-5 ml-4 text-gray-400 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 @endsection
+

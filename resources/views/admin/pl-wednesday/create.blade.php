@@ -49,33 +49,15 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            <i class="fas fa-clock mr-1 text-gray-400"></i>Start Time <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" 
-                               name="start_time" 
-                               id="start_time" 
-                               value="{{ old('start_time', '15:00') }}" 
-                               required
-                               placeholder="Select time"
-                               class="flatpickr-time w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                               readonly>
-                        @error('start_time')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Start Time <span class="text-red-500">*</span></label>
+                        <input type="time" name="start_time" value="{{ old('start_time', '15:00') }}" required
+                               class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            <i class="fas fa-clock mr-1 text-gray-400"></i>End Time <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" 
-                               name="end_time" 
-                               id="end_time" 
-                               value="{{ old('end_time', '17:00') }}" 
-                               required
-                               placeholder="Select time"
-                               class="flatpickr-time w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-                               readonly>
-                        @error('end_time')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                        <label class="block text-sm font-medium text-gray-700 mb-1">End Time <span class="text-red-500">*</span></label>
+                        <input type="time" name="end_time" value="{{ old('end_time', '17:00') }}" required
+                               class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
                 </div>
 

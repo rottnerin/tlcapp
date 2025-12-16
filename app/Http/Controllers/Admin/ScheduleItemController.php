@@ -31,13 +31,10 @@ class ScheduleItemController extends Controller
             });
         }
 
-        // Division filter - include items with the selected division OR items with no divisions (All Divisions)
+        // Division filter
         if ($request->filled('division_id')) {
-            $divisionId = $request->division_id;
-            $query->where(function($q) use ($divisionId) {
-                $q->whereHas('divisions', function($subQ) use ($divisionId) {
-                    $subQ->where('divisions.id', $divisionId);
-                })->orWhereDoesntHave('divisions'); // Include "All Divisions" items
+            $query->whereHas('divisions', function($q) use ($request) {
+                $q->where('divisions.id', $request->division_id);
             });
         }
 

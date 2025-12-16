@@ -137,6 +137,46 @@ class AdminController extends Controller
     }
 
     /**
+     * Enrollment reports
+     */
+    public function enrollmentReport(Request $request)
+    {
+        $startDate = $request->get('start_date', Carbon::now()->startOfMonth());
+        $endDate = $request->get('end_date', Carbon::now()->endOfMonth());
+
+        // Wellness session enrollments
+        $wellnessEnrollments = UserSession::whereNotNull('wellness_session_id')
+            ->whereBetween('enrolled_at', [$startDate, $endDate])
+            ->with(['user', 'wellnessSession'])
+            ->get()
+            ->groupBy('wellness_session_id');
+
+        // Schedule item enrollments  
+        $scheduleEnrollments = UserSession::whereNotNull('schedule_item_id')
+            ->whereBetween('enrolled_at', [$startDate, $endDate])
+            ->with(['user', 'scheduleItem'])
+            ->get()
+            ->groupBy('schedule_item_id');
+
+        // Division breakdown
+        $divisionBreakdown = UserSession::whereBetween('enrolled_at', [$startDate, $endDate])
+            ->with('user.division')
+            ->get()
+            ->groupBy('user.division.name')
+            ->map(function($enrollments) {
+                return $enrollments->count();
+            });
+
+        return view('admin.reports.enrollments', compact(
+            'wellnessEnrollments',
+            'scheduleEnrollments', 
+            'divisionBreakdown',
+            'startDate',
+            'endDate'
+        ));
+    }
+
+    /**
      * General reports dashboard
      */
     public function reports()

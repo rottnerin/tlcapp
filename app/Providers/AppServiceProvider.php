@@ -3,9 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
-use App\Models\PLWednesdaySession;
 use App\Models\PLWednesdaySetting;
 use App\Models\WellnessSetting;
 use App\Models\PLDaysSetting;
@@ -25,11 +23,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Route model binding for PL Wednesday sessions (admin routes use 'pl_wednesday')
-        Route::bind('pl_wednesday', function ($value) {
-            return PLWednesdaySession::findOrFail($value);
-        });
-
         // Share feature settings with all views
         View::composer('*', function ($view) {
             // Initialize settings if they don't exist

@@ -159,13 +159,11 @@
 
                         <div>
                             <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
-                                <i class="fas fa-calendar-alt mr-1 text-gray-400"></i>Date <span class="text-red-500">*</span>
+                                Date <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" id="date" name="date" value="{{ old('date') }}" required
-                                   placeholder="Click to select date"
-                                   class="flatpickr-date w-full border border-gray-300 rounded-md px-3 py-2 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue cursor-pointer
-                                          @error('date') border-red-300 @enderror"
-                                   readonly>
+                            <input type="date" id="date" name="date" value="{{ old('date') }}" required
+                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                          @error('date') border-red-300 @enderror">
                             @error('date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror

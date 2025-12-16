@@ -1,159 +1,200 @@
-@extends('layouts.app')
-
-@section('title', 'Edit PL Day')
-
-@section('content')
-<style>
-    .card { background: #ffffff; border: 1px solid #e2e8f0; }
-    .form-input { 
-        background: #ffffff; 
-        border: 1px solid #e2e8f0; 
-        color: #1e293b;
-        transition: all 0.15s ease;
-    }
-    .form-input:focus { 
-        border-color: #2563eb; 
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        outline: none;
-    }
-    .form-label { color: #475569; }
-    .section-title { color: #1e293b; border-bottom: 1px solid #e2e8f0; }
-</style>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit PL Day - AES Professional Learning Days</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="antialiased bg-gray-50">
+    <!-- Admin Navigation -->
+    <nav class="bg-indigo-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-white text-lg font-bold">🛠️ AES Admin Panel</span>
+                    <span class="ml-4 px-3 py-1 text-xs font-medium bg-yellow-400 text-yellow-900 rounded-full">
+                        Administrator
+                    </span>
+                </div>
+                
+                <div class="flex items-center space-x-2 flex-1 justify-end">
+                    <nav class="flex items-center space-x-2 flex-wrap">
+                        <a href="{{ route('admin.pl-wednesday.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.pl-wednesday.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            PL Wednesday
+                        </a>
+                        <a href="{{ route('admin.pddays.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.pddays.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            PL Days
+                        </a>
+                        <a href="{{ route('admin.wellness.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.wellness.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Wellness
+                        </a>
+                        <a href="{{ route('admin.schedule.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.schedule.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Schedule
+                        </a>
+                        <a href="{{ route('admin.users.index') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.users.*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Users
+                        </a>
+                        <a href="{{ route('admin.reports') }}" 
+                           class="px-3 py-2 text-sm font-semibold text-white hover:text-yellow-200 hover:bg-indigo-700 rounded transition-colors whitespace-nowrap {{ request()->routeIs('admin.reports*') ? 'text-yellow-200 bg-indigo-700 border-b-2 border-yellow-200' : '' }}">
+                            Reports
+                        </a>
+                    </nav>
                     
-<div class="min-h-screen py-8" style="background: #f1f5f9;">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-6">
-            <a href="{{ route('admin.pddays.index') }}" 
-               class="inline-flex items-center text-sm font-medium mb-4" style="color: #2563eb;">
-                <i class="fas fa-arrow-left mr-2"></i>Back to PL Days
+                    <div class="flex items-center space-x-2">
+                        @if(auth()->user()->avatar)
+                            <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}" class="w-8 h-8 rounded-full">
+                        @endif
+                        <span class="text-sm text-indigo-200">{{ auth()->user()->name }}</span>
+                        <form method="POST" action="{{ route('admin.logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="text-sm text-red-300 hover:text-red-100">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <a href="{{ route('admin.pddays.index') }}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                ← Back to PL Days
             </a>
-            <h1 class="text-2xl font-bold" style="color: #1e293b;">Edit PL Day</h1>
-            <p class="mt-1" style="color: #64748b;">Update professional learning day event details</p>
+            <h1 class="mt-2 text-3xl font-bold text-gray-900">Edit PL Day</h1>
+            <p class="mt-2 text-gray-600">Update professional learning day event details</p>
         </div>
 
-        <!-- Form Card -->
-        <div class="card rounded-2xl shadow-sm overflow-hidden">
+        <!-- Form -->
+        <div class="max-w-3xl bg-white shadow-sm rounded-lg p-6">
             <form method="POST" action="{{ route('admin.pddays.update', $pdday) }}">
                 @csrf
                 @method('PUT')
 
-                <!-- Basic Information -->
-                <div class="p-6 section-title">
-                    <h2 class="text-lg font-semibold" style="color: #1e293b;">
-                        <i class="fas fa-info-circle mr-2" style="color: #64748b;"></i>Basic Information
-                    </h2>
+                <!-- Title -->
+                <div class="mb-6">
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                        Title <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        name="title" 
+                        id="title" 
+                        value="{{ old('title', $pdday->title) }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('title') border-red-500 @enderror"
+                        placeholder="e.g., September 2025 Professional Learning Days"
+                        required
+                    >
+                    @error('title')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
-                <div class="p-6 space-y-6">
-                    <div>
-                        <label for="title" class="block text-sm font-medium form-label mb-1">
-                            Title <span style="color: #dc2626;">*</span>
-                        </label>
-                        <input type="text" name="title" id="title" value="{{ old('title', $pdday->title) }}" required
-                               placeholder="e.g., September 2025 Professional Learning Days"
-                               class="w-full rounded-lg px-4 py-2.5 form-input @error('title') border-red-500 @enderror">
-                        @error('title')
-                            <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                        @enderror
-                    </div>
 
-                    <div>
-                        <label for="description" class="block text-sm font-medium form-label mb-1">Description</label>
-                        <textarea name="description" id="description" rows="4"
-                                  placeholder="Optional description for this PL day event..."
-                                  class="w-full rounded-lg px-4 py-2.5 form-input @error('description') border-red-500 @enderror">{{ old('description', $pdday->description) }}</textarea>
-                        @error('description')
-                            <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                        @enderror
-                    </div>
+                <!-- Description -->
+                <div class="mb-6">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                    </label>
+                    <textarea 
+                        name="description" 
+                        id="description" 
+                        rows="4"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('description') border-red-500 @enderror"
+                        placeholder="Optional description for this PD day event..."
+                    >{{ old('description', $pdday->description) }}</textarea>
+                    @error('description')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Date Range -->
-                <div class="p-6 section-title">
-                    <h2 class="text-lg font-semibold" style="color: #1e293b;">
-                        <i class="fas fa-calendar-alt mr-2" style="color: #64748b;"></i>Date Range
-                    </h2>
-                </div>
-                <div class="p-6 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="start_date" class="block text-sm font-medium form-label mb-1">
-                                Start Date <span style="color: #dc2626;">*</span>
-                            </label>
-                            <input type="text" name="start_date" id="start_date" value="{{ old('start_date', $pdday->start_date->format('Y-m-d')) }}" required
-                                   placeholder="Click to select date"
-                                   class="flatpickr-date w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('start_date') border-red-500 @enderror"
-                                   readonly>
-                            @error('start_date')
-                                <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
-                        </div>
+                <div class="mb-6 grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
+                            Start Date <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            name="start_date" 
+                            id="start_date" 
+                            value="{{ old('start_date', $pdday->start_date->format('Y-m-d')) }}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('start_date') border-red-500 @enderror"
+                            required
+                        >
+                        @error('start_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                        <div>
-                            <label for="end_date" class="block text-sm font-medium form-label mb-1">
-                                End Date <span style="color: #dc2626;">*</span>
-                            </label>
-                            <input type="text" name="end_date" id="end_date" value="{{ old('end_date', $pdday->end_date->format('Y-m-d')) }}" required
-                                   placeholder="Click to select date"
-                                   class="flatpickr-date w-full rounded-lg px-4 py-2.5 form-input cursor-pointer @error('end_date') border-red-500 @enderror"
-                                   readonly>
-                            @error('end_date')
-                                <p class="mt-1 text-sm" style="color: #dc2626;">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
+                            End Date <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            name="end_date" 
+                            id="end_date" 
+                            value="{{ old('end_date', $pdday->end_date->format('Y-m-d')) }}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('end_date') border-red-500 @enderror"
+                            required
+                        >
+                        @error('end_date')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
-                <!-- Settings -->
-                <div class="p-6 section-title">
-                    <h2 class="text-lg font-semibold" style="color: #1e293b;">
-                        <i class="fas fa-cog mr-2" style="color: #64748b;"></i>Settings
-                    </h2>
-                </div>
-                <div class="p-6 space-y-4">
-                    <label class="flex items-start space-x-3 cursor-pointer">
-                        <input type="checkbox" name="is_active" id="is_active" value="1"
-                               {{ old('is_active', $pdday->is_active) ? 'checked' : '' }}
-                               class="h-5 w-5 rounded mt-0.5" style="accent-color: #2563eb;">
-                        <div>
-                            <span class="font-medium" style="color: #1e293b;">Set as Active PL Day</span>
-                            <p class="text-sm" style="color: #64748b;">If checked, this will become the active PL day and all others will be deactivated.</p>
+                <!-- Active Status -->
+                <div class="mb-6">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input 
+                                type="checkbox" 
+                                name="is_active" 
+                                id="is_active" 
+                                value="1"
+                                {{ old('is_active', $pdday->is_active) ? 'checked' : '' }}
+                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            >
                         </div>
-                    </label>
+                        <div class="ml-3 text-sm">
+                            <label for="is_active" class="font-medium text-gray-700">
+                                Set as Active PL Day
+                            </label>
+                            <p class="text-gray-500">If checked, this will become the active PL day and all others will be deactivated.</p>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Associated Sessions Info -->
-                    <div class="p-4 rounded-xl" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                        <h3 class="text-sm font-semibold mb-2" style="color: #1e293b;">
-                            <i class="fas fa-link mr-2" style="color: #64748b;"></i>Associated Sessions
-                        </h3>
-                        <div class="text-sm grid grid-cols-2 gap-4" style="color: #64748b;">
-                            <div class="flex items-center">
-                                <i class="fas fa-calendar-alt mr-2" style="color: #7c3aed;"></i>
-                                Schedule Items: <span class="font-semibold ml-1" style="color: #1e293b;">{{ $pdday->scheduleItems()->count() }}</span>
-                            </div>
-                            <div class="flex items-center">
-                                <i class="fas fa-heart mr-2" style="color: #059669;"></i>
-                                Wellness Sessions: <span class="font-semibold ml-1" style="color: #1e293b;">{{ $pdday->wellnessSessions()->count() }}</span>
-                            </div>
-                        </div>
+                <div class="mb-6 bg-gray-50 border border-gray-200 rounded-md p-4">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Associated Sessions</h3>
+                    <div class="text-sm text-gray-600">
+                        <p>Schedule Items: <span class="font-semibold">{{ $pdday->scheduleItems()->count() }}</span></p>
+                        <p>Wellness Sessions: <span class="font-semibold">{{ $pdday->wellnessSessions()->count() }}</span></p>
                     </div>
                 </div>
 
-                <!-- Submit Buttons -->
-                <div class="p-6 flex justify-end space-x-4" style="background: #f8fafc; border-top: 1px solid #e2e8f0;">
-                    <a href="{{ route('admin.pddays.index') }}" 
-                       class="px-6 py-2.5 rounded-lg font-medium transition-colors"
-                       style="background: #ffffff; border: 1px solid #e2e8f0; color: #475569;">
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end space-x-3">
+                    <a href="{{ route('admin.pddays.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Cancel
                     </a>
-                    <button type="submit" 
-                            class="px-6 py-2.5 rounded-lg font-medium text-white transition-colors"
-                            style="background: #2563eb;">
-                        <i class="fas fa-save mr-2"></i>Update PL Day
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Update PL Day
                     </button>
                 </div>
             </form>
         </div>
-    </div>
-</div>
-@endsection
+    </main>
+</body>
+</html>
