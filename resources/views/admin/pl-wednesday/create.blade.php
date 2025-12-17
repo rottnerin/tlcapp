@@ -34,6 +34,19 @@
                            class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
 
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Division</label>
+                    <select name="division_id" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">All Divisions</option>
+                        @foreach($divisions as $division)
+                            <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>
+                                {{ $division->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('division_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date (Wednesday) <span class="text-red-500">*</span></label>
@@ -123,7 +136,7 @@ function addLink(title = '', url = '', description = '') {
     `);
     linkCount++;
 }
-document.addEventListener('DOMContentLoaded', () => addLink());
+// Links are optional - click "Add Link" button to add one
 </script>
 @endsection
 

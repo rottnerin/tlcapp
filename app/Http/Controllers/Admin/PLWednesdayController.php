@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PLWednesdaySession;
 use App\Models\PLWednesdayLink;
 use App\Models\PLWednesdaySetting;
+use App\Models\Division;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -64,8 +65,11 @@ class PLWednesdayController extends Controller
         
         // Generate list of valid Wednesday dates
         $wednesdayDates = $this->getWednesdayDates($settings->start_date, $settings->end_date);
+        
+        // Get all active divisions
+        $divisions = Division::active()->orderBy('name')->get();
 
-        return view('admin.pl-wednesday.create', compact('settings', 'wednesdayDates'));
+        return view('admin.pl-wednesday.create', compact('settings', 'wednesdayDates', 'divisions'));
     }
 
     /**
@@ -80,6 +84,7 @@ class PLWednesdayController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
+            'division_id' => 'nullable|exists:divisions,id',
             'date' => [
                 'required',
                 'date',
@@ -166,9 +171,12 @@ class PLWednesdayController extends Controller
         // Generate list of valid Wednesday dates
         $wednesdayDates = $this->getWednesdayDates($settings->start_date, $settings->end_date);
         
+        // Get all active divisions
+        $divisions = Division::active()->orderBy('name')->get();
+        
         $plWednesday->load('links');
 
-        return view('admin.pl-wednesday.edit', compact('plWednesday', 'settings', 'wednesdayDates'));
+        return view('admin.pl-wednesday.edit', compact('plWednesday', 'settings', 'wednesdayDates', 'divisions'));
     }
 
     /**
@@ -183,6 +191,7 @@ class PLWednesdayController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
+            'division_id' => 'nullable|exists:divisions,id',
             'date' => [
                 'required',
                 'date',

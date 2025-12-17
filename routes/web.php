@@ -86,9 +86,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/pddays/{pdday}/toggle-active', [PDDayController::class, 'toggleActive'])->name('pddays.toggle-active');
     
     // PL Wednesday Management
-    Route::resource('pl-wednesday', AdminPLWednesdayController::class);
+    // Custom routes MUST come before resource routes to avoid parameter conflicts
     Route::post('/pl-wednesday/toggle-active', [AdminPLWednesdayController::class, 'toggleActive'])->name('pl-wednesday.toggle-active');
     Route::post('/pl-wednesday/{plWednesday}/toggle-status', [AdminPLWednesdayController::class, 'toggleSessionStatus'])->name('pl-wednesday.toggle-status');
+    Route::resource('pl-wednesday', AdminPLWednesdayController::class);
     
     // Reports
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
