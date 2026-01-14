@@ -6,7 +6,7 @@
 <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-8">
-            <a href="{{ route('admin.pl-wednesday.index') }}" class="text-indigo-600 hover:text-indigo-700 mb-4 inline-block">
+            <a href="{{ route('admin.pl-wednesday.index') }}" style="color: var(--tlc-orange);" class="hover:opacity-70 mb-4 inline-block">
                 <i class="fas fa-arrow-left mr-2"></i>Back
             </a>
             <h1 class="text-3xl font-bold text-gray-900">Create PL Wednesday Session</h1>
@@ -19,24 +19,24 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
                     <input type="text" name="title" value="{{ old('title') }}" required
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2">
                     @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea name="description" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">{{ old('description') }}</textarea>
+                    <textarea name="description" rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2">{{ old('description') }}</textarea>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
                     <input type="text" name="location" value="{{ old('location') }}" 
-                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                           class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Division</label>
-                    <select name="division_id" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <select name="division_id" class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2">
                         <option value="">All Divisions</option>
                         @foreach($divisions as $division)
                             <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>
@@ -50,7 +50,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Date (Wednesday) <span class="text-red-500">*</span></label>
-                        <select name="date" required class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select name="date" required class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 focus:outline-none focus:ring-2">
                             <option value="">Select Wednesday</option>
                             @foreach($wednesdayDates as $wedDate)
                                 <option value="{{ $wedDate['value'] }}" {{ old('date') == $wedDate['value'] ? 'selected' : '' }}>
@@ -64,13 +64,13 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Start Time <span class="text-red-500">*</span></label>
                         <input type="time" name="start_time" value="{{ old('start_time', '15:00') }}" required
-                               class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">End Time <span class="text-red-500">*</span></label>
                         <input type="time" name="end_time" value="{{ old('end_time', '17:00') }}" required
-                               class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               class="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 bg-white focus:outline-none focus:ring-2">
                     </div>
                 </div>
 
@@ -86,7 +86,7 @@
 
                 <div class="flex items-center">
                     <input type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
-                           class="h-4 w-4 text-indigo-600">
+                           class="h-4 w-4" style="color: var(--tlc-orange);">
                     <label for="is_active" class="ml-2 text-sm text-gray-900">Active</label>
                 </div>
 
@@ -94,7 +94,7 @@
                     <a href="{{ route('admin.pl-wednesday.index') }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
                         Cancel
                     </a>
-                    <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                    <button type="submit" class="px-6 py-2 text-white rounded-lg" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                         Create Session
                     </button>
                 </div>

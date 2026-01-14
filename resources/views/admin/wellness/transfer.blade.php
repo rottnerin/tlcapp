@@ -62,7 +62,7 @@
                             @foreach($wellness->userSessions as $enrollment)
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 bg-aes-blue text-white rounded-full flex items-center justify-center text-sm font-medium">
+                                        <div class="w-8 h-8 text-white rounded-full flex items-center justify-center text-sm font-medium" style="background-color: var(--tlc-navy);">
                                             {{ substr($enrollment->user->name, 0, 1) }}
                                         </div>
                                         <div class="ml-3">
@@ -71,7 +71,7 @@
                                         </div>
                                     </div>
                                     <button onclick="openTransferModal({{ $enrollment->user->id }}, '{{ $enrollment->user->name }}')" 
-                                            class="px-3 py-1 text-sm bg-aes-blue text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                            class="px-3 py-1 text-sm text-white rounded-lg transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                                         <i class="fas fa-exchange-alt mr-1"></i>
                                         Transfer
                                     </button>
@@ -123,8 +123,8 @@
                                             </div>
                                             <div class="text-xs text-gray-500">enrolled</div>
                                             <div class="w-16 bg-gray-200 rounded-full h-2 mt-1">
-                                                <div class="bg-aes-blue h-2 rounded-full transition-all" 
-                                                     style="width: {{ $session->max_participants > 0 ? ($session->user_sessions_count / $session->max_participants) * 100 : 0 }}%"></div>
+                                                <div class="h-2 rounded-full transition-all" 
+                                                     style="background-color: var(--tlc-gold); width: {{ $session->max_participants > 0 ? ($session->user_sessions_count / $session->max_participants) * 100 : 0 }}%"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -192,7 +192,7 @@
                         Cancel
                     </button>
                     <button type="submit" 
-                            class="px-4 py-2 bg-aes-blue text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            class="px-4 py-2 text-white rounded-lg transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                         <i class="fas fa-exchange-alt mr-2"></i>
                         Transfer User
                     </button>

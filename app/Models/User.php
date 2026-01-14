@@ -95,6 +95,57 @@ class User extends Authenticatable
     }
 
     /**
+     * Get user's selected sessions for My PL
+     */
+    public function selectedSessions()
+    {
+        return $this->hasMany(UserSelectedSession::class);
+    }
+
+    /**
+     * Get user's selected sessions for current academic year
+     */
+    public function currentYearSelections()
+    {
+        return $this->selectedSessions()->currentYear();
+    }
+
+    /**
+     * Check if user has selected a specific session
+     */
+    public function hasSelected($selectable): bool
+    {
+        return $this->selectedSessions()
+            ->where('selectable_type', get_class($selectable))
+            ->where('selectable_id', $selectable->id)
+            ->exists();
+    }
+
+    /**
+     * Add a session to My PL
+     */
+    public function addToMyPL($selectable, ?string $academicYear = null): UserSelectedSession
+    {
+        return $this->selectedSessions()->firstOrCreate([
+            'selectable_type' => get_class($selectable),
+            'selectable_id' => $selectable->id,
+        ], [
+            'academic_year' => $academicYear ?? PDDay::getCurrentAcademicYear(),
+        ]);
+    }
+
+    /**
+     * Remove a session from My PL
+     */
+    public function removeFromMyPL($selectable): bool
+    {
+        return $this->selectedSessions()
+            ->where('selectable_type', get_class($selectable))
+            ->where('selectable_id', $selectable->id)
+            ->delete() > 0;
+    }
+
+    /**
      * Check if user is admin
      */
     public function isAdmin(): bool

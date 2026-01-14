@@ -4,16 +4,17 @@
 
 @push('styles')
 <style>
-    /* Pastel Theme Variables */
+    /* TLC Theme Variables */
     :root {
-        --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --pastel-lavender: #f5f0ff;
-        --pastel-mint: #f0fff4;
+        --tlc-navy: #0d3b66;
+        --tlc-cream: #faf0ca;
+        --tlc-gold: #f4d35e;
+        --tlc-orange: #ee964b;
     }
 
     /* Hero Header */
     .session-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 50%, var(--tlc-navy) 100%);
         position: relative;
         overflow: hidden;
     }
@@ -45,7 +46,7 @@
 
     .back-btn:hover {
         background: white;
-        color: #667eea;
+        color: var(--tlc-navy);
         transform: translateX(-4px);
     }
 
@@ -61,7 +62,7 @@
 
     /* Content Container */
     .content-container {
-        background: linear-gradient(180deg, #f8f9ff 0%, #f0f4ff 100%);
+        background: var(--tlc-cream);
         min-height: calc(100vh - 300px);
     }
 
@@ -69,7 +70,7 @@
     .main-card {
         background: white;
         border-radius: 1.5rem;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 20px 50px rgba(13, 59, 102, 0.08);
         overflow: hidden;
         margin-top: -4rem;
         position: relative;
@@ -78,7 +79,7 @@
 
     .card-accent {
         height: 6px;
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background: linear-gradient(90deg, var(--tlc-gold) 0%, var(--tlc-orange) 50%, var(--tlc-navy) 100%);
     }
 
     .card-content {
@@ -103,27 +104,27 @@
     }
 
     .pill-date {
-        background: linear-gradient(135deg, #f5f0ff 0%, #e8e0f0 100%);
-        color: #5b4b7a;
-        border: 2px solid #d4c4e8;
+        background: linear-gradient(135deg, rgba(250, 240, 202, 0.5) 0%, rgba(244, 211, 94, 0.3) 100%);
+        color: var(--tlc-navy);
+        border: 2px solid rgba(244, 211, 94, 0.5);
     }
 
     .pill-time {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        background: linear-gradient(135deg, var(--tlc-gold) 0%, var(--tlc-orange) 100%);
+        color: var(--tlc-navy);
+        box-shadow: 0 4px 15px rgba(244, 211, 94, 0.3);
     }
 
     .pill-location {
-        background: linear-gradient(135deg, #f0fff4 0%, #d4edda 100%);
-        color: #256739;
-        border: 2px solid #b7dbc4;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(13, 59, 102, 0.1) 100%);
+        color: var(--tlc-navy);
+        border: 2px solid rgba(13, 59, 102, 0.2);
     }
 
     .pill-duration {
-        background: linear-gradient(135deg, #fff8f5 0%, #ffe5d9 100%);
-        color: #935116;
-        border: 2px solid #f5d0c0;
+        background: linear-gradient(135deg, rgba(238, 150, 75, 0.15) 0%, rgba(238, 150, 75, 0.25) 100%);
+        color: var(--tlc-navy);
+        border: 2px solid rgba(238, 150, 75, 0.4);
     }
 
     /* Division Badge */
@@ -140,36 +141,36 @@
     }
 
     .division-es {
-        background: linear-gradient(135deg, #d4edda 0%, #b7e4c7 100%);
-        color: #155724;
+        background: rgba(244, 211, 94, 0.4);
+        color: var(--tlc-navy);
     }
 
     .division-ms {
-        background: linear-gradient(135deg, #d6eaf8 0%, #aed6f1 100%);
-        color: #154360;
+        background: rgba(238, 150, 75, 0.4);
+        color: var(--tlc-navy);
     }
 
     .division-hs {
-        background: linear-gradient(135deg, #ffe5d9 0%, #fad0bf 100%);
-        color: #935116;
+        background: rgba(13, 59, 102, 0.2);
+        color: var(--tlc-navy);
     }
 
     /* Session Title */
     .session-title {
         font-size: 2.25rem;
         font-weight: 800;
-        color: #1a202c;
+        color: var(--tlc-navy);
         line-height: 1.3;
         margin-bottom: 1rem;
     }
 
     /* Description Section */
     .description-section {
-        background: linear-gradient(145deg, #f8f9ff 0%, #f0f4ff 100%);
+        background: linear-gradient(145deg, rgba(250, 240, 202, 0.3) 0%, rgba(244, 211, 94, 0.15) 100%);
         border-radius: 1rem;
         padding: 1.75rem;
         margin-top: 2rem;
-        border: 2px solid #e8e0f0;
+        border: 2px solid rgba(244, 211, 94, 0.4);
     }
 
     .section-title {
@@ -178,14 +179,14 @@
         gap: 0.75rem;
         font-size: 1.25rem;
         font-weight: 700;
-        color: #2d3748;
+        color: var(--tlc-navy);
         margin-bottom: 1rem;
     }
 
     .section-title-icon {
         width: 2rem;
         height: 2rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
         border-radius: 0.5rem;
         display: flex;
         align-items: center;
@@ -209,12 +210,12 @@
     .resources-section {
         margin-top: 2rem;
         padding-top: 2rem;
-        border-top: 2px dashed #e8e0f0;
+        border-top: 2px dashed rgba(244, 211, 94, 0.5);
     }
 
     .resource-card {
         background: white;
-        border: 2px solid #e8e0f0;
+        border: 2px solid rgba(13, 59, 102, 0.15);
         border-radius: 1rem;
         padding: 1.25rem 1.5rem;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -225,9 +226,9 @@
     }
 
     .resource-card:hover {
-        border-color: #667eea;
+        border-color: var(--tlc-orange);
         transform: translateX(8px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        box-shadow: 0 8px 25px rgba(238, 150, 75, 0.15);
     }
 
     .resource-icon {
@@ -242,13 +243,13 @@
     }
 
     .resource-card:nth-child(odd) .resource-icon {
-        background: linear-gradient(135deg, #f5f0ff 0%, #e8e0f0 100%);
-        color: #667eea;
+        background: linear-gradient(135deg, rgba(244, 211, 94, 0.3) 0%, rgba(244, 211, 94, 0.5) 100%);
+        color: var(--tlc-navy);
     }
 
     .resource-card:nth-child(even) .resource-icon {
-        background: linear-gradient(135deg, #f0fff4 0%, #d4edda 100%);
-        color: #2e7d32;
+        background: linear-gradient(135deg, rgba(238, 150, 75, 0.2) 0%, rgba(238, 150, 75, 0.35) 100%);
+        color: var(--tlc-navy);
     }
 
     .resource-card:hover .resource-icon {
@@ -267,17 +268,17 @@
 
     .resource-title {
         font-weight: 600;
-        color: #2d3748;
+        color: var(--tlc-navy);
         font-size: 1rem;
         transition: color 0.3s ease;
     }
 
     .resource-card:hover .resource-title {
-        color: #667eea;
+        color: var(--tlc-orange);
     }
 
     .resource-description {
-        color: #718096;
+        color: #4a5568;
         font-size: 0.875rem;
         margin-top: 0.25rem;
     }
@@ -285,7 +286,7 @@
     .resource-arrow {
         width: 2rem;
         height: 2rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--tlc-orange) 0%, #d97706 100%);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -311,15 +312,15 @@
     .no-resources {
         text-align: center;
         padding: 2rem;
-        background: linear-gradient(145deg, #f8f9ff 0%, #f0f4ff 100%);
+        background: linear-gradient(145deg, rgba(250, 240, 202, 0.3) 0%, rgba(244, 211, 94, 0.15) 100%);
         border-radius: 1rem;
-        border: 2px dashed #d4c4e8;
+        border: 2px dashed var(--tlc-gold);
     }
 
     .no-resources-icon {
         width: 4rem;
         height: 4rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
         border-radius: 50%;
         display: flex;
         align-items: center;

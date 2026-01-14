@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\View;
 use App\Models\PLWednesdaySetting;
 use App\Models\WellnessSetting;
 use App\Models\PLDaysSetting;
+use App\Models\TTTSetting;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
                 'plWednesdayActive' => PLWednesdaySetting::isActive(),
                 'wellnessActive' => WellnessSetting::isActive(),
                 'plDaysActive' => PLDaysSetting::isActive(),
+                'tttActive' => TTTSetting::isActive(),
             ]);
         });
     }

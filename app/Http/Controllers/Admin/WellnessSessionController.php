@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\WellnessSession;
 use App\Models\PDDay;
+use App\Models\UserSession;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -57,7 +58,34 @@ class WellnessSessionController extends Controller
         $categories = $this->getWellnessCategories();
         $availableDates = WellnessSession::select('date')->distinct()->orderBy('date')->pluck('date');
 
-        return view('admin.wellness.index', compact('sessions', 'categories', 'availableDates'));
+        // Calculate statistics
+        $totalSessions = WellnessSession::count();
+        $activeSessions = WellnessSession::where('is_active', true)->count();
+        $totalEnrollments = UserSession::where('status', 'confirmed')
+            ->whereNotNull('wellness_session_id')
+            ->count();
+        
+        // Calculate average enrollment percentage
+        $avgEnrollment = '0%';
+        if ($totalSessions > 0) {
+            $sessionsWithCapacity = WellnessSession::where('max_participants', '>', 0)->get();
+            if ($sessionsWithCapacity->count() > 0) {
+                $totalEnrollmentRate = $sessionsWithCapacity->sum(function($session) {
+                    return ($session->current_enrollment / $session->max_participants) * 100;
+                });
+                $avgEnrollment = round($totalEnrollmentRate / $sessionsWithCapacity->count(), 1) . '%';
+            }
+        }
+
+        return view('admin.wellness.index', compact(
+            'sessions', 
+            'categories', 
+            'availableDates',
+            'totalSessions',
+            'activeSessions',
+            'totalEnrollments',
+            'avgEnrollment'
+        ));
     }
 
     /**
@@ -91,6 +119,7 @@ class WellnessSessionController extends Controller
             'equipment_needed' => 'nullable|string',
             'special_requirements' => 'nullable|string',
             'preparation_notes' => 'nullable|string',
+            'p_d_day_id' => 'nullable|exists:p_d_days,id',
             'is_active' => 'boolean',
         ]);
 
@@ -126,7 +155,15 @@ class WellnessSessionController extends Controller
     {
         $categories = $this->getWellnessCategories();
         $pdDays = PDDay::orderBy('start_date', 'desc')->get();
-        return view('admin.wellness.edit', compact('wellness', 'categories', 'pdDays'));
+        
+        // Load confirmed participants
+        $wellness->load(['userSessions' => function($query) {
+            $query->with('user.division')->where('status', 'confirmed')->orderBy('enrolled_at');
+        }]);
+        
+        $confirmedParticipants = $wellness->userSessions->where('status', 'confirmed');
+        
+        return view('admin.wellness.edit', compact('wellness', 'categories', 'pdDays', 'confirmedParticipants'));
     }
 
     /**
@@ -150,6 +187,7 @@ class WellnessSessionController extends Controller
             'equipment_needed' => 'nullable|string',
             'special_requirements' => 'nullable|string',
             'preparation_notes' => 'nullable|string',
+            'p_d_day_id' => 'nullable|exists:p_d_days,id',
             'is_active' => 'boolean',
         ]);
 

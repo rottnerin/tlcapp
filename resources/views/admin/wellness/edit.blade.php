@@ -10,6 +10,25 @@
             <p class="mt-1 text-sm text-gray-600">Update the wellness session details</p>
         </div>
 
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+            <div class="mx-6 mt-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    {{ session('success') }}
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mx-6 mt-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    {{ session('error') }}
+                </div>
+            </div>
+        @endif
+
         <form action="{{ route('admin.wellness.update', $wellness) }}" method="POST" class="p-6 space-y-8">
             @csrf
             @method('PUT')
@@ -134,20 +153,20 @@
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Schedule & Capacity</h3>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
-                        <label for="pd_day_id" class="block text-sm font-medium text-gray-700 mb-1">
+                        <label for="p_d_day_id" class="block text-sm font-medium text-gray-700 mb-1">
                             PL Day Event
                         </label>
-                        <select id="pd_day_id" name="pd_day_id"
+                        <select id="p_d_day_id" name="p_d_day_id"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                       @error('pd_day_id') border-red-300 @enderror">
+                                       @error('p_d_day_id') border-red-300 @enderror">
                             <option value="">Not assigned to any PL Day</option>
                             @foreach($pdDays as $pdDay)
-                                <option value="{{ $pdDay->id }}" {{ old('pd_day_id', $wellness->pd_day_id) == $pdDay->id ? 'selected' : '' }}>
+                                <option value="{{ $pdDay->id }}" {{ old('p_d_day_id', $wellness->p_d_day_id) == $pdDay->id ? 'selected' : '' }}>
                                     {{ $pdDay->title }} ({{ $pdDay->date_range }})
                                 </option>
                             @endforeach
                         </select>
-                        @error('pd_day_id')
+                        @error('p_d_day_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -241,11 +260,56 @@
                     Cancel
                 </a>
                 <button type="submit" 
-                        class="px-4 py-2 bg-aes-blue border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aes-blue">
+                        class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2" style="background-color: var(--tlc-orange); --tw-ring-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                     Update Session
                 </button>
             </div>
         </form>
     </div>
+
+    <!-- Participants List -->
+    @if(isset($confirmedParticipants) && $confirmedParticipants->count() > 0)
+        <div class="mt-8 bg-white rounded-lg shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">Enrolled Participants ({{ $confirmedParticipants->count() }})</h2>
+            </div>
+            
+            <div class="p-6">
+                <div class="space-y-3">
+                    @foreach($confirmedParticipants as $enrollment)
+                        <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900">{{ $enrollment->user->name }}</p>
+                                <p class="text-sm text-gray-600">{{ $enrollment->user->email }}</p>
+                                @if($enrollment->user->division)
+                                    <p class="text-xs text-gray-500">{{ $enrollment->user->division->name }}</p>
+                                @endif
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-600">
+                                        {{ $enrollment->enrolled_at->format('M j, Y') }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $enrollment->enrolled_at->format('g:i A') }}
+                                    </p>
+                                </div>
+                                <form action="{{ route('admin.wellness.remove-enrollment', $wellness) }}" method="POST" 
+                                      onsubmit="return confirm('Are you sure you want to remove {{ $enrollment->user->name }} from this session?')">
+                                    @csrf
+                                    <input type="hidden" name="user_id" value="{{ $enrollment->user->id }}">
+                                    <button type="submit" 
+                                            class="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                                            title="Remove from session">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 @endsection

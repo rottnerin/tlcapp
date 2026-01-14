@@ -9,7 +9,7 @@
         <div class="mb-8">
             <div class="flex items-center mb-4">
                 <a href="{{ route('admin.schedule.index') }}" 
-                   class="text-aes-blue hover:text-blue-700 mr-4 font-medium">
+                   class="mr-4 font-medium hover:opacity-70" style="color: var(--tlc-navy);">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Schedule Items
                 </a>
             </div>
@@ -159,7 +159,7 @@
                                     <p class="text-sm text-gray-600">Add links that users can click to access additional resources (e.g., menu, materials, documents)</p>
                                 </div>
                                 <button type="button" id="add-link-btn"
-                                        class="px-3 py-1.5 bg-aes-blue hover:bg-blue-700 text-white text-sm rounded-md transition-colors">
+                                        class="px-3 py-1.5 text-white text-sm rounded-md transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                                     <i class="fas fa-plus mr-1"></i>Add Link
                                 </button>
                             </div>
@@ -206,7 +206,7 @@
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-6 py-2 bg-aes-blue hover:bg-blue-700 text-white rounded-md transition-colors">
+                            class="px-6 py-2 text-white rounded-md transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                         <i class="fas fa-save mr-2"></i>Create Schedule Item
                     </button>
                 </div>

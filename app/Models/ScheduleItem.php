@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Carbon\Carbon;
 use App\Models\ScheduleItemLink;
 
@@ -92,6 +93,14 @@ class ScheduleItem extends Model
         return $this->belongsToMany(User::class, 'user_sessions')
                     ->withPivot(['status', 'enrolled_at', 'notes', 'rating', 'feedback'])
                     ->withTimestamps();
+    }
+
+    /**
+     * Get user selections for this schedule item (My PL)
+     */
+    public function userSelections(): MorphMany
+    {
+        return $this->morphMany(UserSelectedSession::class, 'selectable');
     }
 
     /**

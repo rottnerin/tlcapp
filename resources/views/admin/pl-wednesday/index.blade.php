@@ -12,7 +12,7 @@
                     <p class="mt-2 text-gray-600">Manage Professional Learning Wednesday sessions</p>
                 </div>
                 <a href="{{ route('admin.pl-wednesday.create') }}" 
-                   class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                   class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                     <i class="fas fa-plus mr-2"></i>
                     Add New Session
                 </a>
@@ -103,7 +103,7 @@
                                     </form>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ route('admin.pl-wednesday.edit', $session) }}" class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</a>
+                                    <a href="{{ route('admin.pl-wednesday.edit', $session) }}" style="color: var(--tlc-orange);" class="hover:opacity-70 mr-4">Edit</a>
                                     <form action="{{ route('admin.pl-wednesday.destroy', $session) }}" method="POST" class="inline" 
                                           onsubmit="return confirm('Are you sure you want to delete this PL Wednesday session? This action cannot be undone.');">
                                         @csrf
@@ -115,7 +115,7 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                                    No sessions found. <a href="{{ route('admin.pl-wednesday.create') }}" class="text-indigo-600">Create one</a>.
+                                    No sessions found. <a href="{{ route('admin.pl-wednesday.create') }}" style="color: var(--tlc-orange);">Create one</a>.
                                 </td>
                             </tr>
                         @endforelse

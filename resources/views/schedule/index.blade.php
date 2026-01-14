@@ -1,18 +1,25 @@
 @extends('layouts.user')
 
-@section('title', 'Schedule - AES Professional Learning Days')
+@section('title', 'Schedule - TLC Professional Learning')
 
 @section('content')
 <style>
+:root {
+  --tlc-navy: #0d3b66;
+  --tlc-cream: #faf0ca;
+  --tlc-gold: #f4d35e;
+  --tlc-orange: #ee964b;
+}
+
 body {
-  background-color: #f9fafb; /* light gray, not pure white */
-  color: #1f2937; /* dark gray text for contrast */
+  background-color: var(--tlc-cream);
+  color: var(--tlc-navy);
 }
 
 .session-card {
   background: #ffffff;
   border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(13, 59, 102, 0.08);
   padding: 1.5rem;
   margin-bottom: 1rem;
   transition: all 0.3s ease;
@@ -20,51 +27,51 @@ body {
 
 /* Current time highlighting */
 .event-card.current-time {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 3px solid #f59e0b;
-  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, rgba(244, 211, 94, 0.3) 0%, rgba(244, 211, 94, 0.5) 100%);
+  border: 3px solid var(--tlc-gold);
+  box-shadow: 0 8px 25px rgba(244, 211, 94, 0.3);
   transform: scale(1.02);
   animation: pulse-glow 2s infinite;
 }
 
 .event-card.current-time .time-bubble {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, var(--tlc-orange) 0%, #d97706 100%);
   color: white;
   font-weight: 700;
-  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 15px rgba(238, 150, 75, 0.4);
 }
 
 .event-card.current-time .event-title {
-  color: #92400e;
+  color: var(--tlc-navy);
   font-weight: 700;
 }
 
 .event-card.current-time .event-description {
-  color: #a16207;
+  color: #4a5568;
 }
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 8px 25px rgba(244, 211, 94, 0.3);
   }
   50% {
-    box-shadow: 0 12px 35px rgba(245, 158, 11, 0.5);
+    box-shadow: 0 12px 35px rgba(244, 211, 94, 0.5);
   }
 }
 
 .session-card h2 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--tlc-navy);
 }
 
 .session-card p {
-  color: #374151;
+  color: #4a5568;
 }
 
 .section-header {
-  background: #facc15; /* amber-400 yellow */
-  color: #1f2937; /* dark gray text */
+  background: var(--tlc-gold);
+  color: var(--tlc-navy);
   padding: 0.75rem;
   border-radius: 0.75rem;
   font-weight: 600;
@@ -77,43 +84,44 @@ body {
   font-weight: 500;
 }
 
-.tag-all { background: #f3f4f6; color: #111827; }
-.tag-elementary { background: #d1fae5; color: #065f46; }
-.tag-middle { background: #dbeafe; color: #1e40af; }
-.tag-high { background: #ede9fe; color: #5b21b6; }
+.tag-all { background: rgba(13, 59, 102, 0.1); color: var(--tlc-navy); }
+.tag-elementary { background: rgba(244, 211, 94, 0.3); color: var(--tlc-navy); }
+.tag-middle { background: rgba(238, 150, 75, 0.2); color: var(--tlc-navy); }
+.tag-high { background: rgba(13, 59, 102, 0.15); color: var(--tlc-navy); }
 
 .day-card {
-  background: linear-gradient(135deg, #fde68a, #facc15);
-  color: #111827;
+  background: linear-gradient(135deg, var(--tlc-gold), rgba(244, 211, 94, 0.8));
+  color: var(--tlc-navy);
   border-radius: 1rem;
   padding: 1.5rem;
   text-align: center;
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 16px rgba(13, 59, 102, 0.1);
   transition: all 0.3s ease;
 }
 
 .day-card.selected {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, var(--tlc-navy), #164773);
+  color: var(--tlc-cream);
+  box-shadow: 0 8px 24px rgba(13, 59, 102, 0.4);
   transform: scale(1.02);
 }
 
 /* Time badge system-level fixes with beautiful gradients */
 .time-badge {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important; /* Amber gradient to match theme */
-  color: #ffffff !important; /* White text */
+  background: linear-gradient(135deg, var(--tlc-gold) 0%, var(--tlc-orange) 100%) !important;
+  color: var(--tlc-navy) !important;
   border-radius: 0.75rem;
   padding: 1rem;
   text-align: center;
   min-width: 120px;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+  box-shadow: 0 4px 12px rgba(244, 211, 94, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .time-badge.wellness {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important; /* Green gradient for wellness */
-  box-shadow: 0 4px 12px rgba(17, 153, 142, 0.25);
+  background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%) !important;
+  box-shadow: 0 4px 12px rgba(13, 59, 102, 0.25);
 }
 
 .time-badge .time-start {
@@ -171,27 +179,27 @@ body {
 
 /* Time bubble */
 .time-bubble {
-  background: linear-gradient(135deg, #fde68a 0%, #facc15 100%);
+  background: linear-gradient(135deg, var(--tlc-gold) 0%, rgba(244, 211, 94, 0.8) 100%);
   border-radius: 1rem;
   padding: 1.5rem;
   text-align: center;
   width: 160px;
   max-width: 160px;
   min-width: 140px;
-  box-shadow: 0 8px 24px rgba(250, 204, 21, 0.3);
+  box-shadow: 0 8px 24px rgba(244, 211, 94, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.2);
   flex-shrink: 0;
 }
 
 .time-bubble.wellness {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-  box-shadow: 0 8px 24px rgba(17, 153, 142, 0.3);
+  background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
+  box-shadow: 0 8px 24px rgba(13, 59, 102, 0.3);
 }
 
 .time-bubble .time-start {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--tlc-navy);
   display: block;
   margin-bottom: 0.5rem;
 }
@@ -199,13 +207,13 @@ body {
 .time-bubble .time-end {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--tlc-navy);
   display: block;
 }
 
 .time-bubble .wellness-tag {
   background: rgba(255, 255, 255, 0.2);
-  color: #1f2937;
+  color: var(--tlc-cream);
   padding: 0.375rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
@@ -229,14 +237,14 @@ body {
 .content-bubble h3 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--tlc-navy);
   margin-bottom: 0.75rem;
   line-height: 1.3;
 }
 
 .content-bubble .description {
   font-size: 1rem;
-  color: #64748b;
+  color: #4a5568;
   line-height: 1.6;
   margin-bottom: 1rem;
 }
@@ -245,7 +253,7 @@ body {
   display: flex;
   align-items: center;
   font-size: 0.875rem;
-  color: #64748b;
+  color: #4a5568;
   margin-bottom: 1rem;
 }
 
@@ -253,7 +261,7 @@ body {
   width: 1rem;
   height: 1rem;
   margin-right: 0.5rem;
-  color: #94a3b8;
+  color: var(--tlc-orange);
 }
 
 .content-bubble .divisions {
@@ -266,7 +274,7 @@ body {
 .content-bubble .link-button {
   display: inline-flex;
   align-items: center;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  background: linear-gradient(135deg, var(--tlc-orange) 0%, #d97706 100%);
   color: #ffffff;
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
@@ -274,12 +282,12 @@ body {
   font-size: 0.875rem;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+  box-shadow: 0 4px 12px rgba(238, 150, 75, 0.25);
 }
 
 .content-bubble .link-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(251, 191, 36, 0.4);
+  box-shadow: 0 8px 24px rgba(238, 150, 75, 0.4);
 }
 
 .content-bubble .link-button svg {
@@ -292,7 +300,7 @@ body {
 .content-bubble .calendar-button {
   display: inline-flex;
   align-items: center;
-  background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+  background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
   color: #ffffff;
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
@@ -300,13 +308,13 @@ body {
   font-size: 0.875rem;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.25);
+  box-shadow: 0 4px 12px rgba(13, 59, 102, 0.25);
   margin-left: 0.75rem;
 }
 
 .content-bubble .calendar-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(66, 133, 244, 0.4);
+  box-shadow: 0 8px 24px rgba(13, 59, 102, 0.4);
 }
 
 .content-bubble .calendar-button svg {
@@ -534,8 +542,8 @@ body {
 
 /* System-level contrast fixes with beautiful gradients */
 .bg-gradient-to-r {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+  background: linear-gradient(135deg, var(--tlc-gold) 0%, var(--tlc-orange) 100%) !important;
+  box-shadow: 0 4px 12px rgba(244, 211, 94, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -593,13 +601,55 @@ body {
 .from-amber-500 .text-white {
   color: #ffffff !important;
 }
+
+/* My PL Checkbox Styling */
+.my-pl-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+  z-index: 10;
+  position: relative;
+}
+
+.my-pl-checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  accent-color: var(--tlc-orange);
+  flex-shrink: 0;
+}
+
+.my-pl-checkbox-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tlc-navy);
+  white-space: nowrap;
+}
+
+.my-pl-checkbox:checked + .my-pl-checkbox-text {
+  color: var(--tlc-orange);
+}
 </style>
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+<div class="min-h-screen" style="background-color: var(--tlc-cream);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Day Selector Cards -->
+        @if(count($eventDates) >= 2)
+        @php
+            // Determine which route to use based on current route
+            $currentRoute = request()->route()->getName();
+            if (str_contains($currentRoute, 'spring')) {
+                $scheduleRoute = 'spring.schedule';
+            } elseif (str_contains($currentRoute, 'fall')) {
+                $scheduleRoute = 'fall.schedule';
+            } else {
+                $scheduleRoute = 'dashboard';
+            }
+        @endphp
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             <div class="day-card hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 {{ $activeTab === 'day1' ? 'selected' : '' }}">
-                <a href="{{ route('dashboard', ['day' => 'day1'] + request()->query()) }}" class="block">
+                <a href="{{ route($scheduleRoute, ['day' => 'day1'] + request()->query()) }}" class="block">
                     <div class="text-center">
                         <div class="text-6xl mb-4">📅</div>
                         <h3 class="text-2xl font-bold mb-2">Day 1</h3>
@@ -611,7 +661,7 @@ body {
             </div>
 
             <div class="day-card hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 {{ $activeTab === 'day2' ? 'selected' : '' }}">
-                <a href="{{ route('dashboard', ['day' => 'day2'] + request()->query()) }}" class="block">
+                <a href="{{ route($scheduleRoute, ['day' => 'day2'] + request()->query()) }}" class="block">
                     <div class="text-center">
                         <div class="text-6xl mb-4">📅</div>
                         <h3 class="text-2xl font-bold mb-2">Day 2</h3>
@@ -621,7 +671,14 @@ body {
                     </div>
                 </a>
             </div>
-    </div>
+        </div>
+        @else
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-200 p-8 mb-12 text-center">
+            <div class="text-6xl mb-4">📅</div>
+            <h3 class="text-2xl font-bold mb-2 text-gray-700">No Active PL Days</h3>
+            <p class="text-gray-500">There are currently no active Professional Learning Days scheduled. Please check back later.</p>
+        </div>
+        @endif
 
         <!-- Filter Section -->
     @if($divisions->count() > 0)
@@ -762,6 +819,17 @@ body {
                                             </svg>
                                             Add to Calendar
                                         </a>
+                                        
+                                        <!-- Add to My PL Checkbox -->
+                                        @if($item->id)
+                                        <label class="my-pl-checkbox-label" onclick="event.stopPropagation();">
+                                            <input type="checkbox" 
+                                                   class="my-pl-checkbox" 
+                                                   {{ auth()->user()->hasSelected($item) ? 'checked' : '' }}
+                                                   onchange="toggleMyPL('schedule_item', {{ $item->id }}, this)">
+                                            <span class="my-pl-checkbox-text">Add to My PL</span>
+                                        </label>
+                                        @endif
                                     </div>
                                 </div>
 
@@ -885,5 +953,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update highlighting every minute
     setInterval(highlightCurrentTime, 60000);
 });
+
+function toggleMyPL(type, id, checkbox) {
+    fetch('{{ route('my-pl.toggle') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            selectable_type: type,
+            selectable_id: id
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'added') {
+            checkbox.checked = true;
+        } else if (data.status === 'removed') {
+            checkbox.checked = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        checkbox.checked = !checkbox.checked; // Revert on error
+    });
+}
 </script>
 @endsection

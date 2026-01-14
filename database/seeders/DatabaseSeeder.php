@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DivisionSeeder::class,
             AdminUserSeeder::class,
+            PDDaySeeder::class,
+            TTTSessionSeeder::class,
+            WellnessSessionSeeder::class,
+            ScheduleItemSeeder::class,
             ReportsTestDataSeeder::class,
             ScheduleTestDataSeeder::class,
         ]);

@@ -21,7 +21,7 @@
             <div class="text-sm text-gray-600">Total Enrollments</div>
         </div>
         <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="text-3xl font-bold text-purple-600">{{ $activeSessions ?? 0 }}</div>
+            <div class="text-3xl font-bold" style="color: var(--tlc-navy);">{{ $activeSessions ?? 0 }}</div>
             <div class="text-sm text-gray-600">Active Sessions</div>
         </div>
         <div class="bg-white rounded-lg shadow-sm p-6">
@@ -46,7 +46,7 @@
                 </div>
             </div>
             <p class="text-gray-700 mb-4">View all wellness session enrollments with detailed user information, ratings, and attendance tracking.</p>
-            <a href="{{ route('admin.reports.wellness-enrollments') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+            <a href="{{ route('admin.reports.wellness-enrollments') }}" class="inline-flex items-center px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors duration-200" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
@@ -79,8 +79,8 @@
         <!-- Capacity Utilization Report -->
         <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center mb-4">
-                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
-                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-12 h-12 rounded-lg flex items-center justify-center mr-4" style="background-color: rgba(244, 211, 94, 0.3);">
+                    <svg class="w-6 h-6" style="color: var(--tlc-navy);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
                     </svg>
@@ -91,7 +91,7 @@
                 </div>
             </div>
             <p class="text-gray-700 mb-4">Analyze session capacity and enrollment rates to optimize resource allocation.</p>
-            <a href="{{ route('admin.reports.capacity-utilization') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+            <a href="{{ route('admin.reports.capacity-utilization') }}" class="inline-flex items-center px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors duration-200" style="background-color: var(--tlc-navy);" onmouseover="this.style.backgroundColor='#164773'" onmouseout="this.style.backgroundColor='#0d3b66'">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
@@ -124,8 +124,8 @@
         <!-- User Activity Report -->
         <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
             <div class="flex items-center mb-4">
-                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-12 h-12 rounded-lg flex items-center justify-center mr-4" style="background-color: rgba(238, 150, 75, 0.2);">
+                    <svg class="w-6 h-6" style="color: var(--tlc-orange);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
@@ -135,7 +135,7 @@
                 </div>
             </div>
             <p class="text-gray-700 mb-4">Track user enrollment activity and engagement patterns across the platform.</p>
-            <a href="{{ route('admin.reports.user-activity') }}" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+            <a href="{{ route('admin.reports.user-activity') }}" class="inline-flex items-center px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors duration-200" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
@@ -188,11 +188,11 @@
                 <div class="text-lg font-medium">🧘 Manage Sessions</div>
                 <div class="text-sm opacity-90">Create and edit wellness sessions</div>
             </a>
-            <a href="{{ route('admin.users.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg text-center transition duration-200">
+            <a href="{{ route('admin.users.index') }}" class="text-white p-4 rounded-lg text-center transition duration-200" style="background-color: var(--tlc-navy);" onmouseover="this.style.backgroundColor='#164773'" onmouseout="this.style.backgroundColor='#0d3b66'">
                 <div class="text-lg font-medium">👥 Manage Users</div>
                 <div class="text-sm opacity-90">View and edit user accounts</div>
             </a>
-            <a href="{{ route('admin.dashboard') }}" class="bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-lg text-center transition duration-200">
+            <a href="{{ route('admin.dashboard') }}" class="text-white p-4 rounded-lg text-center transition duration-200" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                 <div class="text-lg font-medium">📊 Dashboard</div>
                 <div class="text-sm opacity-90">Return to main dashboard</div>
             </a>

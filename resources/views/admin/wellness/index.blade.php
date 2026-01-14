@@ -13,7 +13,7 @@
                     <p class="mt-2 text-gray-600">Manage wellness sessions and track enrollments</p>
                 </div>
                 <a href="{{ route('admin.wellness.create') }}" 
-                   class="inline-flex items-center px-4 py-2 bg-aes-blue text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                   class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                     <i class="fas fa-plus mr-2"></i>
                     Add New Session
                 </a>
@@ -87,8 +87,8 @@
             <div class="bg-white rounded-lg shadow-card p-6 border">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-chart-line text-purple-600"></i>
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: rgba(244, 211, 94, 0.3);">
+                            <i class="fas fa-chart-line" style="color: var(--tlc-navy);"></i>
                         </div>
                     </div>
                     <div class="ml-4">
@@ -244,8 +244,8 @@
                                     <div class="flex items-center">
                                         <span class="mr-3 font-medium">{{ $session->user_sessions_count }}/{{ $session->max_participants }}</span>
                                         <div class="w-20 bg-gray-200 rounded-full h-2">
-                                            <div class="bg-aes-blue h-2 rounded-full transition-all" 
-                                                 style="width: {{ $session->max_participants > 0 ? ($session->user_sessions_count / $session->max_participants) * 100 : 0 }}%"></div>
+                                            <div class="h-2 rounded-full transition-all" 
+                                                 style="background-color: var(--tlc-gold); width: {{ $session->max_participants > 0 ? ($session->user_sessions_count / $session->max_participants) * 100 : 0 }}%"></div>
                                         </div>
                                     </div>
                                 </td>
@@ -299,7 +299,7 @@
                                         <h3 class="text-lg font-medium text-gray-900 mb-2">No wellness sessions found</h3>
                                         <p class="text-gray-500 mb-6">Get started by creating your first wellness session.</p>
                                         <a href="{{ route('admin.wellness.create') }}" 
-                                           class="inline-flex items-center px-4 py-2 bg-aes-blue text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                           class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                                             <i class="fas fa-plus mr-2"></i>
                                             Add New Session
                                         </a>

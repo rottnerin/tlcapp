@@ -40,6 +40,8 @@ class PDDayController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'is_active' => 'boolean',
+            'season' => 'nullable|in:fall,spring',
+            'academic_year' => 'nullable|string|max:9|regex:/^\d{4}-\d{4}$/',
         ]);
 
         // If setting this as active, deactivate all others
@@ -73,6 +75,8 @@ class PDDayController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'is_active' => 'boolean',
+            'season' => 'nullable|in:fall,spring',
+            'academic_year' => 'nullable|string|max:9|regex:/^\d{4}-\d{4}$/',
         ]);
 
         // If setting this as active, deactivate all others

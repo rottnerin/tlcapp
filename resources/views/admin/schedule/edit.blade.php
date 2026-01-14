@@ -9,7 +9,7 @@
         <div class="mb-8">
             <div class="flex items-center mb-4">
                 <a href="{{ route('admin.schedule.index') }}" 
-                   class="text-aes-blue hover:text-blue-700 mr-4 font-medium">
+                   class="mr-4 font-medium hover:opacity-70" style="color: var(--tlc-navy);">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Schedule Items
                 </a>
             </div>
@@ -303,7 +303,7 @@
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-6 py-2 bg-aes-blue hover:bg-blue-700 text-white rounded-md font-medium transition-colors">
+                            class="px-6 py-2 text-white rounded-md font-medium transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                         Update Schedule Item
                     </button>
                 </div>

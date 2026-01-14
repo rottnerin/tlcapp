@@ -4,23 +4,17 @@
 
 @push('styles')
 <style>
-    /* Pastel Color Palette */
+    /* TLC Color Palette */
     :root {
-        --pastel-lavender: #E8E0F0;
-        --pastel-mint: #D4EDDA;
-        --pastel-peach: #FFE5D9;
-        --pastel-sky: #D6EAF8;
-        --pastel-rose: #FADBD8;
-        --pastel-yellow: #FCF3CF;
-        --pastel-sage: #D5E8D4;
-        --pastel-lilac: #E8DAEF;
-        --pastel-coral: #F9E4E4;
-        --pastel-aqua: #D1F2EB;
+        --tlc-navy: #0d3b66;
+        --tlc-cream: #faf0ca;
+        --tlc-gold: #f4d35e;
+        --tlc-orange: #ee964b;
     }
 
     /* Hero Section */
     .hero-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 50%, var(--tlc-navy) 100%);
         position: relative;
         overflow: hidden;
     }
@@ -78,7 +72,7 @@
 
     /* Dashboard Container */
     .dashboard-container {
-        background: linear-gradient(180deg, #f8f9ff 0%, #f0f4ff 100%);
+        background: var(--tlc-cream);
         min-height: calc(100vh - 64px);
     }
 
@@ -88,7 +82,7 @@
     }
 
     .date-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
         color: white;
         padding: 1rem 1.5rem;
         border-radius: 1rem 1rem 0 0;
@@ -97,7 +91,7 @@
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 15px rgba(13, 59, 102, 0.3);
     }
 
     .date-header svg {
@@ -140,61 +134,61 @@
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
     }
 
-    /* Pastel Card Variants */
+    /* TLC Card Variants */
     .card-lavender {
-        background: linear-gradient(145deg, #f5f0ff 0%, #e8e0f0 100%);
-        border: 2px solid #d4c4e8;
+        background: linear-gradient(145deg, rgba(250, 240, 202, 0.5) 0%, rgba(244, 211, 94, 0.2) 100%);
+        border: 2px solid rgba(244, 211, 94, 0.4);
     }
-    .card-lavender::before { background: linear-gradient(90deg, #9b7fcf, #c4a7e7); }
-    .card-lavender:hover { border-color: #b894d1; }
+    .card-lavender::before { background: linear-gradient(90deg, var(--tlc-gold), var(--tlc-orange)); }
+    .card-lavender:hover { border-color: var(--tlc-gold); }
 
     .card-mint {
-        background: linear-gradient(145deg, #f0fff4 0%, #d4edda 100%);
-        border: 2px solid #b7dbc4;
+        background: linear-gradient(145deg, rgba(250, 240, 202, 0.5) 0%, rgba(238, 150, 75, 0.15) 100%);
+        border: 2px solid rgba(238, 150, 75, 0.3);
     }
-    .card-mint::before { background: linear-gradient(90deg, #68c587, #8fd19e); }
-    .card-mint:hover { border-color: #86c997; }
+    .card-mint::before { background: linear-gradient(90deg, var(--tlc-orange), var(--tlc-gold)); }
+    .card-mint:hover { border-color: var(--tlc-orange); }
 
     .card-peach {
-        background: linear-gradient(145deg, #fff8f5 0%, #ffe5d9 100%);
-        border: 2px solid #f5d0c0;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(244, 211, 94, 0.2) 100%);
+        border: 2px solid rgba(244, 211, 94, 0.4);
     }
-    .card-peach::before { background: linear-gradient(90deg, #f5a68a, #f7c4ae); }
-    .card-peach:hover { border-color: #efb39e; }
+    .card-peach::before { background: linear-gradient(90deg, var(--tlc-navy), #164773); }
+    .card-peach:hover { border-color: var(--tlc-gold); }
 
     .card-sky {
-        background: linear-gradient(145deg, #f0f8ff 0%, #d6eaf8 100%);
-        border: 2px solid #b8d4e8;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(13, 59, 102, 0.08) 100%);
+        border: 2px solid rgba(13, 59, 102, 0.15);
     }
-    .card-sky::before { background: linear-gradient(90deg, #5ba4d9, #89c4f4); }
-    .card-sky:hover { border-color: #7cb5e2; }
+    .card-sky::before { background: linear-gradient(90deg, var(--tlc-navy), var(--tlc-orange)); }
+    .card-sky:hover { border-color: var(--tlc-navy); }
 
     .card-rose {
-        background: linear-gradient(145deg, #fff5f5 0%, #fadbd8 100%);
-        border: 2px solid #f0c4c0;
+        background: linear-gradient(145deg, rgba(250, 240, 202, 0.6) 0%, rgba(238, 150, 75, 0.2) 100%);
+        border: 2px solid rgba(238, 150, 75, 0.4);
     }
-    .card-rose::before { background: linear-gradient(90deg, #e57373, #f09090); }
-    .card-rose:hover { border-color: #e8a5a0; }
+    .card-rose::before { background: linear-gradient(90deg, var(--tlc-orange), var(--tlc-navy)); }
+    .card-rose:hover { border-color: var(--tlc-orange); }
 
     .card-sage {
-        background: linear-gradient(145deg, #f5fff5 0%, #d5e8d4 100%);
-        border: 2px solid #b8d4b7;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(244, 211, 94, 0.15) 100%);
+        border: 2px solid rgba(13, 59, 102, 0.2);
     }
-    .card-sage::before { background: linear-gradient(90deg, #7cb77c, #9ecf9e); }
-    .card-sage:hover { border-color: #8fc48e; }
+    .card-sage::before { background: linear-gradient(90deg, var(--tlc-gold), var(--tlc-navy)); }
+    .card-sage:hover { border-color: var(--tlc-gold); }
 
     /* Card Title */
     .card-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: #2d3748;
+        color: var(--tlc-navy);
         margin-bottom: 0.75rem;
         line-height: 1.4;
         transition: color 0.3s ease;
     }
 
     .session-card:hover .card-title {
-        color: #667eea;
+        color: var(--tlc-orange);
     }
 
     /* Card Description */
@@ -215,13 +209,13 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: linear-gradient(135deg, var(--tlc-gold) 0%, var(--tlc-orange) 100%);
+        color: var(--tlc-navy);
         padding: 0.5rem 1rem;
         border-radius: 2rem;
         font-weight: 600;
         font-size: 0.875rem;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 12px rgba(244, 211, 94, 0.3);
     }
 
     .time-badge svg {
@@ -260,18 +254,18 @@
     }
 
     .division-es {
-        background: linear-gradient(135deg, #d4edda 0%, #b7e4c7 100%);
-        color: #155724;
+        background: rgba(244, 211, 94, 0.3);
+        color: var(--tlc-navy);
     }
 
     .division-ms {
-        background: linear-gradient(135deg, #d6eaf8 0%, #aed6f1 100%);
-        color: #154360;
+        background: rgba(238, 150, 75, 0.3);
+        color: var(--tlc-navy);
     }
 
     .division-hs {
-        background: linear-gradient(135deg, #ffe5d9 0%, #fad0bf 100%);
-        color: #935116;
+        background: rgba(13, 59, 102, 0.15);
+        color: var(--tlc-navy);
     }
 
     /* View Details Button */
@@ -280,7 +274,7 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--tlc-orange) 0%, #d97706 100%);
         color: white;
         padding: 0.75rem 1.5rem;
         border-radius: 2rem;
@@ -288,13 +282,14 @@
         font-size: 0.9rem;
         transition: all 0.3s ease;
         text-decoration: none;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 15px rgba(238, 150, 75, 0.3);
         margin-top: auto;
     }
 
     .view-btn:hover {
         transform: scale(1.05);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 8px 25px rgba(238, 150, 75, 0.4);
+        background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
         color: white;
     }
 
@@ -312,21 +307,21 @@
     .empty-state {
         text-align: center;
         padding: 4rem 2rem;
-        background: linear-gradient(145deg, #f5f0ff 0%, #e8e0f0 100%);
+        background: linear-gradient(145deg, rgba(250, 240, 202, 0.5) 0%, rgba(244, 211, 94, 0.2) 100%);
         border-radius: 1.5rem;
-        border: 2px dashed #d4c4e8;
+        border: 2px dashed var(--tlc-gold);
     }
 
     .empty-state-icon {
         width: 5rem;
         height: 5rem;
         margin: 0 auto 1.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 25px rgba(13, 59, 102, 0.3);
     }
 
     .empty-state-icon svg {
@@ -340,8 +335,8 @@
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
-        background: rgba(102, 126, 234, 0.1);
-        color: #667eea;
+        background: rgba(238, 150, 75, 0.15);
+        color: var(--tlc-orange);
         padding: 0.25rem 0.625rem;
         border-radius: 1rem;
         font-size: 0.75rem;
@@ -369,8 +364,8 @@
 
     /* Inactive Warning */
     .inactive-banner {
-        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-        border: 2px solid #fbbf24;
+        background: linear-gradient(135deg, rgba(244, 211, 94, 0.3) 0%, rgba(244, 211, 94, 0.5) 100%);
+        border: 2px solid var(--tlc-gold);
         border-radius: 1rem;
         padding: 1.5rem;
         text-align: center;
@@ -379,7 +374,7 @@
     .inactive-banner svg {
         width: 3rem;
         height: 3rem;
-        color: #d97706;
+        color: var(--tlc-orange);
         margin-bottom: 0.75rem;
     }
 
@@ -406,6 +401,62 @@
     .sessions-grid > div:nth-child(4) .session-card { animation-delay: 0.4s; }
     .sessions-grid > div:nth-child(5) .session-card { animation-delay: 0.5s; }
     .sessions-grid > div:nth-child(6) .session-card { animation-delay: 0.6s; }
+
+    /* Add to My PL Button Styling */
+    .add-to-my-pl-btn {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem !important;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(244, 211, 94, 0.3);
+        cursor: pointer;
+        border: none;
+    }
+
+    .add-to-my-pl-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(244, 211, 94, 0.4);
+    }
+
+    .add-to-my-pl-btn i {
+        font-size: 0.875rem;
+    }
+
+    /* My PL Checkbox Styling */
+    .my-pl-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        user-select: none;
+        z-index: 10;
+        position: relative;
+    }
+
+    .my-pl-checkbox {
+        width: 1.25rem;
+        height: 1.25rem;
+        cursor: pointer;
+        accent-color: var(--tlc-orange);
+        flex-shrink: 0;
+    }
+
+    .my-pl-checkbox-text {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--tlc-navy);
+        white-space: nowrap;
+    }
+
+    .my-pl-checkbox:checked + .my-pl-checkbox-text {
+        color: var(--tlc-orange);
+    }
 </style>
 @endpush
 
@@ -424,14 +475,6 @@
             <p class="text-xl text-white/90 max-w-2xl mx-auto">
                 Explore engaging sessions designed to enhance your professional growth
             </p>
-            @if($settings)
-                <div class="mt-6 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 text-white">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span class="font-medium">{{ $settings->start_date->format('M j') }} - {{ $settings->end_date->format('M j, Y') }}</span>
-                </div>
-            @endif
         </div>
     </div>
 </div>
@@ -536,12 +579,22 @@
                                             @endif
                                         </div>
                                         
-                                        <a href="{{ route('pl-wednesday.show', $session) }}" class="view-btn">
-                                            View Details
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                                            </svg>
-                                        </a>
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <a href="{{ route('pl-wednesday.show', $session) }}" class="view-btn">
+                                                View Details
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                                                </svg>
+                                            </a>
+                                            <!-- Add to My PL Checkbox -->
+                                            <label class="my-pl-checkbox-label" onclick="event.stopPropagation();">
+                                                <input type="checkbox" 
+                                                       class="my-pl-checkbox" 
+                                                       {{ auth()->user()->hasSelected($session) ? 'checked' : '' }}
+                                                       onchange="toggleMyPL('pl_wednesday_session', {{ $session->id }}, this)">
+                                                <span class="my-pl-checkbox-text">Add to My PL</span>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -552,4 +605,34 @@
         @endif
     </div>
 </div>
+
+@push('scripts')
+<script>
+function toggleMyPL(type, id, checkbox) {
+    fetch('{{ route('my-pl.toggle') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            selectable_type: type,
+            selectable_id: id
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'added') {
+            checkbox.checked = true;
+        } else if (data.status === 'removed') {
+            checkbox.checked = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        checkbox.checked = !checkbox.checked; // Revert on error
+    });
+}
+</script>
+@endpush
 @endsection

@@ -12,9 +12,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add a partial unique index to ensure a user can only have one active wellness session enrollment
-        // This uses a raw SQL statement since Laravel doesn't have built-in support for partial unique indexes
-        DB::statement('CREATE UNIQUE INDEX unique_user_active_wellness_session ON user_sessions (user_id) WHERE wellness_session_id IS NOT NULL AND status != "cancelled"');
+        // MySQL doesn't support partial unique indexes with WHERE clauses.
+        // Instead, we use a generated (virtual) column that is NULL when the constraint shouldn't apply,
+        // and contains the user_id when it should. MySQL allows multiple NULLs in unique indexes.
+        DB::statement("
+            ALTER TABLE user_sessions 
+            ADD COLUMN active_wellness_user_id BIGINT UNSIGNED 
+            GENERATED ALWAYS AS (
+                CASE WHEN wellness_session_id IS NOT NULL AND status != 'cancelled' THEN user_id ELSE NULL END
+            ) VIRTUAL
+        ");
+
+        DB::statement('CREATE UNIQUE INDEX unique_user_active_wellness_session ON user_sessions (active_wellness_user_id)');
     }
 
     /**
@@ -22,6 +31,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('DROP INDEX IF EXISTS unique_user_active_wellness_session');
+        Schema::table('user_sessions', function (Blueprint $table) {
+            $table->dropUnique('unique_user_active_wellness_session');
+            $table->dropColumn('active_wellness_user_id');
+        });
     }
 };

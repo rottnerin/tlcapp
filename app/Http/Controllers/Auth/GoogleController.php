@@ -64,8 +64,9 @@ class GoogleController extends Controller
             Auth::login($user, true);
             
             // Redirect based on user role
+            // Admin users always go to admin dashboard
             if ($user->is_admin) {
-                return redirect()->intended('/admin/dashboard')->with('success', 'Welcome to AES Admin Panel!');
+                return redirect('/admin/dashboard')->with('success', 'Welcome to AES Admin Panel!');
             } else {
                 return redirect()->intended('/dashboard')->with('success', 'Welcome to AES Professional Learning Days!');
             }

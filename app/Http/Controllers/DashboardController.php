@@ -40,7 +40,7 @@ class DashboardController extends Controller
         // Get schedule items for the event dates
         $scheduleItems = ScheduleItem::active()
             ->when($activePDDay, function($query) use ($activePDDay) {
-                return $query->where('pd_day_id', $activePDDay->id);
+                return $query->where('p_d_day_id', $activePDDay->id);
             })
             ->when($selectedDivisions, function($query) use ($selectedDivisions) {
                 return $query->forDivisions($selectedDivisions);
@@ -60,7 +60,7 @@ class DashboardController extends Controller
         // Get upcoming wellness sessions
         $upcomingWellness = WellnessSession::active()
             ->when($activePDDay, function($query) use ($activePDDay) {
-                return $query->where('pd_day_id', $activePDDay->id);
+                return $query->where('p_d_day_id', $activePDDay->id);
             })
             ->withCapacity()
             ->orderBy('date')

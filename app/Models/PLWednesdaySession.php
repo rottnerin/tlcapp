@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Carbon\Carbon;
 
 class PLWednesdaySession extends Model
@@ -124,5 +125,64 @@ class PLWednesdaySession extends Model
     public function isVisible(): bool
     {
         return PLWednesdaySetting::isActive() && $this->is_active;
+    }
+
+    /**
+     * Get user selections for this session (My PL)
+     */
+    public function userSelections(): MorphMany
+    {
+        return $this->morphMany(UserSelectedSession::class, 'selectable');
+    }
+
+    /**
+     * Get start time as Carbon
+     */
+    public function getStartTimeCarbon(): ?Carbon
+    {
+        if (!$this->start_time || !$this->date) return null;
+        return Carbon::parse($this->date->format('Y-m-d') . ' ' . $this->start_time);
+    }
+
+    /**
+     * Get end time as Carbon
+     */
+    public function getEndTimeCarbon(): ?Carbon
+    {
+        if (!$this->end_time || !$this->date) return null;
+        return Carbon::parse($this->date->format('Y-m-d') . ' ' . $this->end_time);
+    }
+
+    /**
+     * Generate Google Calendar URL
+     */
+    public function getGoogleCalendarUrlAttribute(): string
+    {
+        $start = $this->getStartTimeCarbon();
+        $end = $this->getEndTimeCarbon();
+
+        if (!$start || !$end) {
+            return '';
+        }
+
+        $timezone = config('services.calendar.timezone', config('app.timezone', 'UTC'));
+        
+        $startDateTime = $start->format('Ymd\THis');
+        $endDateTime = $end->format('Ymd\THis');
+
+        $title = $this->title;
+        $description = $this->description ?? '';
+        $location = $this->location ?? '';
+
+        $baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+        $params = [
+            'text' => $title,
+            'dates' => $startDateTime . '/' . $endDateTime,
+            'details' => $description,
+            'location' => $location,
+            'ctz' => $timezone,
+        ];
+        
+        return $baseUrl . '&' . http_build_query($params);
     }
 }

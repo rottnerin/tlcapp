@@ -9,7 +9,7 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <a href="{{ route('admin.schedule.index') }}" 
-                   class="text-aes-blue hover:text-blue-700 font-medium">
+                   class="font-medium hover:opacity-70" style="color: var(--tlc-navy);">
                     <i class="fas fa-arrow-left mr-2 text-sm"></i>Back to Schedule Items
                 </a>
                 <div class="flex space-x-3">
@@ -54,13 +54,6 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Title</label>
                             <p class="text-gray-900">{{ $schedule->title }}</p>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Session Type</label>
-                            <span class="inline-flex px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
-                                {{ ucfirst($schedule->session_type) }}
-                            </span>
                         </div>
                         
                         <div>
@@ -216,8 +209,8 @@
                             </div>
                             
                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-aes-blue h-2 rounded-full transition-all" 
-                                     style="width: {{ $schedule->max_participants > 0 ? (($schedule->current_enrollment ?? 0) / $schedule->max_participants) * 100 : 0 }}%"></div>
+                                <div class="h-2 rounded-full transition-all" 
+                                     style="background-color: var(--tlc-gold); width: {{ $schedule->max_participants > 0 ? (($schedule->current_enrollment ?? 0) / $schedule->max_participants) * 100 : 0 }}%"></div>
                             </div>
                             
                             <p class="text-xs text-gray-500 mt-2">

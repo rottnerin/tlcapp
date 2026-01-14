@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Carbon\Carbon;
 
 class WellnessSession extends Model
@@ -73,6 +74,14 @@ class WellnessSession extends Model
     public function confirmedEnrollments(): HasMany
     {
         return $this->userSessions()->where('status', 'confirmed');
+    }
+
+    /**
+     * Get user selections for this session (My PL)
+     */
+    public function userSelections(): MorphMany
+    {
+        return $this->morphMany(UserSelectedSession::class, 'selectable');
     }
 
 

@@ -9,7 +9,7 @@
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
                 <a href="{{ route('admin.wellness.index') }}" 
-                   class="text-aes-blue hover:text-blue-700">
+                   class="hover:opacity-70" style="color: var(--tlc-navy);">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Wellness Sessions
                 </a>
                 <div class="flex space-x-2">
@@ -90,8 +90,8 @@
                             <div class="flex items-center">
                                 <span class="text-gray-900 mr-2">{{ $confirmedParticipants->count() }}/{{ $wellness->max_participants }}</span>
                                 <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                    <div class="bg-aes-blue h-2 rounded-full" 
-                                         style="width: {{ $wellness->max_participants > 0 ? ($confirmedParticipants->count() / $wellness->max_participants) * 100 : 0 }}%"></div>
+                                    <div class="h-2 rounded-full" 
+                                         style="background-color: var(--tlc-gold); width: {{ $wellness->max_participants > 0 ? ($confirmedParticipants->count() / $wellness->max_participants) * 100 : 0 }}%"></div>
                                 </div>
                             </div>
                         </div>
@@ -212,7 +212,7 @@
                         
                         @if($confirmedParticipants->count() > 0)
                             <a href="{{ route('admin.wellness.transfer', $wellness) }}" 
-                               class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                               class="block w-full text-center text-white px-4 py-2 rounded-lg transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                                 <i class="fas fa-exchange-alt mr-2"></i>Transfer Users
                             </a>
                         @endif

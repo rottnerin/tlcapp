@@ -19,6 +19,8 @@ class PDDay extends Model
         'start_date',
         'end_date',
         'is_active',
+        'season',
+        'academic_year',
     ];
 
     protected $casts = [
@@ -76,5 +78,69 @@ class PDDay extends Model
     public static function getActive()
     {
         return static::where('is_active', true)->first();
+    }
+
+    /**
+     * Scope to filter by season
+     */
+    public function scopeBySeason($query, string $season)
+    {
+        return $query->where('season', $season);
+    }
+
+    /**
+     * Scope to filter by academic year
+     */
+    public function scopeByAcademicYear($query, string $academicYear)
+    {
+        return $query->where('academic_year', $academicYear);
+    }
+
+    /**
+     * Scope for fall PD days
+     */
+    public function scopeFall($query)
+    {
+        return $query->where('season', 'fall');
+    }
+
+    /**
+     * Scope for spring PD days
+     */
+    public function scopeSpring($query)
+    {
+        return $query->where('season', 'spring');
+    }
+
+    /**
+     * Get TTT sessions for this PD day
+     */
+    public function tttSessions(): HasMany
+    {
+        return $this->hasMany(TTTSession::class, 'p_d_day_id');
+    }
+
+    /**
+     * Get the current academic year
+     */
+    public static function getCurrentAcademicYear(): string
+    {
+        $now = Carbon::now();
+        $year = $now->year;
+        $month = $now->month;
+
+        // Academic year runs Aug 1 - Jul 31
+        if ($month >= 8) {
+            return $year . '-' . ($year + 1);
+        }
+        return ($year - 1) . '-' . $year;
+    }
+
+    /**
+     * Check if this PD day is in the current academic year
+     */
+    public function isCurrentAcademicYear(): bool
+    {
+        return $this->academic_year === self::getCurrentAcademicYear();
     }
 }

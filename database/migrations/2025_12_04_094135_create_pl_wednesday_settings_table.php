@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('pl_wednesday_settings', function (Blueprint $table) {
             $table->id();
+            $table->boolean('is_active')->default(false);
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->time('default_start_time')->nullable();
+            $table->time('default_end_time')->nullable();
             $table->timestamps();
         });
     }

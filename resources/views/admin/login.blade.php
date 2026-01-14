@@ -3,13 +3,20 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Login - AES Professional Learning Days</title>
+    <title>Admin Login - TLC Professional Learning</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
+        :root {
+            --tlc-navy: #0d3b66;
+            --tlc-cream: #faf0ca;
+            --tlc-gold: #f4d35e;
+            --tlc-orange: #ee964b;
+        }
+        body { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
         .admin-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
         }
     </style>
 </head>
@@ -19,17 +26,17 @@
             <!-- Header -->
             <div class="text-center">
                 <div class="flex justify-center mb-4">
-                    <div class="bg-white rounded-full p-4 shadow-lg">
-                        <svg class="w-12 h-12 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="rounded-full p-4 shadow-lg" style="background-color: var(--tlc-cream);">
+                        <svg class="w-12 h-12" style="color: var(--tlc-navy);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                         </svg>
                     </div>
                 </div>
-                <h2 class="text-3xl font-bold text-white mb-2">
+                <h2 class="text-3xl font-bold mb-2" style="color: var(--tlc-gold);">
                     Admin Login
                 </h2>
-                <p class="text-indigo-100">
-                    AES Professional Learning Days
+                <p style="color: var(--tlc-cream);">
+                    TLC Professional Learning
                 </p>
             </div>
 
@@ -50,7 +57,8 @@
                             autocomplete="email" 
                             required 
                             value="{{ old('email') }}"
-                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-gray-900 bg-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('email') border-red-500 @enderror"
+                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-gray-900 bg-white focus:outline-none sm:text-sm @error('email') border-red-500 @enderror"
+                            style="--tw-ring-color: var(--tlc-gold);"
                             placeholder="admin@example.com"
                         >
                         @error('email')
@@ -69,7 +77,8 @@
                             type="password" 
                             autocomplete="current-password" 
                             required
-                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-gray-900 bg-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('password') border-red-500 @enderror"
+                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 text-gray-900 bg-white focus:outline-none sm:text-sm @error('password') border-red-500 @enderror"
+                            style="--tw-ring-color: var(--tlc-gold);"
                             placeholder="Enter your password"
                         >
                         @error('password')
@@ -83,7 +92,8 @@
                             id="remember" 
                             name="remember" 
                             type="checkbox" 
-                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            class="h-4 w-4 border-gray-300 rounded"
+                            style="color: var(--tlc-orange);"
                         >
                         <label for="remember" class="ml-2 block text-sm text-gray-900">
                             Remember me
@@ -94,7 +104,10 @@
                     <div>
                         <button 
                             type="submit" 
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors"
+                            style="background-color: var(--tlc-orange); --tw-ring-color: var(--tlc-orange);"
+                            onmouseover="this.style.backgroundColor='#0d3b66'"
+                            onmouseout="this.style.backgroundColor='#ee964b'"
                         >
                             Sign in
                         </button>
@@ -119,7 +132,8 @@
                 <div class="mt-6">
                     <a 
                         href="{{ route('google.login') }}" 
-                        class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                        class="w-full flex justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors"
+                        style="border-color: var(--tlc-navy); color: var(--tlc-navy); --tw-ring-color: var(--tlc-gold);"
                     >
                         <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -134,7 +148,7 @@
 
             <!-- Security Notice -->
             <div class="text-center">
-                <p class="text-xs text-indigo-100">
+                <p class="text-xs" style="color: var(--tlc-cream);">
                     🔒 Admin access is protected and monitored for security
                 </p>
             </div>

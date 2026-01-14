@@ -6,8 +6,20 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    
+    /* TLC Brand Colors */
+    --color-tlc-navy: #0d3b66;
+    --color-tlc-cream: #faf0ca;
+    --color-tlc-gold: #f4d35e;
+    --color-tlc-orange: #ee964b;
+    
+    /* Semantic mappings */
+    --color-tlc-primary: #0d3b66;
+    --color-tlc-background: #faf0ca;
+    --color-tlc-accent: #f4d35e;
+    --color-tlc-action: #ee964b;
 }
 
 /* Ensure all admin inputs have black text on white background */

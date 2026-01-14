@@ -95,6 +95,44 @@
                 </div>
             </div>
 
+            <!-- Season and Academic Year -->
+            <div class="mb-6 grid grid-cols-2 gap-4">
+                <div>
+                    <label for="season" class="block text-sm font-medium text-gray-700 mb-2">
+                        Season
+                    </label>
+                    <select 
+                        name="season" 
+                        id="season"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-gray-500 @error('season') border-red-500 @enderror"
+                    >
+                        <option value="">Select Season (optional)</option>
+                        <option value="fall" {{ old('season', $pdday->season) == 'fall' ? 'selected' : '' }}>🍂 Fall</option>
+                        <option value="spring" {{ old('season', $pdday->season) == 'spring' ? 'selected' : '' }}>🌸 Spring</option>
+                    </select>
+                    @error('season')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="academic_year" class="block text-sm font-medium text-gray-700 mb-2">
+                        Academic Year
+                    </label>
+                    <input 
+                        type="text" 
+                        name="academic_year" 
+                        id="academic_year" 
+                        value="{{ old('academic_year', $pdday->academic_year ?? \App\Models\PDDay::getCurrentAcademicYear()) }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-gray-500 @error('academic_year') border-red-500 @enderror"
+                        placeholder="e.g., 2025-2026"
+                    >
+                    @error('academic_year')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
             <!-- Active Status -->
             <div class="mb-6">
                 <div class="flex items-start">

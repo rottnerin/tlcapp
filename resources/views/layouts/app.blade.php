@@ -4,11 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'AES Professional Learning Days')</title>
+    <title>@yield('title', 'TLC Professional Learning')</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet" />
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -16,33 +16,54 @@
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
-    <!-- AES Brand Colors -->
+    <!-- TLC Brand Colors -->
     <style>
-        .bg-aes-blue { background-color: #1e40af; }
-        .text-aes-blue { color: #1e40af; }
-        .border-aes-blue { border-color: #1e40af; }
-        .hover\:bg-aes-blue:hover { background-color: #1e40af; }
-        .hover\:text-aes-blue:hover { color: #1e40af; }
-        .focus\:ring-aes-blue:focus { --tw-ring-color: #1e40af; }
+        :root {
+            --tlc-navy: #0d3b66;
+            --tlc-cream: #faf0ca;
+            --tlc-gold: #f4d35e;
+            --tlc-orange: #ee964b;
+        }
+        body { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
         
-        /* Better contrast backgrounds */
-        .bg-admin-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .bg-content { background-color: #f8fafc; }
-        .shadow-content { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-        .shadow-card { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        /* TLC Utility Classes */
+        .bg-tlc-navy { background-color: var(--tlc-navy); }
+        .bg-tlc-cream { background-color: var(--tlc-cream); }
+        .bg-tlc-gold { background-color: var(--tlc-gold); }
+        .bg-tlc-orange { background-color: var(--tlc-orange); }
+        .text-tlc-navy { color: var(--tlc-navy); }
+        .text-tlc-cream { color: var(--tlc-cream); }
+        .text-tlc-gold { color: var(--tlc-gold); }
+        .text-tlc-orange { color: var(--tlc-orange); }
+        .border-tlc-navy { border-color: var(--tlc-navy); }
+        .border-tlc-gold { border-color: var(--tlc-gold); }
+        .border-tlc-orange { border-color: var(--tlc-orange); }
+        
+        /* Admin navigation */
+        .gradient-header { background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%); }
+        .bg-content { background-color: var(--tlc-cream); }
+        
+        /* Shadows */
+        .shadow-content { box-shadow: 0 4px 6px -1px rgba(13, 59, 102, 0.1), 0 2px 4px -1px rgba(13, 59, 102, 0.06); }
+        .shadow-card { box-shadow: 0 10px 15px -3px rgba(13, 59, 102, 0.1), 0 4px 6px -2px rgba(13, 59, 102, 0.05); }
+        
+        /* Hover states */
+        .hover\:bg-tlc-orange:hover { background-color: var(--tlc-orange); }
+        .hover\:bg-tlc-gold:hover { background-color: var(--tlc-gold); }
+        .hover\:text-tlc-navy:hover { color: var(--tlc-navy); }
     </style>
 </head>
 <body class="font-sans antialiased bg-content min-h-screen">
     <!-- Admin Navigation Bar -->
     @if(auth()->check() && auth()->user()->is_admin)
-        <nav class="shadow-lg border-b" style="background-color: #000;">
+        <nav class="gradient-header shadow-xl">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Mobile Navigation -->
                 <div class="flex justify-between items-center h-16 md:hidden">
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center">
                         <img src="https://visitors.aes.ac.in/images/aes.png" alt="AES Admin" class="h-8 w-auto">
                     </a>
-                    <button id="admin-mobile-menu-button" class="p-2 rounded-md text-white hover:text-gray-200 hover:bg-gray-800">
+                    <button id="admin-mobile-menu-button" class="p-2 rounded-md text-white hover:text-gray-200 hover:bg-white/10">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
@@ -55,7 +76,7 @@
                         <a href="{{ route('admin.dashboard') }}" class="flex items-center">
                             <img src="https://visitors.aes.ac.in/images/aes.png" alt="AES Admin Panel" class="h-10 w-auto">
                         </a>
-                        <span class="ml-4 px-3 py-1 text-xs font-medium bg-red-600 text-white rounded-full">
+                        <span class="ml-4 px-2.5 py-1 text-xs font-semibold bg-tlc-gold text-tlc-navy rounded-md">
                             Admin
                         </span>
                     </div>
@@ -77,6 +98,10 @@
                             <a href="{{ route('admin.schedule.index') }}" 
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.schedule.*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 Schedule
+                            </a>
+                            <a href="{{ route('admin.ttt.index') }}" 
+                               class="text-white hover:text-gray-200 {{ request()->routeIs('admin.ttt.*') ? 'font-medium underline underline-offset-4' : '' }}">
+                                TTT
                             </a>
                             <a href="{{ route('admin.users.index') }}" 
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.users.*') ? 'font-medium underline underline-offset-4' : '' }}">
@@ -102,33 +127,37 @@
                 </div>
 
                 <!-- Mobile Menu (Hidden by default) -->
-                <div id="admin-mobile-menu" class="hidden md:hidden" style="border-top: 1px solid rgba(255,255,255,0.2);">
+                <div id="admin-mobile-menu" class="hidden md:hidden border-t border-white/20">
                     <div class="px-2 pt-2 pb-3 space-y-1">
                         <a href="{{ route('admin.pl-wednesday.index') }}"
-                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-gray-800 rounded-md {{ request()->routeIs('admin.pl-wednesday.*') ? 'bg-gray-800' : '' }}">
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.pl-wednesday.*') ? 'bg-white/10' : '' }}">
                             PL Wednesday
                         </a>
                         <a href="{{ route('admin.pddays.index') }}"
-                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-gray-800 rounded-md {{ request()->routeIs('admin.pddays.*') ? 'bg-gray-800' : '' }}">
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.pddays.*') ? 'bg-white/10' : '' }}">
                             PL Days
                         </a>
                         <a href="{{ route('admin.wellness.index') }}"
-                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-gray-800 rounded-md {{ request()->routeIs('admin.wellness.*') ? 'bg-gray-800' : '' }}">
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.wellness.*') ? 'bg-white/10' : '' }}">
                             Wellness
                         </a>
                         <a href="{{ route('admin.schedule.index') }}"
-                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-gray-800 rounded-md {{ request()->routeIs('admin.schedule.*') ? 'bg-gray-800' : '' }}">
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.schedule.*') ? 'bg-white/10' : '' }}">
                             Schedule
                         </a>
+                        <a href="{{ route('admin.ttt.index') }}"
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.ttt.*') ? 'bg-white/10' : '' }}">
+                            TTT
+                        </a>
                         <a href="{{ route('admin.users.index') }}"
-                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-gray-800 rounded-md {{ request()->routeIs('admin.users.*') ? 'bg-gray-800' : '' }}">
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.users.*') ? 'bg-white/10' : '' }}">
                             Users
                         </a>
                         <a href="{{ route('admin.reports') }}"
-                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-gray-800 rounded-md {{ request()->routeIs('admin.reports*') ? 'bg-gray-800' : '' }}">
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.reports*') ? 'bg-white/10' : '' }}">
                             Reports
                         </a>
-                        <div class="pt-3 mt-3" style="border-top: 1px solid rgba(255,255,255,0.2);">
+                        <div class="pt-3 mt-3 border-t border-white/20">
                             <div class="flex items-center px-3 py-2">
                                 @if(auth()->user()->avatar)
                                     <img src="{{ auth()->user()->avatar }}" alt="{{ auth()->user()->name }}" class="w-8 h-8 rounded-full mr-3">

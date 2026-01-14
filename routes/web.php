@@ -5,10 +5,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\WellnessController;
 use App\Http\Controllers\PLWednesdayController;
+use App\Http\Controllers\MyPLController;
+use App\Http\Controllers\TTTController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\WellnessSessionController;
 use App\Http\Controllers\Admin\ScheduleItemController;
 use App\Http\Controllers\Admin\PLWednesdayController as AdminPLWednesdayController;
+use App\Http\Controllers\Admin\TTTController as AdminTTTController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\PDDayController;
 use App\Http\Controllers\Admin\AdminAuthController;
@@ -33,14 +36,40 @@ Route::post('/logout', [GoogleController::class, 'logout'])->name('logout');
 
 // User-only protected routes
 Route::middleware(['user.only'])->group(function () {
-    // Default landing page - Schedule view
+    // Default landing page - Schedule view (legacy, redirects to fall)
     Route::get('/dashboard', [ScheduleController::class, 'index'])->name('dashboard');
     
-    // Schedule (main view with day 1/day 2 tabs)
+    // My PL Routes
+    Route::get('/my-pl', [MyPLController::class, 'index'])->name('my-pl.index');
+    Route::post('/my-pl/toggle', [MyPLController::class, 'toggle'])->name('my-pl.toggle');
+    Route::get('/my-pl/print', [MyPLController::class, 'print'])->name('my-pl.print');
+
+    // Fall PL Day Routes
+    Route::prefix('fall-pl-day')->group(function () {
+        Route::get('/schedule', [ScheduleController::class, 'fallIndex'])->name('fall.schedule');
+        Route::get('/schedule/{scheduleItem}', [ScheduleController::class, 'show'])->name('fall.schedule.show');
+        Route::get('/wellness', [WellnessController::class, 'fallIndex'])->name('fall.wellness');
+        Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('fall.wellness.show');
+        Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('fall.wellness.enroll');
+    });
+
+    // Spring PL Days Routes
+    Route::prefix('spring-pl-days')->group(function () {
+        Route::get('/schedule', [ScheduleController::class, 'springIndex'])->name('spring.schedule');
+        Route::get('/schedule/{scheduleItem}', [ScheduleController::class, 'show'])->name('spring.schedule.show');
+        Route::get('/wellness', [WellnessController::class, 'springIndex'])->name('spring.wellness');
+        Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('spring.wellness.show');
+        Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('spring.wellness.enroll');
+        Route::get('/ttt', [TTTController::class, 'index'])->name('spring.ttt');
+        Route::get('/ttt/{session}', [TTTController::class, 'show'])->name('spring.ttt.show');
+        Route::post('/ttt/{session}/join', [TTTController::class, 'join'])->name('spring.ttt.join');
+    });
+
+    // Legacy Schedule routes (for backwards compatibility)
     Route::get('/schedule', [ScheduleController::class, 'index'])->name('schedule.index');
     Route::get('/schedule/{scheduleItem}', [ScheduleController::class, 'show'])->name('schedule.show');
     
-    // Wellness Sessions
+    // Legacy Wellness routes (for backwards compatibility)
     Route::get('/wellness', [WellnessController::class, 'index'])->name('wellness.index');
     Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('wellness.show');
     Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('wellness.enroll');
@@ -48,6 +77,9 @@ Route::middleware(['user.only'])->group(function () {
     // Professional Learning Wednesday
     Route::get('/professional-learning', [PLWednesdayController::class, 'index'])->name('pl-wednesday.index');
     Route::get('/professional-learning/{session}', [PLWednesdayController::class, 'show'])->name('pl-wednesday.show');
+    
+    // Archive (hidden, accessible via direct URL)
+    Route::get('/archive', [ScheduleController::class, 'archive'])->name('archive.index');
     
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -86,10 +118,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/pddays/{pdday}/toggle-active', [PDDayController::class, 'toggleActive'])->name('pddays.toggle-active');
     
     // PL Wednesday Management
-    // Custom routes MUST come before resource routes to avoid parameter conflicts
     Route::post('/pl-wednesday/toggle-active', [AdminPLWednesdayController::class, 'toggleActive'])->name('pl-wednesday.toggle-active');
     Route::post('/pl-wednesday/{plWednesday}/toggle-status', [AdminPLWednesdayController::class, 'toggleSessionStatus'])->name('pl-wednesday.toggle-status');
     Route::resource('pl-wednesday', AdminPLWednesdayController::class);
+    
+    // TTT (Teachers Teaching Teachers) Management
+    Route::post('/ttt/toggle-active', [AdminTTTController::class, 'toggleActive'])->name('ttt.toggle-active');
+    Route::post('/ttt/{ttt}/toggle-status', [AdminTTTController::class, 'toggleSessionStatus'])->name('ttt.toggle-status');
+    Route::post('/ttt/{ttt}/remove-enrollment', [AdminTTTController::class, 'removeEnrollment'])->name('ttt.remove-enrollment');
+    Route::resource('ttt', AdminTTTController::class);
     
     // Reports
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\PDDay;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -11,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class AdminAuthController extends Controller
 {
     /**
-     * Show the admin login form
+     * Show the admin login form (redirects to welcome page)
      */
     public function showLoginForm()
     {
@@ -19,7 +20,8 @@ class AdminAuthController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        return view('admin.login');
+        // Redirect to the unified welcome page
+        return redirect('/');
     }
 
     /**
@@ -85,6 +87,6 @@ class AdminAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         
-        return redirect()->route('admin.login');
+        return redirect('/');
     }
 }

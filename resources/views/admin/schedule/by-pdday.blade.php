@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Schedule by PL Days - AES Professional Learning Days')
+@section('title', 'Schedule by PL Days - TLC Professional Learning')
 
 @section('content')
 <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <!-- Page Header -->
     <div class="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Schedule by PL Days</h1>
+            <h1 class="text-3xl font-bold" style="color: var(--tlc-navy);">Schedule by PL Days</h1>
             <p class="mt-2 text-gray-600">Manage schedule items grouped by PL day events</p>
         </div>
-        <a href="{{ route('admin.schedule.create') }}" class="inline-flex items-center px-6 py-3 bg-gray-900 border border-transparent rounded-md font-semibold text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-lg whitespace-nowrap">
+        <a href="{{ route('admin.schedule.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg whitespace-nowrap" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -42,17 +42,17 @@
             
             <div class="bg-white shadow-sm rounded-lg overflow-hidden">
                 <!-- PL Day Header -->
-                <div class="bg-gray-900 px-6 py-4">
+                <div class="px-6 py-4" style="background-color: var(--tlc-navy);">
                     <div class="flex items-center justify-between">
                         <div class="flex-1">
-                            <h2 class="text-xl font-bold text-white">{{ $pdDay->title }}</h2>
-                            <p class="text-gray-300 text-sm">{{ $pdDay->date_range }}</p>
+                            <h2 class="text-xl font-bold" style="color: var(--tlc-cream);">{{ $pdDay->title }}</h2>
+                            <p class="text-sm" style="color: rgba(250, 240, 202, 0.8);">{{ $pdDay->date_range }}</p>
                             @if($pdDay->description)
-                                <p class="text-gray-300 text-sm mt-1">{{ $pdDay->description }}</p>
+                                <p class="text-sm mt-1" style="color: rgba(250, 240, 202, 0.8);">{{ $pdDay->description }}</p>
                             @endif
                         </div>
                         <div class="text-right">
-                            <span class="inline-block px-3 py-1 bg-white text-gray-900 rounded-full text-sm font-semibold">
+                            <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold" style="background-color: var(--tlc-gold); color: var(--tlc-navy);">
                                 {{ $scheduleCount }} items
                             </span>
                             @if($pdDay->is_active)
@@ -69,22 +69,13 @@
                     @if($scheduleCount > 0)
                         <!-- Schedule Items List -->
                         <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Schedule Items</h3>
+                            <h3 class="text-lg font-semibold mb-4" style="color: var(--tlc-navy);">Schedule Items</h3>
                             <div class="space-y-3">
                                 @foreach($scheduleItems as $schedule)
                                     <div class="flex items-start justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
                                         <div class="flex-1">
                                             <div class="flex items-center gap-2 mb-1">
                                                 <p class="font-medium text-gray-900">{{ $schedule->title }}</p>
-                                                <span class="px-2 py-0.5 text-xs font-semibold rounded 
-                                                    @if($schedule->session_type === 'Wellness')
-                                                        bg-blue-100 text-blue-800
-                                                    @else
-                                                        bg-purple-100 text-purple-800
-                                                    @endif
-                                                ">
-                                                    {{ $schedule->session_type ?? 'Fixed' }}
-                                                </span>
                                             </div>
                                             <p class="text-sm text-gray-500">{{ $schedule->location ?? 'No location' }}</p>
                                             @if($schedule->wellnessSession)
@@ -107,7 +98,7 @@
                                             @else
                                                 <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Inactive</span>
                                             @endif
-                                            <a href="{{ route('admin.schedule.edit', $schedule) }}" class="text-blue-600 hover:text-blue-900" title="Edit">
+                                            <a href="{{ route('admin.schedule.edit', $schedule) }}" style="color: var(--tlc-orange);" class="hover:opacity-70" title="Edit">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                 </svg>
@@ -120,7 +111,7 @@
 
                         <!-- Action Buttons -->
                         <div class="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
-                            <a href="{{ route('admin.schedule.copy-form', $pdDay) }}" class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 text-sm font-medium">
+                            <a href="{{ route('admin.schedule.copy-form', $pdDay) }}" class="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium" style="background-color: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);" onmouseover="this.style.backgroundColor='rgba(244, 211, 94, 0.5)'" onmouseout="this.style.backgroundColor='rgba(244, 211, 94, 0.3)'">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                 </svg>
@@ -135,14 +126,14 @@
                             </svg>
                             <p class="mt-2 text-sm text-gray-500">No schedule items for this PL day yet</p>
                             <div class="mt-4 flex flex-col sm:flex-row justify-center gap-3">
-                                <a href="{{ route('admin.schedule.create', ['pd_day_id' => $pdDay->id]) }}" class="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 text-sm font-medium">
+                                <a href="{{ route('admin.schedule.create', ['pd_day_id' => $pdDay->id]) }}" class="inline-flex items-center px-4 py-2 text-white rounded-md text-sm font-medium" style="background-color: var(--tlc-navy);" onmouseover="this.style.backgroundColor='#164773'" onmouseout="this.style.backgroundColor='#0d3b66'">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                     </svg>
                                     Create Manually
                                 </a>
                                 @if($pdDays->count() > 1)
-                                    <a href="{{ route('admin.schedule.copy-form', $pdDay) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium">
+                                    <a href="{{ route('admin.schedule.copy-form', $pdDay) }}" class="inline-flex items-center px-4 py-2 text-white rounded-md text-sm font-medium" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                         </svg>
@@ -198,7 +189,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 <p class="mt-2 text-sm text-gray-500">No PL days configured yet. Create a PL day first.</p>
-                <a href="{{ route('admin.pddays.create') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800">
+                <a href="{{ route('admin.pddays.create') }}" class="mt-4 inline-flex items-center px-4 py-2 text-white rounded-md" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                     Create PL Day
                 </a>
             </div>

@@ -24,7 +24,7 @@
                         <form method="POST" action="{{ route('admin.users.toggle-admin', $user) }}">
                             @csrf
                             <button type="submit" 
-                                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition duration-200"
+                                    class="text-white px-4 py-2 rounded-lg transition duration-200" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'"
                                     onclick="return confirm('Are you sure you want to {{ $user->is_admin ? 'revoke' : 'grant' }} admin privileges for {{ $user->name }}?')">
                                 {{ $user->is_admin ? 'Remove Admin' : 'Make Admin' }}
                             </button>
@@ -90,7 +90,7 @@
                                     <dt class="text-sm font-medium text-gray-500">Admin Status</dt>
                                     <dd class="mt-1">
                                         @if($user->is_admin)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);">
                                                 Admin User
                                             </span>
                                         @else
@@ -169,7 +169,7 @@
                                     name="password" 
                                     required
                                     minlength="8"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 @error('password') border-red-500 @enderror"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 @error('password') border-red-500 @enderror"
                                     placeholder="Minimum 8 characters"
                                 >
                                 @error('password')
@@ -187,7 +187,7 @@
                                     name="password_confirmation" 
                                     required
                                     minlength="8"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2"
                                     placeholder="Confirm password"
                                 >
                             </div>
@@ -202,7 +202,7 @@
                             </p>
                             <button 
                                 type="submit" 
-                                class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                                class="px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors" style="background-color: var(--tlc-orange); --tw-ring-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'"
                             >
                                 Update Password
                             </button>
@@ -225,6 +225,7 @@
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrolled</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -247,9 +248,15 @@
                                                         Wellness
                                                     </span>
                                                 @elseif($enrollment->scheduleItem)
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                        Schedule
-                                                    </span>
+                                                    @if($enrollment->scheduleItem->session_type === 'ttt')
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                            TTT
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                            Schedule
+                                                        </span>
+                                                    @endif
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -276,6 +283,40 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 {{ $enrollment->created_at->format('M j, Y g:i A') }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                @if($enrollment->wellnessSession && $enrollment->status !== 'cancelled')
+                                                    <form action="{{ route('admin.wellness.remove-enrollment', $enrollment->wellnessSession) }}" method="POST" 
+                                                          onsubmit="return confirm('Are you sure you want to remove this user from this wellness session?')" class="inline">
+                                                        @csrf
+                                                        <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                                        <button type="submit" 
+                                                                class="text-red-600 hover:text-red-800 transition-colors"
+                                                                title="Remove from session">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                @elseif($enrollment->scheduleItem && $enrollment->scheduleItem->session_type === 'ttt' && $enrollment->status !== 'cancelled')
+                                                    @php
+                                                        $tttSession = \App\Models\TTTSession::where('p_d_day_id', $enrollment->scheduleItem->p_d_day_id)
+                                                            ->where('date', $enrollment->scheduleItem->date)
+                                                            ->whereTime('start_time', $enrollment->scheduleItem->start_time->format('H:i:s'))
+                                                            ->where('title', $enrollment->scheduleItem->title)
+                                                            ->first();
+                                                    @endphp
+                                                    @if($tttSession)
+                                                        <form action="{{ route('admin.ttt.remove-enrollment', $tttSession) }}" method="POST" 
+                                                              onsubmit="return confirm('Are you sure you want to remove this user from this TTT session?')" class="inline">
+                                                            @csrf
+                                                            <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                                            <button type="submit" 
+                                                                    class="text-red-600 hover:text-red-800 transition-colors"
+                                                                    title="Remove from session">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

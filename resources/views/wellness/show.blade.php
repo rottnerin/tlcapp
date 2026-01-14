@@ -1,253 +1,432 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $session->title }} - AES Professional Learning Days</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        .aes-bg { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
-        .session-full { opacity: 0.6; background-color: #f8f9fa; }
-        .session-available { border-left: 4px solid #10b981; }
-        .session-full-border { border-left: 4px solid #ef4444; }
-    </style>
-</head>
-<body class="antialiased bg-gray-50 aes-bg">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-800">AES Professional Learning Days</h1>
-                    @if($user->division)
-                        <span class="ml-4 px-3 py-1 text-xs font-medium bg-{{ strtolower($user->division->name) === 'es' ? 'green' : (strtolower($user->division->name) === 'ms' ? 'blue' : 'orange') }}-100 text-{{ strtolower($user->division->name) === 'es' ? 'green' : (strtolower($user->division->name) === 'ms' ? 'blue' : 'orange') }}-800 rounded-full">
-                            {{ $user->division->full_name }}
-                        </span>
+@extends('layouts.user')
+
+@section('title', $session->title . ' - Wellness')
+
+@section('content')
+<style>
+:root {
+    --tlc-navy: #0d3b66;
+    --tlc-cream: #faf0ca;
+    --tlc-gold: #f4d35e;
+    --tlc-orange: #ee964b;
+    --wellness-teal: #004643;
+    --wellness-teal-dark: #004643;
+    --wellness-teal-light: #006B66;
+}
+
+.session-detail-card {
+    background: white;
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 70, 67, 0.1);
+    overflow: hidden;
+}
+
+.session-header {
+    background: linear-gradient(135deg, var(--wellness-teal) 0%, #005A56 100%);
+    color: white;
+    padding: 2rem;
+}
+
+.session-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.session-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: 0.9375rem;
+}
+
+.session-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.session-body {
+    padding: 2rem;
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--tlc-navy);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.description {
+    color: #4b5563;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.presenter-card {
+    background: #f9fafb;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.presenter-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--tlc-navy);
+    margin-bottom: 0.5rem;
+}
+
+.presenter-bio {
+    color: #6b7280;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+.capacity-card {
+    background: rgba(0, 107, 102, 0.15);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(0, 70, 67, 0.3);
+}
+
+.capacity-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--wellness-teal);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--wellness-teal) 0%, #005A56 100%);
+    color: white;
+    border: 2px solid var(--wellness-teal);
+    box-shadow: 0 2px 8px rgba(0, 70, 67, 0.25), 0 1px 3px rgba(0, 70, 67, 0.15);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #005A56 0%, var(--wellness-teal) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 70, 67, 0.4), 0 2px 6px rgba(0, 70, 67, 0.3);
+}
+
+.btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-secondary {
+    background: var(--tlc-gold);
+    color: var(--tlc-navy);
+}
+
+.btn-secondary:hover {
+    background: var(--tlc-orange);
+    color: white;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--tlc-navy);
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--wellness-teal);
+}
+
+.category-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    background: rgba(0, 107, 102, 0.15);
+    color: var(--wellness-teal);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.participants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.participant-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+}
+
+.participant-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.participant-initial {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: rgba(0, 107, 102, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--wellness-teal);
+}
+</style>
+
+<div class="min-h-screen" style="background-color: var(--tlc-cream);">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <a href="{{ route('wellness.index') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Wellness Sessions
+        </a>
+
+        <div class="session-detail-card">
+            <div class="session-header">
+                <h1>{{ $session->title }}</h1>
+                <div class="session-meta">
+                    @if($session->date)
+                    <div class="session-meta-item">
+                        <i class="fas fa-calendar"></i>
+                        {{ $session->date->format('l, F j, Y') }}
+                    </div>
+                    @endif
+                    @if($session->start_time && $session->end_time)
+                    <div class="session-meta-item">
+                        <i class="fas fa-clock"></i>
+                        {{ $session->start_time->format('g:i A') }} - {{ $session->end_time->format('g:i A') }}
+                    </div>
+                    @endif
+                    @if($session->location)
+                    <div class="session-meta-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ $session->location }}
+                    </div>
                     @endif
                 </div>
-                
-                <div class="flex items-center space-x-4">
-                    <nav class="space-x-4">
-                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-gray-900">Schedule</a>
-                        <a href="{{ route('wellness.index') }}" class="text-gray-900 font-medium">Wellness</a>
-                    </nav>
-                    
-                    <div class="flex items-center space-x-2">
-                        @if($user->avatar)
-                            <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-8 h-8 rounded-full">
-                        @endif
-                        <span class="text-sm text-gray-700">{{ $user->name }}</span>
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="text-sm text-red-600 hover:text-red-800">Logout</button>
-                        </form>
-                    </div>
-                </div>
             </div>
-        </div>
-    </nav>
 
-    <div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <!-- Back Button -->
-        <div class="mb-6">
-            <a href="{{ route('wellness.index') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-                Back to Wellness Sessions
-            </a>
-        </div>
-
-        <!-- One Session Limit Notice -->
-        @if(!$userEnrollment)
-            <div class="mb-6">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <p class="text-sm text-blue-800">
-                        <strong>Note:</strong> You can only enroll in one wellness session. If you're already enrolled in another session, you'll need to cancel that enrollment first.
-                    </p>
-                </div>
-            </div>
-        @endif
-
-        <!-- Session Details -->
-        <div class="bg-white rounded-lg shadow-sm border {{ $session->status === 'full' ? 'session-full session-full-border' : 'session-available' }}">
-            <div class="p-8">
-                <!-- Header -->
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $session->title }}</h1>
-                        @if($session->category)
-                            <span class="inline-block px-3 py-1 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">
-                                {{ $session->category }}
-                            </span>
-                        @endif
-                    </div>
-                    <span class="px-4 py-2 text-sm font-medium rounded-full
-                        {{ $session->status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                        {{ ucfirst($session->status) }}
-                    </span>
-                </div>
-
-                <!-- Session Info Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="space-y-4">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <div>
-                                <div class="text-sm font-medium text-gray-900">Date & Time</div>
-                                <div class="text-sm text-gray-600">
-                                    {{ $session->start_time->format('l, F j, Y') }}<br>
-                                    {{ $session->start_time->format('g:i A') }} - {{ $session->end_time->format('g:i A') }}
-                                </div>
-                            </div>
-                        </div>
-
-                        @if($session->location)
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">Location</div>
-                                    <div class="text-sm text-gray-600">{{ $session->location }}</div>
-                                </div>
-                            </div>
-                        @endif
-
-                        @if($session->presenter_name)
-                            <div class="flex items-start">
-                                <svg class="w-5 h-5 mr-3 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">Presenter</div>
-                                    <div class="text-sm text-gray-600">{{ $session->presenter_name }}</div>
-                                    @if($session->co_presenter_name)
-                                        <div class="text-sm font-medium text-gray-900 mt-2">Co-Presenter</div>
-                                        <div class="text-sm text-gray-600">{{ $session->co_presenter_name }}</div>
-                                    @endif
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="text-sm font-medium text-gray-900 mb-2">Capacity</div>
-                            <div class="text-2xl font-bold text-gray-900">{{ $session->current_enrollment }} / {{ $session->max_participants }}</div>
-                            @if($session->status === 'available')
-                                <div class="text-sm text-green-600 mt-1">{{ $session->available_spots }} spots available</div>
-                            @else
-                                <div class="text-sm text-red-600 mt-1">Session is full</div>
-                            @endif
-                        </div>
-
-                        @if($session->equipment_needed)
-                            <div>
-                                <div class="text-sm font-medium text-gray-900 mb-2">Equipment Needed</div>
-                                <div class="text-sm text-gray-600">{{ $session->equipment_needed }}</div>
-                            </div>
-                        @endif
-
-                        @if($session->special_requirements)
-                            <div>
-                                <div class="text-sm font-medium text-gray-900 mb-2">Special Requirements</div>
-                                <div class="text-sm text-gray-600">{{ $session->special_requirements }}</div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Description -->
+            <div class="session-body">
                 @if($session->description)
-                    <div class="mb-8">
-                        <h3 class="text-lg font-medium text-gray-900 mb-3">Description</h3>
-                        <div class="prose max-w-none text-gray-600">
-                            {{ $session->description }}
-                        </div>
-                    </div>
+                <div class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    About This Session
+                </div>
+                <div class="description">{{ $session->description }}</div>
                 @endif
 
-                <!-- Presenter Bio -->
-                @if($session->presenter_bio)
-                    <div class="mb-8">
-                        <h3 class="text-lg font-medium text-gray-900 mb-3">About the Presenter</h3>
-                        <div class="prose max-w-none text-gray-600">
-                            {{ $session->presenter_bio }}
-                        </div>
+                <!-- Capacity Info -->
+                <div class="capacity-card">
+                    <div class="section-title" style="margin-bottom: 0.5rem;">
+                        <i class="fas fa-users"></i>
+                        Capacity
                     </div>
+                    <div class="capacity-number">{{ $session->current_enrollment ?? 0 }} / {{ $session->max_participants ?? 'Unlimited' }}</div>
+                    @if($session->isAvailableForEnrollment())
+                        <div class="text-sm mt-1" style="color: var(--wellness-teal);">
+                            {{ $session->available_spots }} spots available
+                        </div>
+                    @else
+                        <div class="text-sm mt-1" style="color: #dc2626;">
+                            Session is full
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Presenter Info -->
+                <div class="section-title">
+                    <i class="fas fa-user-tie"></i>
+                    Presenter
+                </div>
+                <div class="presenter-card">
+                    <div class="presenter-name">{{ $session->presenter_name }}</div>
+                    @if($session->presenter_bio)
+                    <div class="presenter-bio">{{ $session->presenter_bio }}</div>
+                    @endif
+                </div>
+
+                @if($session->co_presenter_name)
+                <div class="section-title">
+                    <i class="fas fa-user-friends"></i>
+                    Co-Presenter
+                </div>
+                <div class="presenter-card">
+                    <div class="presenter-name">{{ $session->co_presenter_name }}</div>
+                </div>
                 @endif
 
-                <!-- Preparation Notes -->
+                <!-- Categories -->
+                @if($session->category && is_array($session->category) && count($session->category) > 0)
+                <div class="section-title">
+                    <i class="fas fa-tags"></i>
+                    Categories
+                </div>
+                <div class="mb-4">
+                    @foreach($session->category as $category)
+                    <span class="category-tag">
+                        @switch($category)
+                            @case('The Arts (Visual or Performing)')
+                                🎨 {{ $category }}
+                                @break
+                            @case('Sports and Exercise')
+                                🏃 {{ $category }}
+                                @break
+                            @case('Dance and Movement')
+                                💃 {{ $category }}
+                                @break
+                            @case('Language and Culture')
+                                🌍 {{ $category }}
+                                @break
+                            @case('Crafts')
+                                🎨 {{ $category }}
+                                @break
+                            @case('Yoga / Meditation')
+                                🧘 {{ $category }}
+                                @break
+                            @case('A general opportunity for joy and connection')
+                                😊 {{ $category }}
+                                @break
+                            @case('Health and Well-being')
+                                💚 {{ $category }}
+                                @break
+                            @case('Other')
+                                🔧 {{ $category }}
+                                @break
+                            @default
+                                🌿 {{ $category }}
+                        @endswitch
+                    </span>
+                    @endforeach
+                </div>
+                @endif
+
+                <!-- Equipment and Requirements -->
+                @if($session->equipment_needed)
+                <div class="section-title">
+                    <i class="fas fa-toolbox"></i>
+                    Equipment Needed
+                </div>
+                <div class="description" style="margin-bottom: 1.5rem;">{{ $session->equipment_needed }}</div>
+                @endif
+
+                @if($session->special_requirements)
+                <div class="section-title">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Special Requirements
+                </div>
+                <div class="description" style="margin-bottom: 1.5rem;">{{ $session->special_requirements }}</div>
+                @endif
+
                 @if($session->preparation_notes)
-                    <div class="mb-8">
-                        <h3 class="text-lg font-medium text-gray-900 mb-3">Preparation Notes</h3>
-                        <div class="prose max-w-none text-gray-600">
-                            {{ $session->preparation_notes }}
-                        </div>
-                    </div>
+                <div class="section-title">
+                    <i class="fas fa-sticky-note"></i>
+                    Preparation Notes
+                </div>
+                <div class="description" style="margin-bottom: 1.5rem;">{{ $session->preparation_notes }}</div>
                 @endif
 
                 <!-- Participants -->
                 @if($participants->count() > 0)
-                    <div class="mb-8">
-                        <h3 class="text-lg font-medium text-gray-900 mb-3">Participants ({{ $participants->count() }})</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                            @foreach($participants as $participant)
-                                <div class="flex items-center space-x-2">
-                                    @if($participant->avatar)
-                                        <img src="{{ $participant->avatar }}" alt="{{ $participant->name }}" class="w-8 h-8 rounded-full">
-                                    @else
-                                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                                            <span class="text-xs font-medium text-gray-600">{{ substr($participant->name, 0, 1) }}</span>
-                                        </div>
-                                    @endif
-                                    <span class="text-sm text-gray-600">{{ $participant->name }}</span>
-                                </div>
-                            @endforeach
-                        </div>
+                <div class="section-title">
+                    <i class="fas fa-users"></i>
+                    Participants ({{ $participants->count() }})
+                </div>
+                <div class="participants-grid">
+                    @foreach($participants as $participant)
+                    <div class="participant-item">
+                        @if($participant->avatar)
+                            <img src="{{ $participant->avatar }}" alt="{{ $participant->name }}" class="participant-avatar">
+                        @else
+                            <div class="participant-initial">
+                                {{ substr($participant->name, 0, 1) }}
+                            </div>
+                        @endif
+                        <span class="text-sm" style="color: #4b5563;">{{ $participant->name }}</span>
                     </div>
+                    @endforeach
+                </div>
                 @endif
 
                 <!-- Action Buttons -->
-                <div class="flex space-x-4 sticky bottom-0 bg-white pt-4 border-t border-gray-200">
+                <div class="action-buttons">
+                    @if($session->google_calendar_url)
+                    <a href="{{ $session->google_calendar_url }}" target="_blank" class="btn btn-secondary">
+                        <i class="fas fa-calendar-plus"></i>
+                        Add to Calendar
+                    </a>
+                    @endif
                     @if($userEnrollment)
-                        <span class="flex-1 text-center px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-md">
-                            ✓ Enrolled
-                        </span>
+                        <button class="btn btn-primary" disabled style="background: #004643; color: white; cursor: not-allowed; border-color: #005A56;">
+                            <i class="fas fa-check mr-1"></i>Enrolled
+                        </button>
                     @elseif($session->isAvailableForEnrollment())
-                        <form method="POST" action="{{ route('wellness.enroll', $session) }}" class="flex-1" id="enroll-form-{{ $session->id }}">
+                        <form action="{{ route('wellness.enroll', $session) }}" method="POST" style="display: inline;" id="enroll-form-{{ $session->id }}">
                             @csrf
                             <button type="button" 
                                     onclick="confirmEnrollment({{ $session->id }}, '{{ $session->title }}')"
-                                    class="w-full px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">
-                                Enroll Now
+                                    class="btn btn-primary">
+                                <i class="fas fa-user-plus mr-1"></i>Enroll Now
                             </button>
                         </form>
                     @else
-                        <span class="flex-1 text-center px-6 py-3 text-sm font-medium text-gray-500 bg-gray-100 rounded-md">
-                            Not Available for Enrollment
-                        </span>
+                        <button class="btn btn-primary" disabled style="background: #ef4444; color: white; cursor: not-allowed; border-color: #dc2626;">
+                            <i class="fas fa-times mr-1"></i>Session Full
+                        </button>
                     @endif
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- JavaScript for enrollment confirmation -->
-    <script>
-        function confirmEnrollment(sessionId, sessionTitle) {
-            const message = `Are you sure you want to enroll in "${sessionTitle}"?`;
-            
-            if (confirm(message)) {
-                document.getElementById('enroll-form-' + sessionId).submit();
-            }
-        }
-    </script>
-</body>
-</html>
+<script>
+function confirmEnrollment(sessionId, sessionTitle) {
+    const message = `Are you sure you want to enroll in "${sessionTitle}"?`;
+    
+    if (confirm(message)) {
+        document.getElementById('enroll-form-' + sessionId).submit();
+    }
+}
+</script>
+
+@endsection

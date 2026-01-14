@@ -46,17 +46,32 @@ class PLWednesdaySetting extends Model
 
     /**
      * Initialize default settings if none exist
+     * Also updates existing settings to ensure correct date range
      */
     public static function initialize()
     {
-        if (!static::exists()) {
+        $settings = static::first();
+        
+        if (!$settings) {
             static::create([
                 'is_active' => false,
                 'start_date' => '2025-08-06',
-                'end_date' => '2025-12-16',
+                'end_date' => '2026-05-30',
                 'default_start_time' => '15:00:00',
                 'default_end_time' => '17:00:00',
             ]);
+        } else {
+            // Update date range if it doesn't match the required range
+            $requiredStartDate = '2025-08-06';
+            $requiredEndDate = '2026-05-30';
+            
+            if ($settings->start_date->format('Y-m-d') !== $requiredStartDate || 
+                $settings->end_date->format('Y-m-d') !== $requiredEndDate) {
+                $settings->update([
+                    'start_date' => $requiredStartDate,
+                    'end_date' => $requiredEndDate,
+                ]);
+            }
         }
     }
 }

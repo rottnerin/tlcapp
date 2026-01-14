@@ -20,6 +20,7 @@ class AdminUserSeeder extends Seeder
             'mhaque@aes.ac.in',      // Your actual email from Google OAuth
             'booking@aes.ac.in',
             'rmckinnie@aes.ac.in',
+            'dajamian@aes.ac.in',
             'admin@aes.ac.in',
             'principal@aes.ac.in',
             'pld.coordinator@aes.ac.in',

@@ -9,7 +9,7 @@
         <div class="mb-8">
             <div class="flex items-center mb-4">
                 <a href="{{ route('admin.wellness.index') }}" 
-                   class="text-aes-blue hover:text-blue-700 mr-4 font-medium">
+                   class="mr-4 font-medium hover:opacity-70" style="color: var(--tlc-navy);">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Wellness Sessions
                 </a>
             </div>
@@ -139,20 +139,20 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Schedule & Capacity</h3>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div>
-                            <label for="pd_day_id" class="block text-sm font-medium text-gray-700 mb-1">
+                            <label for="p_d_day_id" class="block text-sm font-medium text-gray-700 mb-1">
                                 PL Day Event
                             </label>
-                            <select id="pd_day_id" name="pd_day_id"
+                            <select id="p_d_day_id" name="p_d_day_id"
                                     class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                           @error('pd_day_id') border-red-300 @enderror">
+                                           @error('p_d_day_id') border-red-300 @enderror">
                                 <option value="">Not assigned to any PL Day</option>
                                 @foreach($pdDays as $pdDay)
-                                    <option value="{{ $pdDay->id }}" {{ old('pd_day_id') == $pdDay->id ? 'selected' : '' }}>
+                                    <option value="{{ $pdDay->id }}" {{ old('p_d_day_id') == $pdDay->id ? 'selected' : '' }}>
                                         {{ $pdDay->title }} ({{ $pdDay->date_range }})
                                     </option>
                                 @endforeach
                             </select>
-                            @error('pd_day_id')
+                            @error('p_d_day_id')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -249,7 +249,7 @@
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-6 py-3 bg-aes-blue hover:bg-blue-700 text-white rounded-lg transition-colors font-medium shadow-md">
+                            class="px-6 py-3 text-white rounded-lg transition-colors font-medium shadow-md" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                         <i class="fas fa-save mr-2"></i>Create Session
                     </button>
                 </div>

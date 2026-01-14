@@ -60,7 +60,7 @@
 
                 <!-- Submit Button -->
                 <div class="flex items-end">
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                    <button type="submit" class="w-full text-white px-4 py-2 rounded-lg transition duration-200" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                         Apply Filters
                     </button>
                 </div>
@@ -118,7 +118,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex flex-col space-y-1">
                                         @if($user->is_admin)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style="background-color: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);">
                                                 Admin
                                             </span>
                                         @endif
@@ -151,7 +151,7 @@
                                             <form method="POST" action="{{ route('admin.users.toggle-admin', $user) }}" class="inline">
                                                 @csrf
                                                 <button type="submit" 
-                                                        class="text-purple-600 hover:text-purple-900 transition duration-200"
+                                                        style="color: var(--tlc-orange);" class="hover:opacity-70 transition duration-200"
                                                         onclick="return confirm('Are you sure you want to {{ $user->is_admin ? 'revoke' : 'grant' }} admin privileges for {{ $user->name }}?')">
                                                     {{ $user->is_admin ? 'Remove Admin' : 'Make Admin' }}
                                                 </button>
@@ -206,8 +206,8 @@
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: rgba(244, 211, 94, 0.3);">
+                            <svg class="w-5 h-5" style="color: var(--tlc-navy);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                             </svg>
                         </div>

@@ -13,7 +13,7 @@
             </div>
             <div class="flex space-x-3">
                 <a href="{{ route('admin.schedule.by-pdday') }}" 
-                   class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                   class="text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md" style="background-color: var(--tlc-navy);" onmouseover="this.style.backgroundColor='#164773'" onmouseout="this.style.backgroundColor='#0d3b66'">
                     <i class="fas fa-calendar mr-2"></i>By PL Day
                 </a>
                 <button onclick="toggleBulkActions()" 
@@ -21,7 +21,7 @@
                     <i class="fas fa-tasks mr-2"></i>Bulk Actions
                 </button>
                 <a href="{{ route('admin.schedule.create') }}" 
-                   class="bg-aes-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md">
+                   class="text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                     <i class="fas fa-plus mr-2"></i>Add Schedule Item
                 </a>
             </div>
@@ -77,7 +77,7 @@
         <!-- Filters -->
         <div class="bg-white rounded-lg shadow-card mb-8 p-6 border">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-            <form method="GET" action="{{ route('admin.schedule.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            <form method="GET" action="{{ route('admin.schedule.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
                     <input type="text" name="search" value="{{ request('search') }}"
@@ -92,18 +92,6 @@
                         @foreach($divisions as $division)
                             <option value="{{ $division->id }}" {{ request('division_id') == $division->id ? 'selected' : '' }}>
                                 {{ $division->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                    <select name="session_type" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-aes-blue">
-                        <option value="">All Types</option>
-                        @foreach($types as $type)
-                            <option value="{{ $type }}" {{ request('session_type') == $type ? 'selected' : '' }}>
-                                {{ ucfirst($type) }}
                             </option>
                         @endforeach
                     </select>
@@ -151,7 +139,6 @@
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Division</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -202,12 +189,6 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                bg-blue-100 text-blue-800">
-                                        {{ ucfirst($item->session_type) }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                                 {{ $item->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $item->is_active ? 'Active' : 'Inactive' }}
                                     </span>
@@ -242,7 +223,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
                                     No schedule items found. 
                                     <a href="{{ route('admin.schedule.create') }}" class="text-aes-blue hover:underline">
                                         Create your first schedule item
