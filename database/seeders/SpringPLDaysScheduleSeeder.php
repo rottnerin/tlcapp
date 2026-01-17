@@ -29,10 +29,10 @@ class SpringPLDaysScheduleSeeder extends Seeder
         $middle = Division::where('name', 'MS')->first();
         $high = Division::where('name', 'HS')->first();
 
-        // Day 1 Schedule (March 1, 2026)
+        // Day 1 Schedule (March 2, 2026)
         $day1Date = Carbon::parse($springPDDay->start_date);
         
-        // Day 2 Schedule (March 2, 2026)
+        // Day 2 Schedule (March 3, 2026)
         $day2Date = Carbon::parse($springPDDay->end_date);
 
         $scheduleItems = [

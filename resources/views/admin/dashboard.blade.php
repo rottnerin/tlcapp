@@ -23,6 +23,8 @@
         .action-btn { transition: all 0.15s ease; }
         .action-btn:hover { transform: scale(1.02); }
         .card { background: #ffffff; border: 1px solid rgba(13, 59, 102, 0.1); }
+        .activity-item { transition: all 0.15s ease; }
+        .activity-item:hover { transform: translateX(4px); }
     </style>
 </head>
 <body style="background: var(--tlc-cream); min-height: 100vh;">
@@ -89,12 +91,6 @@
     </nav>
 
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <!-- Welcome Header -->
-        <div class="mb-8">
-            <h1 class="text-2xl font-bold" style="color: var(--tlc-navy);">Welcome back, {{ explode(' ', auth()->user()->name)[0] }}</h1>
-            <p style="color: #64748b;" class="mt-1">Here's what's happening with your platform today.</p>
-        </div>
-
         @if (session('success'))
             <div class="mb-6 p-4 rounded-xl flex items-center" style="background: rgba(244, 211, 94, 0.2); border: 1px solid var(--tlc-gold); color: var(--tlc-navy);">
                 <i class="fas fa-check-circle mr-3"></i>{{ session('success') }}
@@ -107,258 +103,267 @@
             </div>
         @endif
 
-        <!-- Stats Overview -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid rgba(13, 59, 102, 0.1); border-top: 3px solid var(--tlc-navy);">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium" style="color: #64748b;">Total Users</p>
-                        <p class="text-3xl font-bold mt-1" style="color: var(--tlc-navy);">{{ $stats['total_users'] }}</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(13, 59, 102, 0.1);">
-                        <i class="fas fa-users text-lg" style="color: var(--tlc-navy);"></i>
-                    </div>
+        <!-- Welcome Header -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold" style="color: var(--tlc-navy);">Welcome back, {{ explode(' ', auth()->user()->name)[0] }}</h1>
+                    <p style="color: #64748b;" class="mt-1">Here's your platform overview for today.</p>
+                </div>
+                <div class="mt-4 md:mt-0 text-sm" style="color: #64748b;">
+                    <i class="far fa-calendar mr-2"></i>{{ now()->format('l, F j, Y') }}
                 </div>
             </div>
-            
-            <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid rgba(13, 59, 102, 0.1); border-top: 3px solid var(--tlc-gold);">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium" style="color: #64748b;">Schedule Items</p>
-                        <p class="text-3xl font-bold mt-1" style="color: var(--tlc-navy);">{{ $stats['total_schedule_items'] }}</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(244, 211, 94, 0.3);">
-                        <i class="fas fa-calendar-alt text-lg" style="color: var(--tlc-navy);"></i>
+        </div>
+
+        <!-- At-a-Glance - Key Stats -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold" style="color: var(--tlc-navy);">
+                    <i class="fas fa-chart-line mr-2" style="color: var(--tlc-gold);"></i>At-a-Glance
+                </h2>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid rgba(13, 59, 102, 0.1); border-top: 3px solid var(--tlc-navy);">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium" style="color: #64748b;">Total Users</p>
+                            <p class="text-3xl font-bold mt-1" style="color: var(--tlc-navy);">{{ $stats['total_users'] }}</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(13, 59, 102, 0.1);">
+                            <i class="fas fa-users text-lg" style="color: var(--tlc-navy);"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid rgba(13, 59, 102, 0.1); border-top: 3px solid var(--tlc-orange);">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium" style="color: #64748b;">Wellness Sessions</p>
-                        <p class="text-3xl font-bold mt-1" style="color: var(--tlc-navy);">{{ $stats['total_wellness_sessions'] }}</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(238, 150, 75, 0.2);">
-                        <i class="fas fa-heart text-lg" style="color: var(--tlc-orange);"></i>
+                
+                <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid rgba(13, 59, 102, 0.1); border-top: 3px solid var(--tlc-gold);">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium" style="color: #64748b;">Schedule Items</p>
+                            <p class="text-3xl font-bold mt-1" style="color: var(--tlc-navy);">{{ $stats['total_schedule_items'] }}</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(244, 211, 94, 0.3);">
+                            <i class="fas fa-calendar-alt text-lg" style="color: var(--tlc-navy);"></i>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid rgba(13, 59, 102, 0.1); border-top: 3px solid var(--tlc-navy);">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium" style="color: #64748b;">Enrollments</p>
-                        <p class="text-3xl font-bold mt-1" style="color: var(--tlc-navy);">{{ $stats['total_enrollments'] }}</p>
+                
+                <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid rgba(13, 59, 102, 0.1); border-top: 3px solid var(--tlc-orange);">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium" style="color: #64748b;">Wellness Sessions</p>
+                            <p class="text-3xl font-bold mt-1" style="color: var(--tlc-navy);">{{ $stats['total_wellness_sessions'] }}</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(238, 150, 75, 0.2);">
+                            <i class="fas fa-heart text-lg" style="color: var(--tlc-orange);"></i>
+                        </div>
                     </div>
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(244, 211, 94, 0.3);">
-                        <i class="fas fa-user-check text-lg" style="color: var(--tlc-navy);"></i>
+                </div>
+                
+                <div class="stat-card rounded-2xl p-5 shadow-sm" style="border: 1px solid rgba(13, 59, 102, 0.1); border-top: 3px solid var(--tlc-navy);">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium" style="color: #64748b;">Total Enrollments</p>
+                            <p class="text-3xl font-bold mt-1" style="color: var(--tlc-navy);">{{ $stats['total_enrollments'] }}</p>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: rgba(244, 211, 94, 0.3);">
+                            <i class="fas fa-user-check text-lg" style="color: var(--tlc-navy);"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions & Feature Settings Row -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Quick Actions -->
-            <div class="lg:col-span-2 card rounded-2xl p-6 shadow-sm">
-                <h2 class="text-lg font-semibold mb-4" style="color: var(--tlc-navy);">Quick Actions</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <a href="{{ route('admin.schedule.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(13, 59, 102, 0.05); border-color: rgba(13, 59, 102, 0.2);">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-navy);">
-                            <i class="fas fa-plus text-white"></i>
-                        </div>
-                        <span class="text-sm font-medium" style="color: var(--tlc-navy);">Schedule</span>
-                    </a>
-                    <a href="{{ route('admin.wellness.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(238, 150, 75, 0.1); border-color: rgba(238, 150, 75, 0.3);">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-orange);">
-                            <i class="fas fa-plus text-white"></i>
-                        </div>
-                        <span class="text-sm font-medium" style="color: var(--tlc-orange);">Wellness</span>
-                    </a>
-                    <a href="{{ route('admin.pddays.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(244, 211, 94, 0.2); border-color: rgba(244, 211, 94, 0.5);">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-gold);">
-                            <i class="fas fa-plus" style="color: var(--tlc-navy);"></i>
-                        </div>
-                        <span class="text-sm font-medium" style="color: var(--tlc-navy);">PL Day</span>
-                    </a>
-                    <a href="{{ route('admin.pl-wednesday.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(13, 59, 102, 0.05); border-color: rgba(13, 59, 102, 0.2);">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-navy);">
-                            <i class="fas fa-plus text-white"></i>
-                        </div>
-                        <span class="text-sm font-medium" style="color: var(--tlc-navy);">PL Wed</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Feature Toggles -->
-            <div class="card rounded-2xl p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-lg font-semibold" style="color: var(--tlc-navy);">Feature Settings</h2>
-                    <span class="px-2 py-0.5 text-xs font-medium rounded-full" style="background: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);">
-                        <i class="fas fa-eye-slash mr-1"></i>Controls Visibility
+        <!-- Action Center -->
+        <div class="mb-8">
+            <div class="card rounded-2xl shadow-sm overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4" style="border-bottom: 1px solid rgba(13, 59, 102, 0.1); background: linear-gradient(135deg, rgba(13, 59, 102, 0.05) 0%, rgba(244, 211, 94, 0.1) 100%);">
+                    <h2 class="text-xl font-semibold" style="color: var(--tlc-navy);">
+                        <i class="fas fa-stream mr-2" style="color: var(--tlc-gold);"></i>Activity Feed
+                    </h2>
+                    <span class="text-xs px-2 py-1 rounded-full" style="background: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);">
+                        Recent Activity
                     </span>
                 </div>
-                <p class="text-xs mb-4" style="color: #64748b;">
-                    Toggle features on/off. Disabled features will be hidden from the user dashboard.
-                </p>
-                <div class="space-y-3">
-                    <!-- Wellness Toggle -->
-                    <div class="p-4 rounded-xl" style="background: rgba(250, 240, 202, 0.5); border: 1px solid rgba(13, 59, 102, 0.1);">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: {{ $wellnessSetting && $wellnessSetting->is_active ? 'rgba(238, 150, 75, 0.2)' : '#f1f5f9' }};">
-                                    <i class="fas fa-heart" style="color: {{ $wellnessSetting && $wellnessSetting->is_active ? 'var(--tlc-orange)' : '#94a3b8' }};"></i>
-                                </div>
-                                <div>
-                                    <span class="text-sm font-semibold block" style="color: var(--tlc-navy);">Wellness Sessions</span>
-                                    <span class="text-xs" style="color: {{ $wellnessSetting && $wellnessSetting->is_active ? 'var(--tlc-navy)' : '#ef4444' }};">
-                                        {{ $wellnessSetting && $wellnessSetting->is_active ? '● Visible to users' : '○ Hidden from users' }}
-                                    </span>
-                                </div>
-                            </div>
-                            <form action="{{ route('admin.toggle-wellness') }}" method="POST">
-                                @csrf
-                                <button type="submit" 
-                                        class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2"
-                                        style="background: {{ $wellnessSetting && $wellnessSetting->is_active ? 'var(--tlc-orange)' : '#d1d5db' }};"
-                                        role="switch"
-                                        aria-checked="{{ $wellnessSetting && $wellnessSetting->is_active ? 'true' : 'false' }}">
-                                    <span class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
-                                          style="transform: translateX({{ $wellnessSetting && $wellnessSetting->is_active ? '1.25rem' : '0' }});"></span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <!-- PL Days Toggle -->
-                    <div class="p-4 rounded-xl" style="background: rgba(250, 240, 202, 0.5); border: 1px solid rgba(13, 59, 102, 0.1);">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: {{ $plDaysSetting && $plDaysSetting->is_active ? 'rgba(244, 211, 94, 0.3)' : '#f1f5f9' }};">
-                                    <i class="fas fa-calendar-alt" style="color: {{ $plDaysSetting && $plDaysSetting->is_active ? 'var(--tlc-navy)' : '#94a3b8' }};"></i>
-                                </div>
-                                <div>
-                                    <span class="text-sm font-semibold block" style="color: var(--tlc-navy);">PL Days</span>
-                                    <span class="text-xs" style="color: {{ $plDaysSetting && $plDaysSetting->is_active ? 'var(--tlc-navy)' : '#ef4444' }};">
-                                        {{ $plDaysSetting && $plDaysSetting->is_active ? '● Visible to users' : '○ Hidden from users' }}
-                                    </span>
-                                </div>
-                            </div>
-                            <form action="{{ route('admin.toggle-pl-days') }}" method="POST">
-                                @csrf
-                                <button type="submit" 
-                                        class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2"
-                                        style="background: {{ $plDaysSetting && $plDaysSetting->is_active ? 'var(--tlc-gold)' : '#d1d5db' }};"
-                                        role="switch"
-                                        aria-checked="{{ $plDaysSetting && $plDaysSetting->is_active ? 'true' : 'false' }}">
-                                    <span class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
-                                          style="transform: translateX({{ $plDaysSetting && $plDaysSetting->is_active ? '1.25rem' : '0' }});"></span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        @php
+                            $allActivities = collect();
+                            
+                            // Add recent users
+                            foreach($recentUsers as $user) {
+                                $allActivities->push([
+                                    'type' => 'user_registered',
+                                    'user' => $user,
+                                    'timestamp' => $user->created_at,
+                                    'icon' => 'user-plus',
+                                    'color' => 'var(--tlc-navy)',
+                                    'bg' => 'rgba(13, 59, 102, 0.1)',
+                                ]);
+                            }
+                            
+                            // Add recent enrollments
+                            foreach($recentEnrollments as $enrollment) {
+                                $allActivities->push([
+                                    'type' => 'enrollment',
+                                    'enrollment' => $enrollment,
+                                    'timestamp' => $enrollment->enrolled_at,
+                                    'icon' => 'clipboard-check',
+                                    'color' => 'var(--tlc-orange)',
+                                    'bg' => 'rgba(238, 150, 75, 0.2)',
+                                ]);
+                            }
+                            
+                            // Sort by timestamp and take most recent 10
+                            $allActivities = $allActivities->sortByDesc('timestamp')->take(10);
+                        @endphp
 
-        <!-- Content Management -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <a href="{{ route('admin.schedule.index') }}" class="card rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group" style="border-color: rgba(13, 59, 102, 0.1);">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style="background: rgba(13, 59, 102, 0.1);">
-                        <i class="fas fa-calendar-alt" style="color: var(--tlc-navy);"></i>
-                    </div>
-                    <span class="text-2xl font-bold" style="color: var(--tlc-navy);">{{ $stats['total_schedule_items'] }}</span>
-                </div>
-                <p class="text-sm font-medium" style="color: #64748b;">Schedule Items</p>
-            </a>
-            
-            <a href="{{ route('admin.wellness.index') }}" class="card rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group" style="border-color: rgba(13, 59, 102, 0.1);">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style="background: rgba(238, 150, 75, 0.2);">
-                        <i class="fas fa-heart" style="color: var(--tlc-orange);"></i>
-                    </div>
-                    <span class="text-2xl font-bold" style="color: var(--tlc-navy);">{{ $stats['total_wellness_sessions'] }}</span>
-                </div>
-                <p class="text-sm font-medium" style="color: #64748b;">Wellness Sessions</p>
-            </a>
-            
-            <a href="{{ route('admin.pddays.index') }}" class="card rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group" style="border-color: rgba(13, 59, 102, 0.1);">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style="background: rgba(244, 211, 94, 0.3);">
-                        <i class="fas fa-calendar-check" style="color: var(--tlc-navy);"></i>
-                    </div>
-                    <i class="fas fa-arrow-right" style="color: var(--tlc-gold);"></i>
-                </div>
-                <p class="text-sm font-medium" style="color: #64748b;">Manage PL Days</p>
-            </a>
-            
-            <a href="{{ route('admin.pl-wednesday.index') }}" class="card rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group" style="border-color: rgba(13, 59, 102, 0.1);">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform" style="background: rgba(13, 59, 102, 0.1);">
-                        <i class="fas fa-book" style="color: var(--tlc-navy);"></i>
-                    </div>
-                    <i class="fas fa-arrow-right" style="color: var(--tlc-gold);"></i>
-                </div>
-                <p class="text-sm font-medium" style="color: #64748b;">PL Wednesday</p>
-            </a>
-        </div>
-
-        <!-- Two Column Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <!-- Recent Registrations -->
-            <div class="card rounded-2xl shadow-sm overflow-hidden">
-                <div class="flex items-center justify-between px-6 py-4" style="border-bottom: 1px solid rgba(13, 59, 102, 0.1);">
-                    <h2 class="text-lg font-semibold" style="color: var(--tlc-navy);">Recent Registrations</h2>
-                    <a href="{{ route('admin.users.index') }}" class="text-sm font-medium" style="color: var(--tlc-orange);">
-                        View All <i class="fas fa-arrow-right ml-1 text-xs"></i>
-                    </a>
-                </div>
-                <div class="p-4">
-                    @if($recentUsers->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($recentUsers as $user)
-                                <div class="flex items-center justify-between p-3 rounded-xl" style="background: rgba(250, 240, 202, 0.3);">
-                                    <div class="flex items-center space-x-3">
-                                        @if($user->avatar)
-                                            <img src="{{ $user->avatar }}" alt="{{ $user->name }}" class="w-10 h-10 rounded-full">
-                                        @else
-                                            <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(13, 59, 102, 0.1);">
-                                                <span class="text-sm font-medium" style="color: var(--tlc-navy);">{{ substr($user->name, 0, 1) }}</span>
-                                            </div>
-                                        @endif
-                                        <div>
-                                            <p class="text-sm font-medium" style="color: var(--tlc-navy);">{{ $user->name }}</p>
-                                            <p class="text-xs" style="color: #64748b;">{{ $user->email }}</p>
-                                        </div>
+                        @if($allActivities->count() > 0)
+                            @foreach($allActivities as $activity)
+                                <div class="activity-item flex items-start space-x-4 p-4 rounded-xl" style="background: rgba(250, 240, 202, 0.3);">
+                                    <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background: {{ $activity['bg'] }};">
+                                        <i class="fas fa-{{ $activity['icon'] }}" style="color: {{ $activity['color'] }};"></i>
                                     </div>
-                                    <div class="flex items-center space-x-2">
-                                        @if($user->division)
-                                            <span class="px-2 py-1 text-xs font-medium rounded-md" style="background: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);">{{ $user->division->name }}</span>
-                                        @endif
-                                        @if($user->is_admin)
-                                            <span class="px-2 py-1 text-xs font-medium rounded-md" style="background: rgba(238, 150, 75, 0.2); color: var(--tlc-navy);">Admin</span>
+                                    <div class="flex-1 min-w-0">
+                                        @if($activity['type'] === 'user_registered')
+                                            <p class="text-sm font-medium" style="color: var(--tlc-navy);">
+                                                <span class="font-semibold">{{ $activity['user']->name }}</span> registered
+                                                @if($activity['user']->division)
+                                                    <span class="text-xs px-2 py-0.5 rounded-md ml-2" style="background: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);">
+                                                        {{ $activity['user']->division->name }}
+                                                    </span>
+                                                @endif
+                                            </p>
+                                            <p class="text-xs mt-1" style="color: #64748b;">
+                                                {{ $activity['user']->email }} • {{ $activity['timestamp']->diffForHumans() }}
+                                            </p>
+                                        @elseif($activity['type'] === 'enrollment')
+                                            <p class="text-sm font-medium" style="color: var(--tlc-navy);">
+                                                <span class="font-semibold">{{ $activity['enrollment']->user->name }}</span> enrolled in
+                                                @if($activity['enrollment']->wellnessSession)
+                                                    <span class="font-semibold">{{ Str::limit($activity['enrollment']->wellnessSession->title, 40) }}</span>
+                                                @elseif($activity['enrollment']->scheduleItem)
+                                                    <span class="font-semibold">{{ Str::limit($activity['enrollment']->scheduleItem->title, 40) }}</span>
+                                                @endif
+                                            </p>
+                                            <p class="text-xs mt-1" style="color: #64748b;">
+                                                {{ $activity['timestamp']->diffForHumans() }}
+                                            </p>
                                         @endif
                                     </div>
                                 </div>
                             @endforeach
-                        </div>
-                    @else
-                        <div class="text-center py-8">
-                            <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background: rgba(13, 59, 102, 0.1);">
-                                <i class="fas fa-users" style="color: var(--tlc-navy);"></i>
+                        @else
+                            <div class="text-center py-8">
+                                <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3" style="background: rgba(13, 59, 102, 0.1);">
+                                    <i class="fas fa-inbox" style="color: var(--tlc-navy);"></i>
+                                </div>
+                                <p class="text-sm" style="color: #64748b;">No recent activity</p>
                             </div>
-                            <p class="text-sm" style="color: #64748b;">No recent registrations</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Center -->
+        <div class="mb-8">
+            <div class="card rounded-2xl shadow-sm overflow-hidden">
+                <div class="px-6 py-4" style="background: linear-gradient(135deg, rgba(13, 59, 102, 0.05) 0%, rgba(244, 211, 94, 0.1) 100%); border-bottom: 1px solid rgba(13, 59, 102, 0.1);">
+                    <h2 class="text-xl font-semibold" style="color: var(--tlc-navy);">
+                        <i class="fas fa-bolt mr-2" style="color: var(--tlc-gold);"></i>Action Center
+                    </h2>
+                    <p class="text-sm mt-1" style="color: #64748b;">Quick access to common tasks</p>
+                </div>
+                
+                <div class="p-6">
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide mb-4" style="color: var(--tlc-navy);">Quick Actions</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <a href="{{ route('admin.schedule.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(13, 59, 102, 0.05); border-color: rgba(13, 59, 102, 0.2);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-navy);">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: var(--tlc-navy);">Schedule</span>
+                                </a>
+                                <a href="{{ route('admin.wellness.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(238, 150, 75, 0.1); border-color: rgba(238, 150, 75, 0.3);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-orange);">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: var(--tlc-orange);">Wellness</span>
+                                </a>
+                                <a href="{{ route('admin.pddays.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(244, 211, 94, 0.2); border-color: rgba(244, 211, 94, 0.5);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-gold);">
+                                        <i class="fas fa-plus" style="color: var(--tlc-navy);"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: var(--tlc-navy);">PL Day</span>
+                                </a>
+                                <a href="{{ route('admin.pl-wednesday.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(13, 59, 102, 0.05); border-color: rgba(13, 59, 102, 0.2);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-navy);">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: var(--tlc-navy);">PL Wed</span>
+                                </a>
+                            </div>
+                            
+                        <!-- Additional Quick Links -->
+                        <div class="mt-4 pt-4" style="border-top: 1px solid rgba(13, 59, 102, 0.1);">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <a href="{{ route('admin.users.index') }}" class="text-sm px-3 py-2 rounded-lg hover:bg-opacity-80 transition-colors" style="background: rgba(13, 59, 102, 0.1); color: var(--tlc-navy);">
+                                    <i class="fas fa-users mr-1"></i>Manage Users
+                                </a>
+                                <a href="{{ route('admin.reports') }}" class="text-sm px-3 py-2 rounded-lg hover:bg-opacity-80 transition-colors" style="background: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);">
+                                    <i class="fas fa-chart-bar mr-1"></i>View Reports
+                                </a>
+                                <a href="{{ route('admin.schedule.index') }}" class="text-sm px-3 py-2 rounded-lg hover:bg-opacity-80 transition-colors" style="background: rgba(238, 150, 75, 0.2); color: var(--tlc-navy);">
+                                    <i class="fas fa-calendar-alt mr-1"></i>All Schedules
+                                </a>
+                            </div>
                         </div>
-                    @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Feed -->
+
+        <!-- Analytics -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Division Breakdown -->
+            <div class="card rounded-2xl shadow-sm overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4" style="border-bottom: 1px solid rgba(13, 59, 102, 0.1); background: linear-gradient(135deg, rgba(13, 59, 102, 0.05) 0%, rgba(244, 211, 94, 0.1) 100%);">
+                    <h2 class="text-lg font-semibold" style="color: var(--tlc-navy);">
+                        <i class="fas fa-sitemap mr-2" style="color: var(--tlc-gold);"></i>Users by Division
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @foreach($divisionStats as $division)
+                            @php
+                                $colors = [
+                                    'ES' => ['bg' => 'rgba(244, 211, 94, 0.3)', 'text' => 'var(--tlc-navy)'],
+                                    'MS' => ['bg' => 'rgba(238, 150, 75, 0.2)', 'text' => 'var(--tlc-navy)'],
+                                    'HS' => ['bg' => 'rgba(13, 59, 102, 0.1)', 'text' => 'var(--tlc-navy)'],
+                                    'ALL' => ['bg' => 'rgba(250, 240, 202, 0.5)', 'text' => 'var(--tlc-navy)'],
+                                ];
+                                $color = $colors[$division->name] ?? $colors['ALL'];
+                            @endphp
+                            <div class="text-center p-4 rounded-xl" style="background: {{ $color['bg'] }};">
+                                <div class="text-3xl font-bold" style="color: {{ $color['text'] }};">{{ $division->users_count }}</div>
+                                <div class="text-sm font-medium mt-1" style="color: var(--tlc-navy);">{{ $division->full_name }}</div>
+                                <div class="text-xs" style="color: #64748b;">{{ $division->name }}</div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
             <!-- Popular Sessions -->
             <div class="card rounded-2xl shadow-sm overflow-hidden">
-                <div class="flex items-center justify-between px-6 py-4" style="border-bottom: 1px solid rgba(13, 59, 102, 0.1);">
-                    <h2 class="text-lg font-semibold" style="color: var(--tlc-navy);">Popular Wellness Sessions</h2>
+                <div class="flex items-center justify-between px-6 py-4" style="border-bottom: 1px solid rgba(13, 59, 102, 0.1); background: linear-gradient(135deg, rgba(13, 59, 102, 0.05) 0%, rgba(244, 211, 94, 0.1) 100%);">
+                    <h2 class="text-lg font-semibold" style="color: var(--tlc-navy);">
+                        <i class="fas fa-fire mr-2" style="color: var(--tlc-orange);"></i>Popular Wellness Sessions
+                    </h2>
                     <a href="{{ route('admin.reports') }}" class="text-sm font-medium" style="color: var(--tlc-orange);">
                         Reports <i class="fas fa-arrow-right ml-1 text-xs"></i>
                     </a>
@@ -390,33 +395,6 @@
                             <p class="text-sm" style="color: #64748b;">No wellness sessions yet</p>
                         </div>
                     @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Division Breakdown -->
-        <div class="card rounded-2xl shadow-sm overflow-hidden">
-            <div class="px-6 py-4" style="border-bottom: 1px solid rgba(13, 59, 102, 0.1);">
-                <h2 class="text-lg font-semibold" style="color: var(--tlc-navy);">Users by Division</h2>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    @foreach($divisionStats as $division)
-                        @php
-                            $colors = [
-                                'ES' => ['bg' => 'rgba(244, 211, 94, 0.3)', 'text' => 'var(--tlc-navy)'],
-                                'MS' => ['bg' => 'rgba(238, 150, 75, 0.2)', 'text' => 'var(--tlc-navy)'],
-                                'HS' => ['bg' => 'rgba(13, 59, 102, 0.1)', 'text' => 'var(--tlc-navy)'],
-                                'ALL' => ['bg' => 'rgba(250, 240, 202, 0.5)', 'text' => 'var(--tlc-navy)'],
-                            ];
-                            $color = $colors[$division->name] ?? $colors['ALL'];
-                        @endphp
-                        <div class="text-center p-4 rounded-xl" style="background: {{ $color['bg'] }};">
-                            <div class="text-3xl font-bold" style="color: {{ $color['text'] }};">{{ $division->users_count }}</div>
-                            <div class="text-sm font-medium mt-1" style="color: var(--tlc-navy);">{{ $division->full_name }}</div>
-                            <div class="text-xs" style="color: #64748b;">{{ $division->name }}</div>
-                        </div>
-                    @endforeach
                 </div>
             </div>
         </div>

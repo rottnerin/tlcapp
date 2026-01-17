@@ -9,8 +9,6 @@ use App\Models\ScheduleItem;
 use App\Models\WellnessSession;
 use App\Models\Division;
 use App\Models\UserSession;
-use App\Models\WellnessSetting;
-use App\Models\PLDaysSetting;
 use Carbon\Carbon;
 
 class AdminController extends Controller
@@ -34,6 +32,13 @@ class AdminController extends Controller
             ->take(10)
             ->get();
 
+        // Recent enrollments for activity feed
+        $recentEnrollments = UserSession::where('status', 'confirmed')
+            ->with(['user.division', 'wellnessSession', 'scheduleItem'])
+            ->latest('enrolled_at')
+            ->take(10)
+            ->get();
+
         // Popular wellness sessions
         $popularSessions = WellnessSession::withCount(['userSessions' => function($query) {
             $query->where('status', 'confirmed');
@@ -45,19 +50,12 @@ class AdminController extends Controller
         // Division breakdown
         $divisionStats = Division::withCount('users')->get();
 
-        // Initialize and get feature settings
-        WellnessSetting::initialize();
-        PLDaysSetting::initialize();
-        $wellnessSetting = WellnessSetting::getActive();
-        $plDaysSetting = PLDaysSetting::getActive();
-
         return view('admin.dashboard', compact(
             'stats', 
             'recentUsers', 
+            'recentEnrollments',
             'popularSessions', 
-            'divisionStats',
-            'wellnessSetting',
-            'plDaysSetting'
+            'divisionStats'
         ));
     }
 

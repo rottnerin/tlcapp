@@ -305,10 +305,40 @@
                 $hasUserEnrollment = $userWellnessEnrollment !== null;
                 $userEnrollment = $session->userSessions->firstWhere('user_id', auth()->id());
                 $isEnrolled = $userEnrollment && $userEnrollment->status !== 'cancelled';
+                
+                // Enrollment/capacity info
+                $currentEnrollment = $session->current_enrollment ?? 0;
+                $maxParticipants = $session->max_participants;
+                $isFull = $session->isFull();
+                $enrollmentPercentage = ($maxParticipants && $maxParticipants > 0) ? min(100, ($currentEnrollment / $maxParticipants) * 100) : 0;
             @endphp
             <div class="wellness-card">
                 <div class="wellness-card-header">
                     <h3>{{ $session->title }}</h3>
+                    <!-- Enrollment Badge -->
+                    <div class="mt-2 flex items-center gap-2">
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold" 
+                             style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);">
+                            <i class="fas fa-users"></i>
+                            @if($maxParticipants)
+                                <span>{{ $currentEnrollment }}/{{ $maxParticipants }} Enrolled</span>
+                            @else
+                                <span>{{ $currentEnrollment }} Enrolled</span>
+                            @endif
+                        </div>
+                        @if($isFull)
+                            <span class="px-2 py-1 rounded-full text-xs font-bold bg-red-500 text-white">FULL</span>
+                        @elseif($maxParticipants && $enrollmentPercentage >= 75)
+                            <span class="px-2 py-1 rounded-full text-xs font-bold bg-yellow-500 text-white">FILLING UP</span>
+                        @endif
+                    </div>
+                    @if($maxParticipants)
+                    <!-- Progress Bar -->
+                    <div class="mt-2 w-full bg-white/20 rounded-full h-2 overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-300" 
+                             style="width: {{ $enrollmentPercentage }}%; background: {{ $isFull ? '#ef4444' : ($enrollmentPercentage >= 75 ? '#f59e0b' : '#10b981') }};"></div>
+                    </div>
+                    @endif
                 </div>
                 <div class="wellness-card-body">
                     @if($session->description)

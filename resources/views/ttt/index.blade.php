@@ -168,11 +168,98 @@
         </div>
 
         @if($sessions->count() > 0)
-        <div class="ttt-grid">
-            @foreach($sessions as $session)
+        @php
+            // Group sessions by date and time slot
+            $groupedSessions = $sessions->groupBy(function($session) {
+                return $session->date->format('Y-m-d') . '_' . $session->start_time->format('H:i');
+            })->sortKeys();
+            
+            $sessionNumber = 1;
+        @endphp
+        
+        @foreach($groupedSessions as $key => $slotSessions)
+        @php
+            $firstSession = $slotSessions->first();
+            $sessionDate = $firstSession->date;
+            $startTime = $firstSession->start_time;
+            $endTime = $firstSession->end_time;
+        @endphp
+        
+        <!-- TTT Session {{ $sessionNumber }} Header -->
+        <div class="mb-4 mt-{{ $sessionNumber > 1 ? '10' : '0' }}">
+            <div class="session-header-card rounded-2xl shadow-lg overflow-hidden" style="border: 3px solid {{ $sessionNumber === 1 ? '#f4d35e' : '#ee964b' }};">
+                <div class="px-6 py-5" style="background: linear-gradient(135deg, {{ $sessionNumber === 1 ? '#0d3b66 0%, #1a5490 100%' : '#7c2d12 0%, #9a3412 100%' }});">
+                    <div class="flex items-center justify-between flex-wrap gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg" style="background: {{ $sessionNumber === 1 ? 'linear-gradient(135deg, #f4d35e, #fbbf24)' : 'linear-gradient(135deg, #ee964b, #f97316)' }};">
+                                <span class="font-black text-2xl" style="color: {{ $sessionNumber === 1 ? '#0d3b66' : '#7c2d12' }};">{{ $sessionNumber }}</span>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-black tracking-wide" style="color: {{ $sessionNumber === 1 ? '#f4d35e' : '#fed7aa' }}; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+                                    TTT SESSION {{ $sessionNumber }}
+                                </h2>
+                                <p class="text-base font-semibold mt-1" style="color: white;">
+                                    <i class="fas fa-calendar-alt mr-2"></i>{{ $sessionDate->format('l, F j, Y') }}
+                                </p>
+                                <p class="text-sm font-medium" style="color: rgba(255,255,255,0.85);">
+                                    <i class="fas fa-clock mr-2"></i>{{ $startTime->format('g:i A') }} - {{ $endTime->format('g:i A') }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="px-4 py-2 rounded-full text-sm font-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                            <i class="fas fa-chalkboard-teacher mr-2"></i>
+                            {{ $slotSessions->count() }} {{ Str::plural('option', $slotSessions->count()) }} available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ttt-grid mb-6">
+            @foreach($slotSessions as $session)
+            @php
+                $isEnrolled = isset($userEnrollments[$session->id]) && $userEnrollments[$session->id];
+                // Find corresponding schedule item to check capacity
+                // Match by title and session_type since TTT sessions are unique by title within the PD day
+                $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
+                    ->where('title', $session->title)
+                    ->where('session_type', 'ttt')
+                    ->whereDate('date', $session->date)
+                    ->first();
+                $currentEnrollment = $scheduleItem ? $scheduleItem->current_enrollment : 0;
+                $maxParticipants = $scheduleItem ? $scheduleItem->max_participants : null;
+                $isFull = $scheduleItem && $maxParticipants !== null && $currentEnrollment >= $maxParticipants;
+                $enrollmentPercentage = ($maxParticipants && $maxParticipants > 0) ? min(100, ($currentEnrollment / $maxParticipants) * 100) : 0;
+            @endphp
             <div class="ttt-card">
                 <div class="ttt-card-header">
-                    <h3>{{ $session->title }}</h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="flex-1">{{ $session->title }}</h3>
+                    </div>
+                    <!-- Enrollment Badge -->
+                    <div class="mt-2 flex items-center gap-2">
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold" 
+                             style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);">
+                            <i class="fas fa-users"></i>
+                            @if($maxParticipants)
+                                <span>{{ $currentEnrollment }}/{{ $maxParticipants }} Enrolled</span>
+                            @else
+                                <span>{{ $currentEnrollment }} Enrolled</span>
+                            @endif
+                        </div>
+                        @if($isFull)
+                            <span class="px-2 py-1 rounded-full text-xs font-bold bg-red-500 text-white">FULL</span>
+                        @elseif($maxParticipants && $enrollmentPercentage >= 75)
+                            <span class="px-2 py-1 rounded-full text-xs font-bold bg-yellow-500 text-white">FILLING UP</span>
+                        @endif
+                    </div>
+                    @if($maxParticipants)
+                    <!-- Progress Bar -->
+                    <div class="mt-2 w-full bg-white/20 rounded-full h-2 overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-300" 
+                             style="width: {{ $enrollmentPercentage }}%; background: {{ $isFull ? '#ef4444' : ($enrollmentPercentage >= 75 ? '#f59e0b' : '#10b981') }};"></div>
+                    </div>
+                    @endif
                 </div>
                 <div class="ttt-card-body">
                     @if($session->description)
@@ -207,17 +294,6 @@
                     <a href="{{ route('spring.ttt.show', $session) }}" class="view-btn">
                         <i class="fas fa-eye mr-1"></i>View Details
                     </a>
-                    @php
-                        $isEnrolled = isset($userEnrollments[$session->id]) && $userEnrollments[$session->id];
-                        // Find corresponding schedule item to check capacity
-                        $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
-                            ->where('date', $session->date)
-                            ->where('start_time', $session->start_time)
-                            ->where('title', $session->title)
-                            ->where('session_type', 'ttt')
-                            ->first();
-                        $isFull = $scheduleItem && $scheduleItem->max_participants !== null && $scheduleItem->current_enrollment >= $scheduleItem->max_participants;
-                    @endphp
                     @if($isEnrolled)
                         <button class="join-btn" disabled style="background: #10b981; color: white; cursor: not-allowed;">
                             <i class="fas fa-check mr-1"></i>Joined
@@ -238,6 +314,9 @@
             </div>
             @endforeach
         </div>
+        
+        @php $sessionNumber++; @endphp
+        @endforeach
         @else
         <div class="empty-state">
             <div class="text-5xl mb-4">👨‍🏫</div>

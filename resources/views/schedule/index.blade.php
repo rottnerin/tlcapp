@@ -157,10 +157,10 @@ body {
 /* Modern event card layout */
 .event-card {
   background: #ffffff;
-  border-radius: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  padding: 2rem;
-  margin-bottom: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  padding: 1rem;
+  margin-bottom: 0.75rem;
   border: 1px solid rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 }
@@ -173,20 +173,20 @@ body {
 .event-card-grid {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 2rem;
+  gap: 1rem;
   align-items: start;
 }
 
 /* Time bubble */
 .time-bubble {
   background: linear-gradient(135deg, var(--tlc-gold) 0%, rgba(244, 211, 94, 0.8) 100%);
-  border-radius: 1rem;
-  padding: 1.5rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
   text-align: center;
-  width: 160px;
-  max-width: 160px;
-  min-width: 140px;
-  box-shadow: 0 8px 24px rgba(244, 211, 94, 0.3);
+  width: 120px;
+  max-width: 120px;
+  min-width: 110px;
+  box-shadow: 0 4px 12px rgba(244, 211, 94, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.2);
   flex-shrink: 0;
 }
@@ -197,15 +197,15 @@ body {
 }
 
 .time-bubble .time-start {
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--tlc-navy);
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .time-bubble .time-end {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--tlc-navy);
   display: block;
@@ -214,11 +214,11 @@ body {
 .time-bubble .wellness-tag {
   background: rgba(255, 255, 255, 0.2);
   color: var(--tlc-cream);
-  padding: 0.375rem 0.75rem;
+  padding: 0.25rem 0.5rem;
   border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
   display: inline-block;
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(10px);
@@ -227,34 +227,43 @@ body {
 /* Content bubble */
 .content-bubble {
   background: #f8fafc;
-  border-radius: 1rem;
-  padding: 1.5rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
   border: 1px solid rgba(0, 0, 0, 0.05);
   min-width: 0;
   flex: 1;
 }
 
 .content-bubble h3 {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: var(--tlc-navy);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   line-height: 1.3;
 }
 
 .content-bubble .description {
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #4a5568;
-  line-height: 1.6;
-  margin-bottom: 1rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+/* Date body styling for better visibility */
+.date-body {
+  color: rgba(13, 59, 102, 1);
+  background-color: rgba(250, 240, 202, 0.5);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  line-height: 1.5;
 }
 
 .content-bubble .presenter {
   display: flex;
   align-items: center;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: #4a5568;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .content-bubble .presenter svg {
@@ -267,8 +276,8 @@ body {
 .content-bubble .divisions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
 }
 
 .content-bubble .link-button {
@@ -276,13 +285,13 @@ body {
   align-items: center;
   background: linear-gradient(135deg, var(--tlc-orange) 0%, #d97706 100%);
   color: #ffffff;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(238, 150, 75, 0.25);
+  box-shadow: 0 2px 8px rgba(238, 150, 75, 0.25);
 }
 
 .content-bubble .link-button:hover {
@@ -302,14 +311,14 @@ body {
   align-items: center;
   background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
   color: #ffffff;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(13, 59, 102, 0.25);
-  margin-left: 0.75rem;
+  box-shadow: 0 2px 8px rgba(13, 59, 102, 0.25);
+  margin-left: 0.5rem;
 }
 
 .content-bubble .calendar-button:hover {
@@ -327,36 +336,36 @@ body {
 .content-bubble .button-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem;
   align-items: center;
 }
 
 /* Location bubble */
 .location-bubble {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  border-radius: 1rem;
-  padding: 1.5rem;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
   text-align: center;
-  width: 160px;
-  max-width: 160px;
-  min-width: 140px;
+  width: 120px;
+  max-width: 120px;
+  min-width: 110px;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
 }
 
 .location-bubble .location-icon {
-  width: 2rem;
-  height: 2rem;
-  margin: 0 auto 0.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0 auto 0.5rem;
   color: #64748b;
 }
 
 .location-bubble .location-text {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #475569;
-  line-height: 1.4;
+  line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
@@ -740,8 +749,8 @@ body {
                 </div>
             </div>
 
-            <div class="p-4 sm:p-8">
-                <div class="space-y-3 sm:space-y-6">
+            <div class="p-3 sm:p-6">
+                <div class="space-y-2 sm:space-y-3">
                     @foreach($scheduleItems as $item)
                         @php
                             $isWellnessSession = isset($item->session_type) && $item->session_type === 'wellness';
@@ -771,7 +780,7 @@ body {
                                     <h3>{{ $item->title }}</h3>
 
                                             @if($item->description)
-                                    <div class="description">{{ $item->description }}</div>
+                                    <div class="description date-body">{{ $item->description }}</div>
                                     @endif
                                     
                                     @if($item->presenter_primary)
