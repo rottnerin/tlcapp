@@ -230,12 +230,19 @@
                             </svg>
                         </button>
                         <div class="mobile-submenu {{ request()->routeIs('fall.*') ? 'open' : '' }}">
-                            <a href="{{ route('fall.schedule') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('fall.schedule') ? 'text-tlc-gold font-semibold' : '' }}">
+                            <a href="{{ route('fall.schedule') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('fall.schedule') && !request()->route('pdday') ? 'text-tlc-gold font-semibold' : '' }}">
                                 Schedule
                             </a>
                             <a href="{{ route('fall.wellness') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('fall.wellness') ? 'text-tlc-gold font-semibold' : '' }}">
                                 Wellness
                             </a>
+                            @if(isset($archivedFallPDDays) && $archivedFallPDDays->count() > 0)
+                                @foreach($archivedFallPDDays as $archived)
+                                <a href="{{ route('fall.schedule', ['pdday' => $archived->id]) }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->route('pdday') && request()->route('pdday')->id == $archived->id ? 'text-tlc-gold font-semibold' : '' }}">
+                                    📁 {{ $archived->academic_year }}
+                                </a>
+                                @endforeach
+                            @endif
                         </div>
                     </div>
                     @endif
@@ -250,7 +257,7 @@
                             </svg>
                         </button>
                         <div class="mobile-submenu {{ request()->routeIs('spring.*') ? 'open' : '' }}">
-                            <a href="{{ route('spring.schedule') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('spring.schedule') ? 'text-tlc-gold font-semibold' : '' }}">
+                            <a href="{{ route('spring.schedule') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('spring.schedule') && !request()->route('pdday') ? 'text-tlc-gold font-semibold' : '' }}">
                                 Schedule
                             </a>
                             <a href="{{ route('spring.wellness') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('spring.wellness') ? 'text-tlc-gold font-semibold' : '' }}">
@@ -260,6 +267,13 @@
                             <a href="{{ route('spring.ttt') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('spring.ttt') ? 'text-tlc-gold font-semibold' : '' }}">
                                 TTT
                             </a>
+                            @endif
+                            @if(isset($archivedSpringPDDays) && $archivedSpringPDDays->count() > 0)
+                                @foreach($archivedSpringPDDays as $archived)
+                                <a href="{{ route('spring.schedule', ['pdday' => $archived->id]) }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->route('pdday') && request()->route('pdday')->id == $archived->id ? 'text-tlc-gold font-semibold' : '' }}">
+                                    📁 {{ $archived->academic_year }}
+                                </a>
+                                @endforeach
                             @endif
                         </div>
                     </div>
@@ -301,14 +315,27 @@
     <div class="sub-nav">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center space-x-2 py-2">
-                <a href="{{ route('fall.schedule') }}" 
-                   class="sub-nav-item {{ request()->routeIs('fall.schedule') ? 'active' : '' }}">
+                <a href="{{ route('fall.schedule') }}"
+                   class="sub-nav-item {{ request()->routeIs('fall.schedule') && !request()->route('pdday') ? 'active' : '' }}">
                     Schedule
                 </a>
-                <a href="{{ route('fall.wellness') }}" 
+                <a href="{{ route('fall.wellness') }}"
                    class="sub-nav-item {{ request()->routeIs('fall.wellness') ? 'active' : '' }}">
                     Wellness
                 </a>
+                @if(isset($archivedFallPDDays) && $archivedFallPDDays->count() > 0)
+                    @foreach($archivedFallPDDays as $archived)
+                    <a href="{{ route('fall.schedule', ['pdday' => $archived->id]) }}"
+                       class="sub-nav-item {{ request()->route('pdday') && request()->route('pdday')->id == $archived->id ? 'active' : '' }}">
+                        <span class="inline-flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                            </svg>
+                            {{ $archived->academic_year }}
+                        </span>
+                    </a>
+                    @endforeach
+                @endif
             </div>
         </div>
     </div>
@@ -318,19 +345,32 @@
     <div class="sub-nav">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center space-x-2 py-2">
-                <a href="{{ route('spring.schedule') }}" 
-                   class="sub-nav-item {{ request()->routeIs('spring.schedule') ? 'active' : '' }}">
+                <a href="{{ route('spring.schedule') }}"
+                   class="sub-nav-item {{ request()->routeIs('spring.schedule') && !request()->route('pdday') ? 'active' : '' }}">
                     Schedule
                 </a>
-                <a href="{{ route('spring.wellness') }}" 
+                <a href="{{ route('spring.wellness') }}"
                    class="sub-nav-item {{ request()->routeIs('spring.wellness') ? 'active' : '' }}">
                     Wellness
                 </a>
                 @if($tttActive ?? false)
-                <a href="{{ route('spring.ttt') }}" 
+                <a href="{{ route('spring.ttt') }}"
                    class="sub-nav-item {{ request()->routeIs('spring.ttt') ? 'active' : '' }}">
                     TTT
                 </a>
+                @endif
+                @if(isset($archivedSpringPDDays) && $archivedSpringPDDays->count() > 0)
+                    @foreach($archivedSpringPDDays as $archived)
+                    <a href="{{ route('spring.schedule', ['pdday' => $archived->id]) }}"
+                       class="sub-nav-item {{ request()->route('pdday') && request()->route('pdday')->id == $archived->id ? 'active' : '' }}">
+                        <span class="inline-flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                            </svg>
+                            {{ $archived->academic_year }}
+                        </span>
+                    </a>
+                    @endforeach
                 @endif
             </div>
         </div>

@@ -10,7 +10,7 @@
             <h1 class="text-3xl font-bold text-gray-900">PL Days Management</h1>
             <p class="mt-2 text-gray-600">Configure professional learning day events</p>
         </div>
-        <a href="{{ route('admin.pddays.create') }}" class="inline-flex items-center px-6 py-3 bg-gray-900 border border-transparent rounded-md font-semibold text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 shadow-lg whitespace-nowrap">
+        <a href="{{ route('admin.pddays.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg whitespace-nowrap transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#d97706'" onmouseout="this.style.backgroundColor='var(--tlc-orange)'" onfocus="this.style.outline='none'; this.style.boxShadow='0 0 0 2px var(--tlc-orange)'">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -63,10 +63,17 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($pdDays as $pdDay)
-                    <tr class="{{ $pdDay->is_active ? 'bg-green-50' : '' }}">
+                    <tr class="{{ $pdDay->isArchived() ? 'bg-purple-50' : ($pdDay->is_active ? 'bg-green-50' : '') }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                @if($pdDay->is_active)
+                                @if($pdDay->isArchived())
+                                    <span class="flex-shrink-0 mr-2">
+                                        <svg class="h-5 w-5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
+                                            <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </span>
+                                @elseif($pdDay->is_active)
                                     <span class="flex-shrink-0 mr-2">
                                         <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -85,7 +92,11 @@
                             {{ $pdDay->date_range }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @if($pdDay->is_active)
+                            @if($pdDay->isArchived())
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                    Archived
+                                </span>
+                            @elseif($pdDay->is_active)
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                     Active
                                 </span>
@@ -103,28 +114,52 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex items-center justify-end space-x-2">
-                                <!-- Toggle Active -->
-                                <form method="POST" action="{{ route('admin.pddays.toggle-active', $pdDay) }}" class="inline">
-                                    @csrf
-                                    <button type="submit" class="text-gray-600 hover:text-gray-900" title="{{ $pdDay->is_active ? 'Deactivate' : 'Activate' }}">
-                                        @if($pdDay->is_active)
+                                @if($pdDay->isArchived())
+                                    <!-- Unarchive -->
+                                    <form method="POST" action="{{ route('admin.pddays.unarchive', $pdDay) }}" class="inline">
+                                        @csrf
+                                        <button type="submit" class="text-purple-600 hover:text-purple-900" title="Unarchive">
                                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
                                             </svg>
-                                        @else
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                        @endif
-                                    </button>
-                                </form>
+                                        </button>
+                                    </form>
+                                @else
+                                    <!-- Toggle Active -->
+                                    <form method="POST" action="{{ route('admin.pddays.toggle-active', $pdDay) }}" class="inline">
+                                        @csrf
+                                        <button type="submit" class="text-gray-600 hover:text-gray-900" title="{{ $pdDay->is_active ? 'Deactivate' : 'Activate' }}">
+                                            @if($pdDay->is_active)
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                                </svg>
+                                            @else
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            @endif
+                                        </button>
+                                    </form>
 
-                                <!-- Edit -->
-                                <a href="{{ route('admin.pddays.edit', $pdDay) }}" class="text-blue-600 hover:text-blue-900" title="Edit">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                    </svg>
-                                </a>
+                                    <!-- Edit -->
+                                    <a href="{{ route('admin.pddays.edit', $pdDay) }}" class="text-blue-600 hover:text-blue-900" title="Edit">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </a>
+
+                                    <!-- Archive (only for inactive) -->
+                                    @if(!$pdDay->is_active)
+                                        <form method="POST" action="{{ route('admin.pddays.archive', $pdDay) }}" class="inline">
+                                            @csrf
+                                            <button type="submit" class="text-purple-600 hover:text-purple-900" title="Archive">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4l3 3m0 0l3-3m-3 3V9"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @endif
+                                @endif
 
                                 <!-- Delete -->
                                 <form method="POST" action="{{ route('admin.pddays.destroy', $pdDay) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this PL Day? This action cannot be undone.');">
@@ -173,7 +208,24 @@
             </div>
             <div class="ml-3">
                 <p class="text-sm text-blue-700">
-                    <strong>Note:</strong> Only one PL Day can be active at a time. The active PL Day determines which events are displayed to users on the public-facing site. When you activate a PL Day, all other PL Days will be automatically deactivated.
+                    <strong>Note:</strong> Only one PL Day can be active per season (Fall/Spring). This allows you to have both an active Fall PL Day and an active Spring PL Day simultaneously. When you activate a PL Day, other PL Days of the same season will be automatically deactivated.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archive Help Info -->
+    <div class="mt-4 bg-purple-50 border-l-4 border-purple-400 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
+                    <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-purple-700">
+                    <strong>Archive:</strong> Archived PL Days are read-only and appear as year tabs on the user-facing schedule pages. Users can browse archived content but cannot add sessions to My PL. To archive a PL Day, first deactivate it, then click the archive button.
                 </p>
             </div>
         </div>

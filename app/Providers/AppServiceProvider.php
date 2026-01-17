@@ -2,12 +2,13 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\View;
-use App\Models\PLWednesdaySetting;
-use App\Models\WellnessSetting;
+use App\Models\PDDay;
 use App\Models\PLDaysSetting;
+use App\Models\PLWednesdaySetting;
 use App\Models\TTTSetting;
+use App\Models\WellnessSetting;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
                 'wellnessActive' => WellnessSetting::isActive(),
                 'plDaysActive' => PLDaysSetting::isActive(),
                 'tttActive' => TTTSetting::isActive(),
+                'archivedFallPDDays' => PDDay::getArchivedBySeason('fall'),
+                'archivedSpringPDDays' => PDDay::getArchivedBySeason('spring'),
             ]);
         });
     }

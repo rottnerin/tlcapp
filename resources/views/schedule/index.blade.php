@@ -628,6 +628,7 @@ body {
   cursor: pointer;
   accent-color: var(--tlc-orange);
   flex-shrink: 0;
+  background-color: white;
 }
 
 .my-pl-checkbox-text {
@@ -640,25 +641,158 @@ body {
 .my-pl-checkbox:checked + .my-pl-checkbox-text {
   color: var(--tlc-orange);
 }
+
+/* Archive Tabs Styling */
+.archive-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+}
+
+.archive-tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  background: #ffffff;
+  color: var(--tlc-navy);
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.archive-tabs a:hover {
+  border-color: var(--tlc-gold);
+  box-shadow: 0 4px 12px rgba(244, 211, 94, 0.25);
+  transform: translateY(-2px);
+}
+
+.archive-tabs a.active {
+  background: linear-gradient(135deg, var(--tlc-navy), #164773);
+  color: #ffffff;
+  border-color: var(--tlc-navy);
+  box-shadow: 0 4px 12px rgba(13, 59, 102, 0.3);
+}
+
+.archive-tabs a.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(13, 59, 102, 0.4);
+}
+
+.archive-tabs .current-badge {
+  background: var(--tlc-gold);
+  color: var(--tlc-navy);
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.archive-tabs a.active .current-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* Archive Banner */
+.archive-banner {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: #ffffff;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+}
+
+.archive-banner svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .archive-tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .archive-tabs a {
+    justify-content: center;
+  }
+}
 </style>
 <div class="min-h-screen" style="background-color: var(--tlc-cream);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Day Selector Cards -->
-        @if(count($eventDates) >= 2)
         @php
             // Determine which route to use based on current route
             $currentRoute = request()->route()->getName();
             if (str_contains($currentRoute, 'spring')) {
                 $scheduleRoute = 'spring.schedule';
+                $currentSeason = 'spring';
             } elseif (str_contains($currentRoute, 'fall')) {
                 $scheduleRoute = 'fall.schedule';
+                $currentSeason = 'fall';
             } else {
                 $scheduleRoute = 'dashboard';
+                $currentSeason = 'fall';
             }
+        @endphp
+
+        <!-- Year Tabs for Archives -->
+        @if(isset($archivedPDDays) && ($archivedPDDays->count() > 0 || (isset($isArchiveView) && $isArchiveView)))
+        <div class="archive-tabs">
+            {{-- Current/Active tab --}}
+            @if(isset($activePDDayForSeason) && $activePDDayForSeason)
+            <a href="{{ route($scheduleRoute) }}"
+               class="{{ !(isset($isArchiveView) && $isArchiveView) ? 'active' : '' }}">
+                {{ $activePDDayForSeason->academic_year ?? 'Current' }}
+                @if(!(isset($isArchiveView) && $isArchiveView))
+                    <span class="current-badge">Current</span>
+                @endif
+            </a>
+            @endif
+
+            {{-- Archived year tabs --}}
+            @foreach($archivedPDDays as $archived)
+            <a href="{{ route($scheduleRoute, ['pdday' => $archived->id]) }}"
+               class="{{ (isset($isArchiveView) && $isArchiveView && isset($activePDDay) && $activePDDay->id === $archived->id) ? 'active' : '' }}">
+                📁 {{ $archived->academic_year }}
+            </a>
+            @endforeach
+        </div>
+        @endif
+
+        <!-- Archive Banner -->
+        @if(isset($isArchiveView) && $isArchiveView && isset($activePDDay))
+        <div class="archive-banner">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+            </svg>
+            <span>Viewing archived content from {{ $activePDDay->academic_year }}</span>
+        </div>
+        @endif
+
+        <!-- Day Selector Cards -->
+        @if(count($eventDates) >= 2)
+        @php
+            // Build route params, preserving pdday for archive views
+            $dayRouteParams = (isset($isArchiveView) && $isArchiveView && isset($activePDDay))
+                ? ['pdday' => $activePDDay->id]
+                : [];
         @endphp
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             <div class="day-card hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 {{ $activeTab === 'day1' ? 'selected' : '' }}">
-                <a href="{{ route($scheduleRoute, ['day' => 'day1'] + request()->query()) }}" class="block">
+                <a href="{{ route($scheduleRoute, array_merge($dayRouteParams, ['day' => 'day1'])) }}" class="block">
                     <div class="text-center">
                         <div class="text-6xl mb-4">📅</div>
                         <h3 class="text-2xl font-bold mb-2">Day 1</h3>
@@ -670,7 +804,7 @@ body {
             </div>
 
             <div class="day-card hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 {{ $activeTab === 'day2' ? 'selected' : '' }}">
-                <a href="{{ route($scheduleRoute, ['day' => 'day2'] + request()->query()) }}" class="block">
+                <a href="{{ route($scheduleRoute, array_merge($dayRouteParams, ['day' => 'day2'])) }}" class="block">
                     <div class="text-center">
                         <div class="text-6xl mb-4">📅</div>
                         <h3 class="text-2xl font-bold mb-2">Day 2</h3>
@@ -829,11 +963,11 @@ body {
                                             Add to Calendar
                                         </a>
                                         
-                                        <!-- Add to My PL Checkbox -->
-                                        @if($item->id)
+                                        <!-- Add to My PL Checkbox (hidden for archived content) -->
+                                        @if($item->id && !(isset($isArchiveView) && $isArchiveView))
                                         <label class="my-pl-checkbox-label" onclick="event.stopPropagation();">
-                                            <input type="checkbox" 
-                                                   class="my-pl-checkbox" 
+                                            <input type="checkbox"
+                                                   class="my-pl-checkbox"
                                                    {{ auth()->user()->hasSelected($item) ? 'checked' : '' }}
                                                    onchange="toggleMyPL('schedule_item', {{ $item->id }}, this)">
                                             <span class="my-pl-checkbox-text">Add to My PL</span>
