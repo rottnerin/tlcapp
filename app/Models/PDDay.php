@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Carbon\Carbon;
 
 class PDDay extends Model
 {
@@ -19,6 +19,7 @@ class PDDay extends Model
         'start_date',
         'end_date',
         'is_active',
+        'archived_at',
         'season',
         'academic_year',
     ];
@@ -27,6 +28,7 @@ class PDDay extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'is_active' => 'boolean',
+        'archived_at' => 'datetime',
     ];
 
     /**
@@ -52,16 +54,16 @@ class PDDay extends Model
     {
         $start = Carbon::parse($this->start_date);
         $end = Carbon::parse($this->end_date);
-        
+
         if ($start->isSameDay($end)) {
             return $start->format('F j, Y');
         }
-        
+
         if ($start->month === $end->month) {
-            return $start->format('F j') . '-' . $end->format('j, Y');
+            return $start->format('F j').'-'.$end->format('j, Y');
         }
-        
-        return $start->format('F j') . ' - ' . $end->format('F j, Y');
+
+        return $start->format('F j').' - '.$end->format('F j, Y');
     }
 
     /**
@@ -131,9 +133,10 @@ class PDDay extends Model
 
         // Academic year runs Aug 1 - Jul 31
         if ($month >= 8) {
-            return $year . '-' . ($year + 1);
+            return $year.'-'.($year + 1);
         }
-        return ($year - 1) . '-' . $year;
+
+        return ($year - 1).'-'.$year;
     }
 
     /**
@@ -142,5 +145,76 @@ class PDDay extends Model
     public function isCurrentAcademicYear(): bool
     {
         return $this->academic_year === self::getCurrentAcademicYear();
+    }
+
+    /**
+     * Check if this PD day is archived
+     */
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
+    }
+
+    /**
+     * Scope to get only archived PD days
+     */
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
+
+    /**
+     * Scope to get only non-archived PD days
+     */
+    public function scopeNotArchived($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    /**
+     * Archive this PD day
+     */
+    public function archive(): bool
+    {
+        if ($this->is_active) {
+            return false;
+        }
+
+        $this->archived_at = Carbon::now();
+
+        return $this->save();
+    }
+
+    /**
+     * Unarchive this PD day
+     */
+    public function unarchive(): bool
+    {
+        $this->archived_at = null;
+
+        return $this->save();
+    }
+
+    /**
+     * Get the status of this PD day (active, inactive, or archived)
+     */
+    public function getStatusAttribute(): string
+    {
+        if ($this->isArchived()) {
+            return 'archived';
+        }
+
+        return $this->is_active ? 'active' : 'inactive';
+    }
+
+    /**
+     * Get archived PD days for a specific season
+     */
+    public static function getArchivedBySeason(string $season)
+    {
+        return static::archived()
+            ->where('season', $season)
+            ->orderBy('start_date', 'desc')
+            ->get();
     }
 }

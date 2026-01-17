@@ -46,8 +46,8 @@ Route::middleware(['user.only'])->group(function () {
 
     // Fall PL Day Routes
     Route::prefix('fall-pl-day')->group(function () {
-        Route::get('/schedule', [ScheduleController::class, 'fallIndex'])->name('fall.schedule');
-        Route::get('/schedule/{scheduleItem}', [ScheduleController::class, 'show'])->name('fall.schedule.show');
+        Route::get('/schedule/{pdday?}', [ScheduleController::class, 'fallIndex'])->name('fall.schedule');
+        Route::get('/schedule-item/{scheduleItem}', [ScheduleController::class, 'show'])->name('fall.schedule.show');
         Route::get('/wellness', [WellnessController::class, 'fallIndex'])->name('fall.wellness');
         Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('fall.wellness.show');
         Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('fall.wellness.enroll');
@@ -55,8 +55,8 @@ Route::middleware(['user.only'])->group(function () {
 
     // Spring PL Days Routes
     Route::prefix('spring-pl-days')->group(function () {
-        Route::get('/schedule', [ScheduleController::class, 'springIndex'])->name('spring.schedule');
-        Route::get('/schedule/{scheduleItem}', [ScheduleController::class, 'show'])->name('spring.schedule.show');
+        Route::get('/schedule/{pdday?}', [ScheduleController::class, 'springIndex'])->name('spring.schedule');
+        Route::get('/schedule-item/{scheduleItem}', [ScheduleController::class, 'show'])->name('spring.schedule.show');
         Route::get('/wellness', [WellnessController::class, 'springIndex'])->name('spring.wellness');
         Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('spring.wellness.show');
         Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('spring.wellness.enroll');
@@ -116,6 +116,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // PL Days Management
     Route::resource('pddays', PDDayController::class)->except(['show']);
     Route::post('/pddays/{pdday}/toggle-active', [PDDayController::class, 'toggleActive'])->name('pddays.toggle-active');
+    Route::post('/pddays/{pdday}/archive', [PDDayController::class, 'archive'])->name('pddays.archive');
+    Route::post('/pddays/{pdday}/unarchive', [PDDayController::class, 'unarchive'])->name('pddays.unarchive');
     
     // PL Wednesday Management
     Route::post('/pl-wednesday/toggle-active', [AdminPLWednesdayController::class, 'toggleActive'])->name('pl-wednesday.toggle-active');
