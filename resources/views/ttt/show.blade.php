@@ -198,6 +198,7 @@
     cursor: pointer;
     accent-color: var(--tlc-orange);
     flex-shrink: 0;
+    background-color: white;
 }
 
 .my-pl-checkbox-text {
