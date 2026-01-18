@@ -78,9 +78,128 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Sora vs Lexend Side-by-Side Comparison -->
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-semibold" style="color: var(--tlc-navy);">Sora vs Lexend: Side-by-Side</h2>
+                <span class="text-sm px-3 py-1 rounded-full" style="background-color: var(--tlc-orange); color: white;">Final Two</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Sora Preview -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg border-2 border-transparent hover:border-green-400 transition-all">
+                    <div class="px-4 py-3 flex items-center justify-between" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <span class="text-white font-semibold">Sora</span>
+                        <span class="text-xs text-white/80">Modern & Geometric</span>
+                    </div>
+                    <div class="font-sora">
+                        <nav class="px-4 py-3" style="background-color: var(--tlc-navy);">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-lg font-bold text-white">TLC</span>
+                                <span class="text-sm font-medium px-2 py-1 rounded" style="background-color: var(--tlc-gold); color: var(--tlc-navy);">My PL</span>
+                                <span class="text-sm text-white">Fall PL Day</span>
+                            </div>
+                        </nav>
+                        <div class="p-5">
+                            <h3 class="text-2xl font-bold mb-2" style="color: var(--tlc-navy);">Welcome to Professional Learning</h3>
+                            <p class="text-sm mb-4" style="color: #666;">Explore sessions, track your learning journey, and grow professionally with your colleagues.</p>
+                            <div class="p-4 rounded-lg mb-4" style="background-color: var(--tlc-cream);">
+                                <h4 class="text-base font-semibold mb-1" style="color: var(--tlc-navy);">Workshop Session</h4>
+                                <p class="text-xs mb-2" style="color: #666;">Learn innovative teaching strategies for the modern classroom.</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-medium px-2 py-0.5 rounded" style="background-color: var(--tlc-gold); color: var(--tlc-navy);">9:00 AM</span>
+                                    <span class="text-xs" style="color: #999;">Room 204</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 rounded text-sm font-semibold text-white" style="background-color: var(--tlc-navy);">View Schedule</button>
+                                <button class="px-4 py-2 rounded text-sm font-semibold" style="background-color: var(--tlc-gold); color: var(--tlc-navy);">My Selections</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lexend Preview -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg border-2 border-transparent hover:border-yellow-400 transition-all">
+                    <div class="px-4 py-3 flex items-center justify-between" style="background: linear-gradient(135deg, var(--tlc-gold), var(--tlc-orange));">
+                        <span class="font-semibold" style="color: var(--tlc-navy);">Lexend</span>
+                        <span class="text-xs" style="color: var(--tlc-navy);">Reading Optimized</span>
+                    </div>
+                    <div class="font-lexend">
+                        <nav class="px-4 py-3" style="background-color: var(--tlc-navy);">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-lg font-bold text-white">TLC</span>
+                                <span class="text-sm font-medium px-2 py-1 rounded" style="background-color: var(--tlc-gold); color: var(--tlc-navy);">My PL</span>
+                                <span class="text-sm text-white">Fall PL Day</span>
+                            </div>
+                        </nav>
+                        <div class="p-5">
+                            <h3 class="text-2xl font-bold mb-2" style="color: var(--tlc-navy);">Welcome to Professional Learning</h3>
+                            <p class="text-sm mb-4" style="color: #666;">Explore sessions, track your learning journey, and grow professionally with your colleagues.</p>
+                            <div class="p-4 rounded-lg mb-4" style="background-color: var(--tlc-cream);">
+                                <h4 class="text-base font-semibold mb-1" style="color: var(--tlc-navy);">Workshop Session</h4>
+                                <p class="text-xs mb-2" style="color: #666;">Learn innovative teaching strategies for the modern classroom.</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-medium px-2 py-0.5 rounded" style="background-color: var(--tlc-gold); color: var(--tlc-navy);">9:00 AM</span>
+                                    <span class="text-xs" style="color: #999;">Room 204</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="px-4 py-2 rounded text-sm font-semibold text-white" style="background-color: var(--tlc-navy);">View Schedule</button>
+                                <button class="px-4 py-2 rounded text-sm font-semibold" style="background-color: var(--tlc-gold); color: var(--tlc-navy);">My Selections</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Direct Text Comparison -->
+            <div class="mt-6 bg-white rounded-xl p-6 shadow-lg">
+                <h3 class="text-lg font-semibold mb-4" style="color: var(--tlc-navy);">Text Comparison</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="font-sora">
+                        <span class="text-xs font-medium px-2 py-1 rounded mb-3 inline-block" style="background-color: #10b981; color: white;">Sora</span>
+                        <p class="text-3xl font-bold mb-2" style="color: var(--tlc-navy);">Professional Learning</p>
+                        <p class="text-xl font-semibold mb-2" style="color: var(--tlc-navy);">Fall PL Day Schedule</p>
+                        <p class="text-base mb-2" style="color: #333;">Join us for an engaging day of collaborative learning and professional growth.</p>
+                        <p class="text-sm" style="color: #666;">Session times: 9:00 AM - 3:30 PM | Rooms 201-210</p>
+                    </div>
+                    <div class="font-lexend">
+                        <span class="text-xs font-medium px-2 py-1 rounded mb-3 inline-block" style="background-color: var(--tlc-gold); color: var(--tlc-navy);">Lexend</span>
+                        <p class="text-3xl font-bold mb-2" style="color: var(--tlc-navy);">Professional Learning</p>
+                        <p class="text-xl font-semibold mb-2" style="color: var(--tlc-navy);">Fall PL Day Schedule</p>
+                        <p class="text-base mb-2" style="color: #333;">Join us for an engaging day of collaborative learning and professional growth.</p>
+                        <p class="text-sm" style="color: #666;">Session times: 9:00 AM - 3:30 PM | Rooms 201-210</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Differences -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white rounded-lg p-4 shadow border-l-4" style="border-color: #10b981;">
+                    <h4 class="font-semibold mb-2" style="color: var(--tlc-navy);">Sora Strengths</h4>
+                    <ul class="text-sm space-y-1" style="color: #666;">
+                        <li>• Crisp, geometric letterforms</li>
+                        <li>• Modern, tech-forward feel</li>
+                        <li>• Strong visual hierarchy</li>
+                        <li>• Distinctive at large sizes</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-lg p-4 shadow border-l-4" style="border-color: var(--tlc-gold);">
+                    <h4 class="font-semibold mb-2" style="color: var(--tlc-navy);">Lexend Strengths</h4>
+                    <ul class="text-sm space-y-1" style="color: #666;">
+                        <li>• Optimized for reading fluency</li>
+                        <li>• Wider letter spacing</li>
+                        <li>• Reduced visual crowding</li>
+                        <li>• Better for longer text blocks</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
         <!-- Font Selection Cards -->
         <section class="mb-12">
-            <h2 class="text-xl font-semibold mb-6" style="color: var(--tlc-navy);">Select a Font to Preview</h2>
+            <h2 class="text-xl font-semibold mb-6" style="color: var(--tlc-navy);">All Font Options</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- DM Sans (Current) -->
                 <div class="font-card bg-white rounded-xl p-6 cursor-pointer" onclick="selectFont('dm-sans')" id="card-dm-sans">
