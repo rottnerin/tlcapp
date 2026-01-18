@@ -8,7 +8,7 @@
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=lexend:400,500,600,700&display=swap" rel="stylesheet" />
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -24,7 +24,7 @@
             --tlc-gold: #f4d35e;
             --tlc-orange: #ee964b;
         }
-        body { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
+        body { font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif; }
         
         .tlc-bg { background-color: var(--tlc-cream); }
         .bg-tlc-navy { background-color: var(--tlc-navy); }
@@ -130,6 +130,141 @@
         }
         .mobile-submenu.open {
             display: block;
+        }
+
+        /* ===== Mobile Optimizations ===== */
+
+        /* Smooth scrolling for the whole page */
+        html {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Safe area insets for notched phones */
+        body {
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+
+        /* Prevent text size adjustment on orientation change */
+        body {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        /* Mobile-first typography optimizations for Lexend */
+        @media (max-width: 768px) {
+            body {
+                font-size: 16px; /* Prevent zoom on input focus */
+                line-height: 1.6;
+                letter-spacing: 0.01em; /* Lexend reads better with slight spacing on mobile */
+            }
+
+            /* Improved touch targets - minimum 44px */
+            a, button, .main-nav-item, .sub-nav-item {
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            /* Better mobile navigation */
+            .main-nav-item {
+                padding: 0.875rem 1rem;
+                font-size: 0.9375rem;
+            }
+
+            /* Larger mobile menu button */
+            #mobile-menu-button {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 0.625rem;
+            }
+
+            /* Better mobile menu items */
+            #mobile-menu a,
+            #mobile-menu button {
+                padding: 0.875rem 1rem;
+                font-size: 1rem;
+                min-height: 48px;
+            }
+
+            /* Improved mobile sub-menu spacing */
+            .mobile-submenu a {
+                padding: 0.75rem 1rem;
+                min-height: 44px;
+            }
+
+            /* Sub navigation on mobile */
+            .sub-nav .sub-nav-item {
+                padding: 0.625rem 0.875rem;
+                font-size: 0.875rem;
+                min-height: 40px;
+            }
+
+            /* Better spacing for content areas */
+            main {
+                padding-bottom: 2rem;
+            }
+        }
+
+        /* Small mobile screens */
+        @media (max-width: 480px) {
+            body {
+                font-size: 15px;
+            }
+
+            /* Tighter navigation for small screens */
+            .main-nav-item {
+                padding: 0.75rem 0.625rem;
+                font-size: 0.875rem;
+            }
+
+            /* Stack user info vertically on very small screens */
+            .mobile-submenu a {
+                padding: 0.625rem 0.875rem;
+            }
+        }
+
+        /* Prevent double-tap zoom while keeping accessibility */
+        a, button, input, select, textarea {
+            touch-action: manipulation;
+        }
+
+        /* Better focus states for accessibility */
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 3px solid var(--tlc-gold);
+            outline-offset: 2px;
+        }
+
+        /* Reduce motion for users who prefer it */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* Sticky mobile navigation for easy access */
+        @media (max-width: 768px) {
+            nav {
+                position: sticky;
+                top: 0;
+                z-index: 50;
+            }
+        }
+
+        /* Better tap highlight on mobile */
+        a, button {
+            -webkit-tap-highlight-color: rgba(244, 211, 94, 0.3);
         }
     </style>
 
