@@ -24,6 +24,11 @@ Route::get('/', function () {
     return view('welcome', compact('activePDDay'));
 });
 
+// Typography exploration (temporary for design review)
+Route::get('/typography-preview', function () {
+    return view('typography-preview');
+})->name('typography.preview');
+
 // Admin Authentication routes
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
