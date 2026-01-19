@@ -78,7 +78,12 @@
         body {
             -webkit-text-size-adjust: 100%;
             text-size-adjust: 100%;
-            padding-top: env(safe-area-inset-top);
+        }
+
+        /* Safe area insets for admin content area only */
+        main {
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
             padding-bottom: env(safe-area-inset-bottom);
         }
 
