@@ -8,7 +8,7 @@
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=lexend:400,500,600,700&display=swap" rel="stylesheet" />
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -24,7 +24,7 @@
             --tlc-gold: #f4d35e;
             --tlc-orange: #ee964b;
         }
-        body { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
+        body { font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif; }
         
         /* TLC Utility Classes */
         .bg-tlc-navy { background-color: var(--tlc-navy); }
@@ -51,6 +51,69 @@
         .hover\:bg-tlc-orange:hover { background-color: var(--tlc-orange); }
         .hover\:bg-tlc-gold:hover { background-color: var(--tlc-gold); }
         .hover\:text-tlc-navy:hover { color: var(--tlc-navy); }
+
+        /* ===== Mobile Optimizations ===== */
+        html {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                font-size: 16px;
+                line-height: 1.6;
+            }
+
+            /* Minimum touch targets */
+            a, button {
+                min-height: 44px;
+            }
+
+            /* Better admin nav on mobile */
+            #admin-mobile-menu a {
+                padding: 0.875rem 1rem;
+                min-height: 48px;
+                font-size: 1rem;
+            }
+
+            /* Sticky admin nav */
+            nav.gradient-header {
+                position: sticky;
+                top: 0;
+                z-index: 50;
+            }
+        }
+
+        /* Touch handling */
+        a, button, input, select, textarea {
+            touch-action: manipulation;
+        }
+
+        /* Focus states */
+        a:focus-visible, button:focus-visible {
+            outline: 3px solid var(--tlc-gold);
+            outline-offset: 2px;
+        }
+
+        /* Tap highlight */
+        a, button {
+            -webkit-tap-highlight-color: rgba(244, 211, 94, 0.3);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     </style>
 </head>
 <body class="font-sans antialiased bg-content min-h-screen">

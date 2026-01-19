@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>TLC Professional Learning</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=lexend:400,500,600,700&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>
             :root {
@@ -14,7 +14,7 @@
                 --tlc-gold: #f4d35e;
                 --tlc-orange: #ee964b;
             }
-            body { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
+            body { font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif; }
             .tlc-primary { background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 50%, #1a5a8a 100%); }
             .tlc-card { background: var(--tlc-cream); backdrop-filter: blur(10px); }
         </style>
