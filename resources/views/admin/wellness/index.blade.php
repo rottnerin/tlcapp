@@ -13,7 +13,7 @@
                     <p class="mt-2 text-gray-600">Manage wellness sessions and track enrollments</p>
                 </div>
                 <a href="{{ route('admin.wellness.create') }}" 
-                   class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                   class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" class="btn-orange-to-navy">
                     <i class="fas fa-plus mr-2"></i>
                     Add New Session
                 </a>
@@ -299,7 +299,7 @@
                                         <h3 class="text-lg font-medium text-gray-900 mb-2">No wellness sessions found</h3>
                                         <p class="text-gray-500 mb-6">Get started by creating your first wellness session.</p>
                                         <a href="{{ route('admin.wellness.create') }}" 
-                                           class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                                           class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors" class="btn-orange-to-navy">
                                             <i class="fas fa-plus mr-2"></i>
                                             Add New Session
                                         </a>

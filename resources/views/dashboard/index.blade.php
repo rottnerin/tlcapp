@@ -178,7 +178,7 @@
                         <a href="{{ route('my-schedule') }}" class="block mt-4 text-center text-sm" style="color: var(--tlc-orange);">View All →</a>
                     @else
                         <p class="text-sm" style="color: #718096;">No wellness sessions enrolled yet.</p>
-                        <a href="{{ route('wellness.index') }}" class="block mt-2 text-center text-white px-4 py-2 rounded text-sm transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                        <a href="{{ route('wellness.index') }}" class="block mt-2 text-center text-white px-4 py-2 rounded text-sm transition-colors" class="btn-orange-to-navy">
                             Browse Wellness Sessions
                         </a>
                     @endif

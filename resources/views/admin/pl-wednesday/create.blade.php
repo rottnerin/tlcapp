@@ -94,7 +94,7 @@
                     <a href="{{ route('admin.pl-wednesday.index') }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
                         Cancel
                     </a>
-                    <button type="submit" class="px-6 py-2 text-white rounded-lg" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                    <button type="submit" class="px-6 py-2 text-white rounded-lg" class="btn-orange-to-navy">
                         Create Session
                     </button>
                 </div>

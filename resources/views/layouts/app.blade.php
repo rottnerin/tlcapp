@@ -24,7 +24,11 @@
             --tlc-gold: #f4d35e;
             --tlc-orange: #ee964b;
         }
-        body { font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif; }
+        body {
+            font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+        }
         
         /* TLC Utility Classes */
         .bg-tlc-navy { background-color: var(--tlc-navy); }
@@ -46,11 +50,24 @@
         /* Shadows */
         .shadow-content { box-shadow: 0 4px 6px -1px rgba(13, 59, 102, 0.1), 0 2px 4px -1px rgba(13, 59, 102, 0.06); }
         .shadow-card { box-shadow: 0 10px 15px -3px rgba(13, 59, 102, 0.1), 0 4px 6px -2px rgba(13, 59, 102, 0.05); }
-        
+
+        /* Custom text selection styling */
+        ::selection {
+            background-color: var(--tlc-gold);
+            color: var(--tlc-navy);
+        }
+
+        /* Disable user-select on interactive elements */
+        button, a[role="button"], [onclick] {
+            user-select: none;
+        }
+
         /* Hover states */
-        .hover\:bg-tlc-orange:hover { background-color: var(--tlc-orange); }
-        .hover\:bg-tlc-gold:hover { background-color: var(--tlc-gold); }
-        .hover\:text-tlc-navy:hover { color: var(--tlc-navy); }
+        @media (hover: hover) {
+            .hover\:bg-tlc-orange:hover { background-color: var(--tlc-orange); }
+            .hover\:bg-tlc-gold:hover { background-color: var(--tlc-gold); }
+            .hover\:text-tlc-navy:hover { color: var(--tlc-navy); }
+        }
 
         /* ===== Mobile Optimizations ===== */
         html {
@@ -126,8 +143,8 @@
                     <a href="{{ route('admin.dashboard') }}" class="flex items-center">
                         <img src="https://visitors.aes.ac.in/images/aes.png" alt="AES Admin" class="h-8 w-auto">
                     </a>
-                    <button id="admin-mobile-menu-button" class="p-2 rounded-md text-white hover:text-gray-200 hover:bg-white/10">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button id="admin-mobile-menu-button" class="p-2 rounded-md text-white hover:text-gray-200 hover:bg-white/10" aria-label="Toggle admin navigation menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>

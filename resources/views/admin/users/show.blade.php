@@ -24,7 +24,7 @@
                         <form method="POST" action="{{ route('admin.users.toggle-admin', $user) }}">
                             @csrf
                             <button type="submit" 
-                                    class="text-white px-4 py-2 rounded-lg transition duration-200" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'"
+                                    class="text-white px-4 py-2 rounded-lg transition duration-200" class="btn-orange-to-navy"
                                     onclick="return confirm('Are you sure you want to {{ $user->is_admin ? 'revoke' : 'grant' }} admin privileges for {{ $user->name }}?')">
                                 {{ $user->is_admin ? 'Remove Admin' : 'Make Admin' }}
                             </button>

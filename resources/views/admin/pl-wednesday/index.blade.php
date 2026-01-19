@@ -12,7 +12,7 @@
                     <p class="mt-2 text-gray-600">Manage Professional Learning Wednesday sessions</p>
                 </div>
                 <a href="{{ route('admin.pl-wednesday.create') }}" 
-                   class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                   class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" class="btn-orange-to-navy">
                     <i class="fas fa-plus mr-2"></i>
                     Add New Session
                 </a>

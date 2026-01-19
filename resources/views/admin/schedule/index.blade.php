@@ -13,7 +13,7 @@
             </div>
             <div class="flex space-x-3">
                 <a href="{{ route('admin.schedule.by-pdday') }}" 
-                   class="text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md" style="background-color: var(--tlc-navy);" onmouseover="this.style.backgroundColor='#164773'" onmouseout="this.style.backgroundColor='#0d3b66'">
+                   class="text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md" class="btn-navy-lighten">
                     <i class="fas fa-calendar mr-2"></i>By PL Day
                 </a>
                 <button onclick="toggleBulkActions()" 
@@ -21,7 +21,7 @@
                     <i class="fas fa-tasks mr-2"></i>Bulk Actions
                 </button>
                 <a href="{{ route('admin.schedule.create') }}" 
-                   class="text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                   class="text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md" class="btn-orange-to-navy">
                     <i class="fas fa-plus mr-2"></i>Add Schedule Item
                 </a>
             </div>

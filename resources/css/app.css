@@ -55,3 +55,37 @@ select:focus {
     color: #111827 !important; /* text-gray-900 */
     background-color: #ffffff !important; /* bg-white */
 }
+
+/* Button styles with proper hover states */
+.btn-orange-to-navy {
+    background-color: var(--color-tlc-action);
+    transition: background-color 0.2s ease;
+}
+
+@media (hover: hover) {
+    .btn-orange-to-navy:hover {
+        background-color: var(--color-tlc-primary);
+    }
+}
+
+.btn-navy-lighten {
+    background-color: var(--color-tlc-navy);
+    transition: background-color 0.2s ease;
+}
+
+@media (hover: hover) {
+    .btn-navy-lighten:hover {
+        background-color: #164773;
+    }
+}
+
+.btn-wellness-teal {
+    background-color: #004643;
+    transition: background-color 0.2s ease;
+}
+
+@media (hover: hover) {
+    .btn-wellness-teal:hover {
+        background-color: #005A56;
+    }
+}

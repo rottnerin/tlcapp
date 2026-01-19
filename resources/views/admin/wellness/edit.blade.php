@@ -260,7 +260,7 @@
                     Cancel
                 </a>
                 <button type="submit" 
-                        class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2" style="background-color: var(--tlc-orange); --tw-ring-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                        class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2" class="btn-orange-to-navy" style="--tw-ring-color: var(--tlc-orange);">
                     Update Session
                 </button>
             </div>

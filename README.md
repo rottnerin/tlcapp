@@ -1,175 +1,160 @@
-# TLC 2.0 - Teaching and Learning Conference Application
+# TLC 2.0 - Professional Learning Management System
 
-A Laravel-based web application for managing Professional Development (PD) Days, Wellness Sessions, and Professional Learning Wednesday sessions at the American Embassy School (AES).
+A Laravel-based web application for managing Professional Development activities at the American Embassy School (AES). The system handles PD Days, Wellness Sessions, PL Wednesday sessions, and Teachers Teaching Teachers (TTT) programs.
+
+![TLC 2.0 Dashboard](docs/screenshots/schedule-view.png)
 
 ## Features
 
-### User Features
+### For Users
 
-- **Schedule View**: Browse and view schedule items for PL Days, organized by day (Day 1/Day 2)
-- **Wellness Sessions**: View available wellness sessions and enroll in sessions
-- **PL Wednesday**: View Professional Learning sessions scheduled for Wednesday afternoons (3:00-5:00pm)
-- **Profile Management**: Update user profile information
-- **Google OAuth**: Secure authentication via Google OAuth
+| Feature | Description |
+|---------|-------------|
+| **My PL** | Track and manage your selected professional learning sessions |
+| **Fall PL Day** | Browse schedule and wellness sessions for Fall PD Day |
+| **Spring PL Days** | Browse schedule, wellness, and TTT sessions for Spring PD Days |
+| **PL Wednesday** | View Professional Learning sessions (Wed 3:00-5:00pm) |
+| **Google Sign-In** | Secure authentication via Google OAuth |
 
-### Admin Features
+### For Administrators
 
-- **User Management**: View users, toggle admin status, and manage passwords
-- **PL Days Management**: Create, edit, and manage Professional Development Days
-- **Schedule Management**: Create and manage schedule items, bulk operations, CSV upload, and copy schedules between PL Days
-- **Wellness Session Management**: Create, edit, and manage wellness sessions with enrollment tracking and user transfers
-- **PL Wednesday Management**: 
-  - Activate/deactivate the PL Wednesday feature globally
-  - Create, edit, and manage individual PL Wednesday sessions
-  - Add multiple links/resources to each session
-  - Set session dates, times, locations, and descriptions
-- **Reports**: Generate various reports including:
-  - Wellness enrollments
-  - Unenrolled users
-  - Capacity utilization
-  - Division summary
-  - User activity
+| Feature | Description |
+|---------|-------------|
+| **PL Days Management** | Create, edit, activate, and archive PD Days |
+| **Schedule Management** | Bulk operations, CSV import, copy between PL Days |
+| **Wellness Sessions** | Enrollment tracking, user transfers, capacity management |
+| **TTT Sessions** | Teachers Teaching Teachers session management |
+| **PL Wednesday** | Global toggle, session management with multiple links |
+| **Reports** | Enrollments, capacity utilization, division summaries |
+| **User Management** | View users, manage admin access |
 
-## PL Wednesday Feature
+## Screenshots
 
-The PL Wednesday feature allows administrators to manage Professional Learning sessions that occur every Wednesday afternoon from 3:00-5:00pm, starting August 6th, 2025 and ending December 16th, 2025.
+### User Schedule View
+The schedule view shows sessions organized by day with division filtering:
 
-### Admin Capabilities
+![Schedule View](docs/screenshots/schedule-view.png)
 
-- **Global Toggle**: Activate or deactivate the entire PL Wednesday feature
-- **Session Management**: Create sessions with:
-  - Title and description
-  - Location
-  - Date (must be a Wednesday within the date range)
-  - Start and end times
-  - Multiple links/resources per session
-- **Session Status**: Activate or deactivate individual sessions
+### Admin PL Days Management
+Manage PL Days with active/inactive/archived status:
 
-### User Experience
+![Admin PL Days](docs/screenshots/admin-pddays.png)
 
-- All authenticated users can view PL Wednesday sessions via the "PL Wednesday" navigation tab
-- Sessions are displayed in descending order by date (most recent first)
-- Within each date, sessions are ordered by start time (earliest first)
-- Each session is displayed in its own card with AES black and gold color scheme
-- Users can view session details including all associated links and resources
+### Archive Navigation
+Archived PL Days appear in the sub-navigation for easy access:
+
+![Archive Navigation](docs/screenshots/archive-nav.png)
+
+## Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/rottnerin/tlcapp.git
+cd tlcapp
+composer install
+npm install
+
+# Configure environment
+cp .env.example .env
+php artisan key:generate
+
+# Set up database
+php artisan migrate
+php artisan db:seed
+
+# Start development
+composer dev
+```
+
+The `composer dev` command runs the server, queue worker, logs, and Vite concurrently.
 
 ## Technology Stack
 
-- **Framework**: Laravel 11.x
-- **Frontend**: Blade Templates with Tailwind CSS
-- **Authentication**: Google OAuth for users, traditional login for admins
-- **Database**: SQLite (default) / MySQL / PostgreSQL
+- **Framework**: Laravel 12.x
+- **Frontend**: Blade Templates, Tailwind CSS v4, Vite
+- **Authentication**: Google OAuth (users), Email/Password (admins)
+- **Database**: SQLite / MySQL / PostgreSQL
 - **PHP**: 8.2+
 
-## Installation
+## Environment Configuration
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd tlcapp
-```
+Configure your `.env` file:
 
-2. Install PHP dependencies:
-```bash
-composer install
-```
-
-3. Install Node.js dependencies:
-```bash
-npm install
-```
-
-4. Copy the environment file:
-```bash
-cp .env.example .env
-```
-
-5. Generate application key:
-```bash
-php artisan key:generate
-```
-
-6. Configure your `.env` file with database credentials and Google OAuth settings:
 ```env
+# Database
 DB_CONNECTION=sqlite
-DB_DATABASE=/absolute/path/to/database.sqlite
+DB_DATABASE=/path/to/database.sqlite
 
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+# Google OAuth
+GOOGLE_CLIENT_ID=your-client-id
+GOOGLE_CLIENT_SECRET=your-client-secret
 GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
 ```
 
-7. Run migrations:
-```bash
-php artisan migrate
-```
+## Architecture
 
-8. Seed the database (optional):
-```bash
-php artisan db:seed
-```
+### Authentication
+- **Regular users**: Google OAuth via Laravel Socialite (validates AES email domains)
+- **Admin users**: Traditional email/password at `/admin/login`
 
-9. Build frontend assets:
-```bash
-npm run build
-```
+### Feature Toggles
+Each feature can be enabled/disabled globally:
+- PL Days (Fall/Spring)
+- Wellness Sessions
+- PL Wednesday
+- Teachers Teaching Teachers (TTT)
 
-10. Start the development server:
-```bash
-php artisan serve
-```
+### PL Day Archive System
+PL Days have three states:
+- **Active** (green): Currently shown to users
+- **Inactive** (gray): Not visible, can be edited
+- **Archived** (purple): Read-only, accessible via navigation tabs
 
-11. In another terminal, start the Vite dev server (for development):
-```bash
-npm run dev
-```
+### My PL System
+Users can add sessions to "My PL" across all session types using a polymorphic relationship system.
 
 ## Database Structure
 
-### Key Tables
+| Table | Description |
+|-------|-------------|
+| `users` | User accounts with division info |
+| `p_d_days` | Professional Development Days |
+| `schedule_items` | Schedule items linked to PD Days |
+| `wellness_sessions` | Wellness session offerings |
+| `ttt_sessions` | Teachers Teaching Teachers sessions |
+| `pl_wednesday_sessions` | PL Wednesday sessions |
+| `user_selected_sessions` | Polymorphic "My PL" selections |
+| `divisions` | ES, MS, HS, All School |
 
-- `users`: User accounts with division and authentication information
-- `p_d_days`: Professional Development Days
-- `schedule_items`: Schedule items for PL Days
-- `wellness_sessions`: Wellness session offerings
-- `user_sessions`: User enrollments in wellness sessions
-- `pl_wednesday_sessions`: PL Wednesday session information
-- `pl_wednesday_links`: Links/resources associated with PL Wednesday sessions
-- `pl_wednesday_settings`: Global settings for PL Wednesday feature
-- `divisions`: User divisions (ES, MS, HS)
+## Development Commands
 
-## Admin Access
-
-Admins can log in at `/admin/login` using credentials set up in the database. Regular users authenticate via Google OAuth.
-
-## Development
-
-### Running Tests
 ```bash
-php artisan test
+# Start development environment
+composer dev
+
+# Run tests
+composer test
+
+# Fix code style
+./vendor/bin/pint
+
+# Clear all caches
+php artisan cache:clear && php artisan config:clear && php artisan view:clear
 ```
 
-### Clearing Cache
-```bash
-php artisan cache:clear
-php artisan config:clear
-php artisan view:clear
-php artisan route:clear
-```
+## Brand Colors
 
-### Database Seeding
-The application includes several seeders for testing:
-- `AdminUserSeeder`: Creates admin user
-- `DivisionSeeder`: Creates divisions
-- `PDDaySeeder`: Creates sample PL Days
-- `ScheduleItemSeeder`: Creates sample schedule items
-- `WellnessSessionSeeder`: Creates sample wellness sessions
-- `PLWednesdaySessionSeeder`: Creates sample PL Wednesday sessions
+| Color | Hex | Usage |
+|-------|-----|-------|
+| Navy | `#1e3a5f` | Primary headers, accents |
+| Cream | `#f5f0e1` | Backgrounds |
+| Gold | `#c9a227` | Highlights, active states |
+| Orange | `#e07c24` | CTAs, buttons |
 
 ## License
 
-This application is proprietary software for the American Embassy School.
+Proprietary software for the American Embassy School.
 
 ## Support
 
-For issues or questions, please contact the development team.
+For issues or questions, contact the AES development team.

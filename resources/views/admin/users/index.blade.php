@@ -60,7 +60,7 @@
 
                 <!-- Submit Button -->
                 <div class="flex items-end">
-                    <button type="submit" class="w-full text-white px-4 py-2 rounded-lg transition duration-200" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                    <button type="submit" class="w-full text-white px-4 py-2 rounded-lg transition duration-200" class="btn-orange-to-navy">
                         Apply Filters
                     </button>
                 </div>

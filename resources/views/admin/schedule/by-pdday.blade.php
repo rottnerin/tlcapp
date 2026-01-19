@@ -10,7 +10,7 @@
             <h1 class="text-3xl font-bold" style="color: var(--tlc-navy);">Schedule by PL Days</h1>
             <p class="mt-2 text-gray-600">Manage schedule items grouped by PL day events</p>
         </div>
-        <a href="{{ route('admin.schedule.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg whitespace-nowrap" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+        <a href="{{ route('admin.schedule.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg whitespace-nowrap" class="btn-orange-to-navy">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -126,14 +126,14 @@
                             </svg>
                             <p class="mt-2 text-sm text-gray-500">No schedule items for this PL day yet</p>
                             <div class="mt-4 flex flex-col sm:flex-row justify-center gap-3">
-                                <a href="{{ route('admin.schedule.create', ['pd_day_id' => $pdDay->id]) }}" class="inline-flex items-center px-4 py-2 text-white rounded-md text-sm font-medium" style="background-color: var(--tlc-navy);" onmouseover="this.style.backgroundColor='#164773'" onmouseout="this.style.backgroundColor='#0d3b66'">
+                                <a href="{{ route('admin.schedule.create', ['pd_day_id' => $pdDay->id]) }}" class="inline-flex items-center px-4 py-2 text-white rounded-md text-sm font-medium" class="btn-navy-lighten">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                     </svg>
                                     Create Manually
                                 </a>
                                 @if($pdDays->count() > 1)
-                                    <a href="{{ route('admin.schedule.copy-form', $pdDay) }}" class="inline-flex items-center px-4 py-2 text-white rounded-md text-sm font-medium" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                                    <a href="{{ route('admin.schedule.copy-form', $pdDay) }}" class="inline-flex items-center px-4 py-2 text-white rounded-md text-sm font-medium" class="btn-orange-to-navy">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                         </svg>
@@ -189,7 +189,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 <p class="mt-2 text-sm text-gray-500">No PL days configured yet. Create a PL day first.</p>
-                <a href="{{ route('admin.pddays.create') }}" class="mt-4 inline-flex items-center px-4 py-2 text-white rounded-md" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                <a href="{{ route('admin.pddays.create') }}" class="mt-4 inline-flex items-center px-4 py-2 text-white rounded-md" class="btn-orange-to-navy">
                     Create PL Day
                 </a>
             </div>

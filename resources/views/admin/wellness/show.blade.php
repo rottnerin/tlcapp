@@ -212,7 +212,7 @@
                         
                         @if($confirmedParticipants->count() > 0)
                             <a href="{{ route('admin.wellness.transfer', $wellness) }}" 
-                               class="block w-full text-center text-white px-4 py-2 rounded-lg transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                               class="block w-full text-center text-white px-4 py-2 rounded-lg transition-colors" class="btn-orange-to-navy">
                                 <i class="fas fa-exchange-alt mr-2"></i>Transfer Users
                             </a>
                         @endif

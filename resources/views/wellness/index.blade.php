@@ -33,15 +33,17 @@
     border-radius: 1rem;
     box-shadow: 0 4px 12px rgba(0, 70, 67, 0.08);
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-.wellness-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 70, 67, 0.12);
+@media (hover: hover) {
+    .wellness-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 70, 67, 0.12);
+    }
 }
 
 .wellness-card-header {
@@ -260,7 +262,7 @@
 
                 <!-- Submit Button -->
                 <div class="flex items-end">
-                    <button type="submit" class="w-full text-white px-4 py-2 rounded-lg transition duration-200" style="background-color: var(--wellness-teal);" onmouseover="this.style.backgroundColor='#005A56'" onmouseout="this.style.backgroundColor='var(--wellness-teal)'">
+                    <button type="submit" class="w-full text-white px-4 py-2 rounded-lg transition duration-200" class="btn-wellness-teal">
                         <i class="fas fa-search mr-2"></i>Apply Filters
                     </button>
                 </div>

@@ -71,7 +71,7 @@
                                         </div>
                                     </div>
                                     <button onclick="openTransferModal({{ $enrollment->user->id }}, '{{ $enrollment->user->name }}')" 
-                                            class="px-3 py-1 text-sm text-white rounded-lg transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                                            class="px-3 py-1 text-sm text-white rounded-lg transition-colors" class="btn-orange-to-navy">
                                         <i class="fas fa-exchange-alt mr-1"></i>
                                         Transfer
                                     </button>
@@ -192,7 +192,7 @@
                         Cancel
                     </button>
                     <button type="submit" 
-                            class="px-4 py-2 text-white rounded-lg transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                            class="px-4 py-2 text-white rounded-lg transition-colors" class="btn-orange-to-navy">
                         <i class="fas fa-exchange-alt mr-2"></i>
                         Transfer User
                     </button>

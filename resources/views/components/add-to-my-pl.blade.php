@@ -28,6 +28,26 @@
 @push('scripts')
 <script>
 function toggleMyPL(type, id, button) {
+    // Disable button to prevent duplicate clicks
+    button.disabled = true;
+
+    // Store original state for rollback
+    const wasSelected = button.classList.contains('bg-emerald-500');
+    const originalClasses = button.className;
+    const originalHTML = button.innerHTML;
+
+    // Optimistically update UI immediately
+    if (wasSelected) {
+        button.classList.remove('bg-emerald-500', 'text-white');
+        button.classList.add('bg-amber-400', 'text-gray-900', 'hover:bg-amber-500');
+        button.innerHTML = '<i class="fas fa-plus"></i><span>Add to My PL</span>';
+    } else {
+        button.classList.remove('bg-amber-400', 'text-gray-900', 'hover:bg-amber-500');
+        button.classList.add('bg-emerald-500', 'text-white');
+        button.innerHTML = '<i class="fas fa-check"></i><span>Added</span>';
+    }
+
+    // Make the server request
     fetch('{{ route('my-pl.toggle') }}', {
         method: 'POST',
         headers: {
@@ -41,18 +61,18 @@ function toggleMyPL(type, id, button) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.status === 'added') {
-            button.classList.remove('bg-amber-400', 'text-gray-900', 'hover:bg-amber-500');
-            button.classList.add('bg-emerald-500', 'text-white');
-            button.innerHTML = '<i class="fas fa-check"></i><span>Added</span>';
-        } else if (data.status === 'removed') {
-            button.classList.remove('bg-emerald-500', 'text-white');
-            button.classList.add('bg-amber-400', 'text-gray-900', 'hover:bg-amber-500');
-            button.innerHTML = '<i class="fas fa-plus"></i><span>Add to My PL</span>';
-        }
+        // Server confirmed the change, keep the optimistic update
+        button.disabled = false;
     })
     .catch(error => {
-        console.error('Error:', error);
+        // Rollback on error
+        console.error('Error toggling My PL:', error);
+        button.className = originalClasses;
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+
+        // Show error feedback
+        alert('Failed to update My PL. Please try again.');
     });
 }
 </script>

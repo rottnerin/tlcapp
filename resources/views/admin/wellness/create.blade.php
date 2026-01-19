@@ -249,7 +249,7 @@
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-6 py-3 text-white rounded-lg transition-colors font-medium shadow-md" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                            class="px-6 py-3 text-white rounded-lg transition-colors font-medium shadow-md" class="btn-orange-to-navy">
                         <i class="fas fa-save mr-2"></i>Create Session
                     </button>
                 </div>

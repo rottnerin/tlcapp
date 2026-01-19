@@ -24,7 +24,11 @@
             --tlc-gold: #f4d35e;
             --tlc-orange: #ee964b;
         }
-        body { font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif; }
+        body {
+            font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+        }
         
         .tlc-bg { background-color: var(--tlc-cream); }
         .bg-tlc-navy { background-color: var(--tlc-navy); }
@@ -39,13 +43,26 @@
         .division-es { border-left: 4px solid var(--tlc-gold); }
         .division-ms { border-left: 4px solid var(--tlc-orange); }
         .division-hs { border-left: 4px solid var(--tlc-navy); }
-        .session-card { transition: all 0.3s ease; }
-        .session-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(13, 59, 102, 0.15); }
+        .session-card { transition: all 0.2s ease; }
+        @media (hover: hover) {
+            .session-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(13, 59, 102, 0.15); }
+        }
         .line-clamp-3 {
             overflow: hidden;
             display: -webkit-box;
             -webkit-box-orient: vertical;
             -webkit-line-clamp: 3;
+        }
+
+        /* Custom text selection styling */
+        ::selection {
+            background-color: var(--tlc-gold);
+            color: var(--tlc-navy);
+        }
+
+        /* Disable user-select on interactive elements */
+        button, a[role="button"], [onclick] {
+            user-select: none;
         }
 
         /* Main Navigation Styles */
@@ -58,10 +75,13 @@
             border-radius: 0.5rem 0.5rem 0 0;
             display: inline-block;
             margin-bottom: 0;
+            user-select: none;
         }
-        .main-nav-item:hover {
-            color: var(--tlc-gold);
-            background: rgba(244, 211, 94, 0.1);
+        @media (hover: hover) {
+            .main-nav-item:hover {
+                color: var(--tlc-gold);
+                background: rgba(244, 211, 94, 0.1);
+            }
         }
         .main-nav-item.active {
             color: var(--tlc-navy);
@@ -82,14 +102,16 @@
         .main-nav-item-wrapper {
             position: relative;
         }
-        .main-nav-item-wrapper:hover .sub-nav-dropdown {
-            opacity: 1;
-            visibility: visible;
-        }
-        /* Keep dropdown open when hovering over it */
-        .sub-nav-dropdown:hover {
-            opacity: 1 !important;
-            visibility: visible !important;
+        @media (hover: hover) {
+            .main-nav-item-wrapper:hover .sub-nav-dropdown {
+                opacity: 1;
+                visibility: visible;
+            }
+            /* Keep dropdown open when hovering over it */
+            .sub-nav-dropdown:hover {
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
         }
         /* Create invisible bridge to prevent gap issues */
         .sub-nav-dropdown::before {
@@ -112,9 +134,12 @@
             font-weight: 500;
             transition: all 0.2s ease;
             border-radius: 0.375rem;
+            user-select: none;
         }
-        .sub-nav-item:hover {
-            background: rgba(13, 59, 102, 0.1);
+        @media (hover: hover) {
+            .sub-nav-item:hover {
+                background: rgba(13, 59, 102, 0.1);
+            }
         }
         .sub-nav-item.active {
             background: var(--tlc-navy);
@@ -279,8 +304,8 @@
                 <a href="{{ route('dashboard') }}" class="flex items-center">
                     <img src="https://visitors.aes.ac.in/images/aes.png" alt="TLC Professional Learning" class="h-8 w-auto">
                 </a>
-                <button id="mobile-menu-button" class="p-2 rounded-md text-tlc-cream hover:text-white" style="background-color: var(--tlc-orange);">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button id="mobile-menu-button" class="p-2 rounded-md text-tlc-cream hover:text-white" style="background-color: var(--tlc-orange);" aria-label="Toggle navigation menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
