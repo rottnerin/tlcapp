@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\PDDayController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\ClaudeSettingsController;
 use App\Models\PDDay;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,17 @@ Route::get('/', function () {
 Route::get('/typography-preview', function () {
     return view('typography-preview');
 })->name('typography.preview');
+
+// Claude Code Settings Interface
+Route::prefix('claude-settings')->name('claude.settings.')->group(function () {
+    Route::get('/', [ClaudeSettingsController::class, 'index'])->name('index');
+    Route::get('/api/settings', [ClaudeSettingsController::class, 'getSettings'])->name('get');
+    Route::post('/api/settings', [ClaudeSettingsController::class, 'saveSettings'])->name('save');
+    Route::get('/api/sounds', [ClaudeSettingsController::class, 'listSounds'])->name('sounds');
+    Route::post('/api/sounds/play', [ClaudeSettingsController::class, 'playSound'])->name('play');
+    Route::post('/api/sounds/upload', [ClaudeSettingsController::class, 'uploadSound'])->name('upload');
+    Route::delete('/api/sounds/delete', [ClaudeSettingsController::class, 'deleteSound'])->name('delete');
+});
 
 // Admin Authentication routes
 Route::get('/admin/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
