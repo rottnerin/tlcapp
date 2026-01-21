@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-TLC 2.0 is a Laravel 12.x web application for managing Professional Development activities at the American Embassy School (AES). It handles PD Days, Wellness Sessions, PL Wednesday sessions, and Teachers Teaching Teachers (TTT) programs.
+TLC 2.0 is a Laravel 12.x web application for managing Professional Development activities at the American Embassy School (AES). It handles PD Days, Wellness Sessions, PL Wednesday sessions, and Collaborative Community Learning Sessions (CCL) programs.
 
 ## Development Commands
 
@@ -41,13 +41,13 @@ Each major feature has a settings model that enables/disables it globally:
 - `PLDaysSetting` - Fall/Spring PD Days
 - `WellnessSetting` - Wellness Sessions
 - `PLWednesdaySetting` - PL Wednesday
-- `TTTSetting` - Teachers Teaching Teachers
+- `CCLSetting` - Collaborative Community Learning Sessions
 
 Check toggle state before rendering features: `PLWednesdaySetting::first()->is_active`
 
 ### Polymorphic "My PL" System
 `UserSelectedSession` uses polymorphic `selectable` relation to track user selections across all session types:
-- `selectable_type`: Model class (ScheduleItem, WellnessSession, PLWednesdaySession, TTTSession)
+- `selectable_type`: Model class (ScheduleItem, WellnessSession, PLWednesdaySession, CCLSession)
 - `selectable_id`: Session primary key
 
 ### Layout System
@@ -56,7 +56,7 @@ Check toggle state before rendering features: `PLWednesdaySetting::first()->is_a
 - Views organized by feature: `admin/[feature]/`, `schedule/`, `wellness/`, `pl-wednesday/`, `my-pl/`
 
 ### Key Model Relationships
-- `PDDay` has many `ScheduleItem`, `WellnessSession`, `TTTSession`
+- `PDDay` has many `ScheduleItem`, `WellnessSession`, `CCLSession`
 - `ScheduleItem` belongs to many `Division` via pivot table
 - `ScheduleItem` has many `ScheduleItemLink`
 - Sessions morph many `UserSelectedSession`

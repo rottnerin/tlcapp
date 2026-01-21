@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Manage TTT Sessions')
+@section('title', 'Manage CCL Sessions')
 
 @section('content')
 <div class="min-h-screen bg-gray-50 py-8">
@@ -9,18 +9,18 @@
         <div class="mb-8">
             <div class="flex justify-between items-start">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Teachers Teaching Teachers</h1>
-                    <p class="mt-2 text-gray-600">Manage TTT sessions and track enrollments</p>
+                    <h1 class="text-3xl font-bold text-gray-900">Collaborative Community Learning Sessions</h1>
+                    <p class="mt-2 text-gray-600">Manage CCL sessions and track enrollments</p>
                 </div>
                 <div class="flex gap-3">
                     <button class="inline-flex items-center px-4 py-2 rounded-lg transition-colors shadow-sm font-medium
                                 {{ $settings->is_active ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-700' }}" 
                             id="toggle-ttt-btn">
                         <i class="fas {{ $settings->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }} mr-2"></i>
-                        TTT {{ $settings->is_active ? 'Active' : 'Inactive' }}
+                        CCL {{ $settings->is_active ? 'Active' : 'Inactive' }}
                     </button>
-                    <a href="{{ route('admin.ttt.create') }}" 
-                       class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" class="btn-orange-to-navy">
+                    <a href="{{ route('admin.ccl.create') }}" 
+                       class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                         <i class="fas fa-plus mr-2"></i>
                         Add New Session
                     </a>
@@ -113,7 +113,7 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900">TTT Sessions</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">CCL Sessions</h3>
                         <p class="text-sm text-gray-600 mt-1">
                             @if($sessions->count() > 0)
                                 Showing {{ $sessions->firstItem() }} to {{ $sessions->lastItem() }} of {{ $sessions->total() }} sessions
@@ -193,22 +193,22 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm font-medium">
                                     <div class="flex space-x-3">
-                                        <a href="{{ route('admin.ttt.show', $session) }}" 
+                                        <a href="{{ route('admin.ccl.show', $session) }}" 
                                            class="text-aes-blue hover:text-blue-900 transition-colors" title="View Details">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.ttt.edit', $session) }}" 
+                                        <a href="{{ route('admin.ccl.edit', $session) }}" 
                                            class="text-yellow-600 hover:text-yellow-900 transition-colors" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('admin.ttt.toggle-status', $session) }}" method="POST" class="inline">
+                                        <form action="{{ route('admin.ccl.toggle-status', $session) }}" method="POST" class="inline">
                                             @csrf
                                             <button type="submit" class="text-gray-600 hover:text-gray-900 transition-colors" 
                                                     title="{{ $session->is_active ? 'Deactivate' : 'Activate' }}">
                                                 <i class="fas fa-{{ $session->is_active ? 'pause' : 'play' }}"></i>
                                             </button>
                                         </form>
-                                        <form action="{{ route('admin.ttt.destroy', $session) }}" method="POST" 
+                                        <form action="{{ route('admin.ccl.destroy', $session) }}" method="POST" 
                                               class="inline" onsubmit="return confirm('Are you sure you want to delete this session?')">
                                             @csrf
                                             @method('DELETE')
@@ -224,10 +224,10 @@
                                 <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                     <div class="flex flex-col items-center">
                                         <i class="fas fa-chalkboard-teacher text-6xl text-gray-300 mb-6"></i>
-                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No TTT sessions found</h3>
-                                        <p class="text-gray-500 mb-6">Get started by creating your first TTT session.</p>
-                                        <a href="{{ route('admin.ttt.create') }}" 
-                                           class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors" class="btn-orange-to-navy">
+                                        <h3 class="text-lg font-medium text-gray-900 mb-2">No CCL sessions found</h3>
+                                        <p class="text-gray-500 mb-6">Get started by creating your first CCL session.</p>
+                                        <a href="{{ route('admin.ccl.create') }}" 
+                                           class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
                                             <i class="fas fa-plus mr-2"></i>
                                             Add New Session
                                         </a>
@@ -253,7 +253,7 @@
 <script>
 document.getElementById('toggle-ttt-btn').addEventListener('click', function() {
     const btn = this;
-    fetch('{{ route('admin.ttt.toggle-active') }}', {
+    fetch('{{ route('admin.ccl.toggle-active') }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -265,10 +265,10 @@ document.getElementById('toggle-ttt-btn').addEventListener('click', function() {
         if (data.success) {
             if (data.is_active) {
                 btn.className = 'inline-flex items-center px-4 py-2 rounded-lg transition-colors shadow-sm font-medium bg-green-600 hover:bg-green-700 text-white';
-                btn.innerHTML = '<i class="fas fa-toggle-on mr-2"></i> TTT Active';
+                btn.innerHTML = '<i class="fas fa-toggle-on mr-2"></i> CCL Active';
             } else {
                 btn.className = 'inline-flex items-center px-4 py-2 rounded-lg transition-colors shadow-sm font-medium bg-gray-300 hover:bg-gray-400 text-gray-700';
-                btn.innerHTML = '<i class="fas fa-toggle-off mr-2"></i> TTT Inactive';
+                btn.innerHTML = '<i class="fas fa-toggle-off mr-2"></i> CCL Inactive';
             }
         }
     });

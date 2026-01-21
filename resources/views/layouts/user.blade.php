@@ -422,9 +422,9 @@
                             <a href="{{ route('spring.wellness') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('spring.wellness') ? 'text-tlc-gold font-semibold' : '' }}">
                                 Wellness
                             </a>
-                            @if($tttActive ?? false)
-                            <a href="{{ route('spring.ttt') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('spring.ttt') ? 'text-tlc-gold font-semibold' : '' }}">
-                                TTT
+                            @if($cclActive ?? false)
+                            <a href="{{ route('spring.ccl') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('spring.ccl') ? 'text-tlc-gold font-semibold' : '' }}">
+                                CCL
                             </a>
                             @endif
                             @if(isset($archivedSpringPDDays) && $archivedSpringPDDays->count() > 0)
@@ -512,10 +512,10 @@
                    class="sub-nav-item {{ request()->routeIs('spring.wellness') ? 'active' : '' }}">
                     Wellness
                 </a>
-                @if($tttActive ?? false)
-                <a href="{{ route('spring.ttt') }}"
-                   class="sub-nav-item {{ request()->routeIs('spring.ttt') ? 'active' : '' }}">
-                    TTT
+                @if($cclActive ?? false)
+                <a href="{{ route('spring.ccl') }}"
+                   class="sub-nav-item {{ request()->routeIs('spring.ccl') ? 'active' : '' }}">
+                    CCL
                 </a>
                 @endif
                 @if(isset($archivedSpringPDDays) && $archivedSpringPDDays->count() > 0)

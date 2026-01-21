@@ -115,11 +115,11 @@ class PDDay extends Model
     }
 
     /**
-     * Get TTT sessions for this PD day
+     * Get CCL sessions for this PD day
      */
-    public function tttSessions(): HasMany
+    public function cclSessions(): HasMany
     {
-        return $this->hasMany(TTTSession::class, 'p_d_day_id');
+        return $this->hasMany(CCLSession::class, 'p_d_day_id');
     }
 
     /**

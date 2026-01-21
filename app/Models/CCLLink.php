@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class TTTLink extends Model
+class CCLLink extends Model
 {
     use HasFactory;
 
-    protected $table = 'ttt_links';
+    protected $table = 'ccl_links';
 
     protected $fillable = [
-        'ttt_session_id',
+        'ccl_session_id',
         'title',
         'url',
         'type',
@@ -25,7 +25,7 @@ class TTTLink extends Model
      */
     public function session(): BelongsTo
     {
-        return $this->belongsTo(TTTSession::class, 'ttt_session_id');
+        return $this->belongsTo(CCLSession::class, 'ccl_session_id');
     }
 
     /**

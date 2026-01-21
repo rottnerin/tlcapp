@@ -193,7 +193,7 @@
                     <div class="stat-label">Wellness</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number">{{ count($groupedSessions['pl_wednesday']) + count($groupedSessions['ttt']) }}</div>
+                    <div class="stat-number">{{ count($groupedSessions['pl_wednesday']) + count($groupedSessions['ccl']) }}</div>
                     <div class="stat-label">Other</div>
                 </div>
             </div>
@@ -312,17 +312,17 @@
             </div>
             @endif
 
-            <!-- TTT Sessions -->
-            @if(count($groupedSessions['ttt']) > 0)
+            <!-- CCL Sessions -->
+            @if(count($groupedSessions['ccl']) > 0)
             <div class="section-card">
                 <div class="section-header">
-                    <span><i class="fas fa-chalkboard-teacher mr-2"></i>Teachers Teaching Teachers</span>
+                    <span><i class="fas fa-chalkboard-teacher mr-2"></i>Collaborative Community Learning Sessions</span>
                     <span class="bg-white text-tlc-navy px-3 py-1 rounded-full text-sm font-bold">
-                        {{ count($groupedSessions['ttt']) }}
+                        {{ count($groupedSessions['ccl']) }}
                     </span>
                 </div>
                 <div class="session-list">
-                    @foreach($groupedSessions['ttt'] as $session)
+                    @foreach($groupedSessions['ccl'] as $session)
                     <div class="session-item">
                         <div class="session-info">
                             <div class="session-title">{{ $session->title }}</div>
@@ -336,7 +336,7 @@
                                 @endif
                             </div>
                         </div>
-                        <button class="remove-btn" onclick="toggleSession('ttt_session', {{ $session->id }})">
+                        <button class="remove-btn" onclick="toggleSession('ccl_session', {{ $session->id }})">
                             <i class="fas fa-times mr-1"></i>Remove
                         </button>
                     </div>

@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             DivisionSeeder::class,
             AdminUserSeeder::class,
             PDDaySeeder::class,
-            TTTSessionSeeder::class,
+            CCLSessionSeeder::class,
             WellnessSessionSeeder::class,
             ScheduleItemSeeder::class,
             ReportsTestDataSeeder::class,

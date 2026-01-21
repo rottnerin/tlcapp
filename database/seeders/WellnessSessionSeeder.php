@@ -28,7 +28,7 @@ class WellnessSessionSeeder extends Seeder
             // Create a spring PD day if it doesn't exist
             $springPDDay = PDDay::create([
                 'title' => 'Spring 2026 Professional Learning Days',
-                'description' => 'Spring professional development sessions including Wellness and TTT.',
+                'description' => 'Spring professional development sessions including Wellness and CCL.',
                 'start_date' => Carbon::parse('2026-03-02'),
                 'end_date' => Carbon::parse('2026-03-03'),
                 'is_active' => true,

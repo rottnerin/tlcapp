@@ -144,7 +144,7 @@
                         </div>
                         <div class="bg-gray-50 rounded-lg p-3 text-center">
                             <div class="text-2xl font-bold text-tlc-navy">{{ $pdDay->tttSessions->count() }}</div>
-                            <div class="text-gray-500">TTT Sessions</div>
+                            <div class="text-gray-500">CCL Sessions</div>
                         </div>
                         <div class="bg-gray-50 rounded-lg p-3 text-center">
                             <div class="text-lg font-semibold text-gray-400">

@@ -3,45 +3,45 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\TTTSession;
-use App\Models\TTTSetting;
-use App\Models\TTTLink;
+use App\Models\CCLSession;
+use App\Models\CCLSetting;
+use App\Models\CCLLink;
 use App\Models\PDDay;
 use App\Models\Division;
 use App\Models\ScheduleItem;
 use App\Models\UserSession;
 use Illuminate\Http\Request;
 
-class TTTController extends Controller
+class CCLController extends Controller
 {
     /**
-     * Display a listing of TTT sessions
+     * Display a listing of CCL sessions
      */
     public function index()
     {
-        $sessions = TTTSession::with(['division', 'pdDay'])
+        $sessions = CCLSession::with(['division', 'pdDay'])
             ->orderBy('date', 'desc')
             ->orderBy('start_time')
             ->paginate(15);
 
-        $settings = TTTSetting::getSettings();
+        $settings = CCLSetting::getSettings();
 
-        return view('admin.ttt.index', compact('sessions', 'settings'));
+        return view('admin.ccl.index', compact('sessions', 'settings'));
     }
 
     /**
-     * Show the form for creating a new TTT session
+     * Show the form for creating a new CCL session
      */
     public function create()
     {
         $divisions = Division::all();
         $pdDays = PDDay::orderBy('start_date', 'desc')->get();
 
-        return view('admin.ttt.create', compact('divisions', 'pdDays'));
+        return view('admin.ccl.create', compact('divisions', 'pdDays'));
     }
 
     /**
-     * Store a newly created TTT session
+     * Store a newly created CCL session
      */
     public function store(Request $request)
     {
@@ -68,7 +68,7 @@ class TTTController extends Controller
             'links.*.type' => 'nullable|string|max:50',
         ]);
 
-        $session = TTTSession::create([
+        $session = CCLSession::create([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'presenter_name' => $validated['presenter_name'],
@@ -99,23 +99,23 @@ class TTTController extends Controller
             }
         }
 
-        return redirect()->route('admin.ttt.index')
-            ->with('success', 'TTT Session created successfully.');
+        return redirect()->route('admin.ccl.index')
+            ->with('success', 'CCL Session created successfully.');
     }
 
     /**
-     * Display the specified TTT session
+     * Display the specified CCL session
      */
-    public function show(TTTSession $ttt)
+    public function show(CCLSession $ttt)
     {
         $ttt->load(['division', 'pdDay', 'links']);
 
-        // Find the corresponding ScheduleItem for this TTT session
+        // Find the corresponding ScheduleItem for this CCL session
         $scheduleItem = ScheduleItem::where('p_d_day_id', $ttt->p_d_day_id)
             ->where('date', $ttt->date)
             ->where('start_time', $ttt->start_time)
             ->where('title', $ttt->title)
-            ->where('session_type', 'ttt')
+            ->where('session_type', 'ccl')
             ->first();
 
         $confirmedParticipants = collect();
@@ -127,24 +127,24 @@ class TTTController extends Controller
                 ->get();
         }
 
-        return view('admin.ttt.show', compact('ttt', 'confirmedParticipants', 'scheduleItem'));
+        return view('admin.ccl.show', compact('ttt', 'confirmedParticipants', 'scheduleItem'));
     }
 
     /**
-     * Show the form for editing the specified TTT session
+     * Show the form for editing the specified CCL session
      */
-    public function edit(TTTSession $ttt)
+    public function edit(CCLSession $ttt)
     {
         $divisions = Division::all();
         $pdDays = PDDay::orderBy('start_date', 'desc')->get();
         $ttt->load('links');
 
-        // Find the corresponding ScheduleItem for this TTT session
+        // Find the corresponding ScheduleItem for this CCL session
         $scheduleItem = ScheduleItem::where('p_d_day_id', $ttt->p_d_day_id)
             ->where('date', $ttt->date)
             ->where('start_time', $ttt->start_time)
             ->where('title', $ttt->title)
-            ->where('session_type', 'ttt')
+            ->where('session_type', 'ccl')
             ->first();
 
         $confirmedParticipants = collect();
@@ -156,13 +156,13 @@ class TTTController extends Controller
                 ->get();
         }
 
-        return view('admin.ttt.edit', compact('ttt', 'divisions', 'pdDays', 'confirmedParticipants', 'scheduleItem'));
+        return view('admin.ccl.edit', compact('ttt', 'divisions', 'pdDays', 'confirmedParticipants', 'scheduleItem'));
     }
 
     /**
-     * Update the specified TTT session
+     * Update the specified CCL session
      */
-    public function update(Request $request, TTTSession $ttt)
+    public function update(Request $request, CCLSession $ttt)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -219,39 +219,39 @@ class TTTController extends Controller
             }
         }
 
-        return redirect()->route('admin.ttt.index')
-            ->with('success', 'TTT Session updated successfully.');
+        return redirect()->route('admin.ccl.index')
+            ->with('success', 'CCL Session updated successfully.');
     }
 
     /**
-     * Remove the specified TTT session
+     * Remove the specified CCL session
      */
-    public function destroy(TTTSession $ttt)
+    public function destroy(CCLSession $ttt)
     {
         $ttt->delete();
 
-        return redirect()->route('admin.ttt.index')
-            ->with('success', 'TTT Session deleted successfully.');
+        return redirect()->route('admin.ccl.index')
+            ->with('success', 'CCL Session deleted successfully.');
     }
 
     /**
-     * Toggle TTT feature active status
+     * Toggle CCL feature active status
      */
     public function toggleActive()
     {
-        $isActive = TTTSetting::toggle();
+        $isActive = CCLSetting::toggle();
 
         return response()->json([
             'success' => true,
             'is_active' => $isActive,
-            'message' => $isActive ? 'TTT feature enabled' : 'TTT feature disabled',
+            'message' => $isActive ? 'CCL feature enabled' : 'CCL feature disabled',
         ]);
     }
 
     /**
      * Toggle session status
      */
-    public function toggleSessionStatus(TTTSession $ttt)
+    public function toggleSessionStatus(CCLSession $ttt)
     {
         $ttt->is_active = !$ttt->is_active;
         $ttt->save();
@@ -261,9 +261,9 @@ class TTTController extends Controller
     }
 
     /**
-     * Remove user enrollment from TTT session
+     * Remove user enrollment from CCL session
      */
-    public function removeEnrollment(Request $request, TTTSession $ttt)
+    public function removeEnrollment(Request $request, CCLSession $ttt)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id'
@@ -271,12 +271,12 @@ class TTTController extends Controller
 
         $user = \App\Models\User::findOrFail($request->user_id);
         
-        // Find the corresponding ScheduleItem for this TTT session
+        // Find the corresponding ScheduleItem for this CCL session
         $scheduleItem = ScheduleItem::where('p_d_day_id', $ttt->p_d_day_id)
             ->where('date', $ttt->date)
             ->where('start_time', $ttt->start_time)
             ->where('title', $ttt->title)
-            ->where('session_type', 'ttt')
+            ->where('session_type', 'ccl')
             ->first();
 
         if (!$scheduleItem) {
