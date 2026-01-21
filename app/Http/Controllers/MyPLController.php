@@ -7,7 +7,7 @@ use App\Models\UserSelectedSession;
 use App\Models\ScheduleItem;
 use App\Models\WellnessSession;
 use App\Models\PLWednesdaySession;
-use App\Models\TTTSession;
+use App\Models\CCLSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -32,7 +32,7 @@ class MyPLController extends Controller
             'schedule' => [],
             'wellness' => [],
             'pl_wednesday' => [],
-            'ttt' => [],
+            'ccl' => [],
         ];
 
         foreach ($selectedSessions as $selection) {
@@ -43,7 +43,7 @@ class MyPLController extends Controller
                 ScheduleItem::class => 'schedule',
                 WellnessSession::class => 'wellness',
                 PLWednesdaySession::class => 'pl_wednesday',
-                TTTSession::class => 'ttt',
+                CCLSession::class => 'ccl',
                 default => null,
             };
             
@@ -101,7 +101,7 @@ class MyPLController extends Controller
             'schedule_item' => ScheduleItem::class,
             'wellness_session' => WellnessSession::class,
             'pl_wednesday_session' => PLWednesdaySession::class,
-            'ttt_session' => TTTSession::class,
+            'ccl_session' => CCLSession::class,
         ];
 
         $class = $classMap[$type] ?? null;
@@ -185,7 +185,7 @@ class MyPLController extends Controller
                 $item['presenter'] = '';
                 // Calculate from duration
                 $item['contact_hours'] = round(($session->duration ?? 60) / 60, 2);
-            } elseif ($session instanceof TTTSession) {
+            } elseif ($session instanceof CCLSession) {
                 $item['date'] = $session->date;
                 $item['title'] = $session->title;
                 $item['presenter'] = $session->presenter_name ?? '';

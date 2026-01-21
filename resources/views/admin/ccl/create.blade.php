@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create TTT Session')
+@section('title', 'Create CCL Session')
 
 @section('content')
 <div class="min-h-screen bg-content py-8">
@@ -8,18 +8,18 @@
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center mb-4">
-                <a href="{{ route('admin.ttt.index') }}" 
+                <a href="{{ route('admin.ccl.index') }}" 
                    class="mr-4 font-medium hover:opacity-70" style="color: var(--tlc-navy);">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to TTT Sessions
+                    <i class="fas fa-arrow-left mr-2"></i>Back to CCL Sessions
                 </a>
             </div>
-            <h1 class="text-3xl font-bold text-gray-900">Create New TTT Session</h1>
-            <p class="text-gray-600 mt-1">Add a new Teachers Teaching Teachers session</p>
+            <h1 class="text-3xl font-bold text-gray-900">Create New CCL Session</h1>
+            <p class="text-gray-600 mt-1">Add a new Collaborative Community Learning Sessions session</p>
         </div>
 
         <!-- Form -->
         <div class="bg-white rounded-lg shadow-card border">
-            <form action="{{ route('admin.ttt.store') }}" method="POST" class="p-8 space-y-8">
+            <form action="{{ route('admin.ccl.store') }}" method="POST" class="p-8 space-y-8">
                 @csrf
 
                 <!-- Basic Information -->
@@ -221,7 +221,7 @@
 
                 <!-- Submit Buttons -->
                 <div class="border-t pt-6 flex justify-end space-x-4">
-                    <a href="{{ route('admin.ttt.index') }}" 
+                    <a href="{{ route('admin.ccl.index') }}" 
                        class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
                         Cancel
                     </a>

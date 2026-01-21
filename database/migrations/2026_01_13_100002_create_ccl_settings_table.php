@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ttt_settings', function (Blueprint $table) {
+        Schema::create('ccl_settings', function (Blueprint $table) {
             $table->id();
             $table->boolean('is_active')->default(false);
-            $table->string('title')->default('Teachers Teaching Teachers');
+            $table->string('title')->default('Collaborative Community Learning Sessions');
             $table->text('description')->nullable();
             $table->timestamps();
         });
 
         // Insert default settings
-        DB::table('ttt_settings')->insert([
+        DB::table('ccl_settings')->insert([
             'is_active' => false,
-            'title' => 'Teachers Teaching Teachers',
+            'title' => 'Collaborative Community Learning Sessions',
             'description' => 'Professional learning sessions led by our own teachers sharing their expertise.',
             'created_at' => now(),
             'updated_at' => now(),
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ttt_settings');
+        Schema::dropIfExists('ccl_settings');
     }
 };

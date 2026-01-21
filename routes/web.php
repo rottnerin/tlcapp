@@ -6,12 +6,12 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\WellnessController;
 use App\Http\Controllers\PLWednesdayController;
 use App\Http\Controllers\MyPLController;
-use App\Http\Controllers\TTTController;
+use App\Http\Controllers\CCLController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\WellnessSessionController;
 use App\Http\Controllers\Admin\ScheduleItemController;
 use App\Http\Controllers\Admin\PLWednesdayController as AdminPLWednesdayController;
-use App\Http\Controllers\Admin\TTTController as AdminTTTController;
+use App\Http\Controllers\Admin\CCLController as AdminCCLController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\PDDayController;
 use App\Http\Controllers\Admin\AdminAuthController;
@@ -65,9 +65,9 @@ Route::middleware(['user.only'])->group(function () {
         Route::get('/wellness', [WellnessController::class, 'springIndex'])->name('spring.wellness');
         Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('spring.wellness.show');
         Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('spring.wellness.enroll');
-        Route::get('/ttt', [TTTController::class, 'index'])->name('spring.ttt');
-        Route::get('/ttt/{session}', [TTTController::class, 'show'])->name('spring.ttt.show');
-        Route::post('/ttt/{session}/join', [TTTController::class, 'join'])->name('spring.ttt.join');
+        Route::get('/ccl', [CCLController::class, 'index'])->name('spring.ccl');
+        Route::get('/ccl/{session}', [CCLController::class, 'show'])->name('spring.ccl.show');
+        Route::post('/ccl/{session}/join', [CCLController::class, 'join'])->name('spring.ccl.join');
     });
 
     // Legacy Schedule routes (for backwards compatibility)
@@ -129,11 +129,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/pl-wednesday/{plWednesday}/toggle-status', [AdminPLWednesdayController::class, 'toggleSessionStatus'])->name('pl-wednesday.toggle-status');
     Route::resource('pl-wednesday', AdminPLWednesdayController::class);
     
-    // TTT (Teachers Teaching Teachers) Management
-    Route::post('/ttt/toggle-active', [AdminTTTController::class, 'toggleActive'])->name('ttt.toggle-active');
-    Route::post('/ttt/{ttt}/toggle-status', [AdminTTTController::class, 'toggleSessionStatus'])->name('ttt.toggle-status');
-    Route::post('/ttt/{ttt}/remove-enrollment', [AdminTTTController::class, 'removeEnrollment'])->name('ttt.remove-enrollment');
-    Route::resource('ttt', AdminTTTController::class);
+    // CCL (Collaborative Community Learning Sessions) Management
+    Route::post('/ccl/toggle-active', [AdminCCLController::class, 'toggleActive'])->name('ccl.toggle-active');
+    Route::post('/ccl/{ccl}/toggle-status', [AdminCCLController::class, 'toggleSessionStatus'])->name('ccl.toggle-status');
+    Route::post('/ccl/{ccl}/remove-enrollment', [AdminCCLController::class, 'removeEnrollment'])->name('ccl.remove-enrollment');
+    Route::resource('ccl', AdminCCLController::class);
     
     // Reports
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');

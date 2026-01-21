@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ttt_sessions', function (Blueprint $table) {
+        Schema::create('ccl_sessions', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ttt_sessions');
+        Schema::dropIfExists('ccl_sessions');
     }
 };

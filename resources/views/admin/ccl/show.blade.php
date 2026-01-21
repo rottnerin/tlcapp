@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'TTT Session Details')
+@section('title', 'CCL Session Details')
 
 @section('content')
 <div class="min-h-screen bg-gray-50 py-8">
@@ -8,40 +8,40 @@
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center justify-between mb-4">
-                <a href="{{ route('admin.ttt.index') }}" 
+                <a href="{{ route('admin.ccl.index') }}" 
                    class="hover:opacity-70" style="color: var(--tlc-navy);">
-                    <i class="fas fa-arrow-left mr-2"></i>Back to TTT Sessions
+                    <i class="fas fa-arrow-left mr-2"></i>Back to CCL Sessions
                 </a>
                 <div class="flex space-x-2">
-                    <a href="{{ route('admin.ttt.edit', $ttt) }}" 
+                    <a href="{{ route('admin.ccl.edit', $ccl) }}" 
                        class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg transition-colors">
                         <i class="fas fa-edit mr-2"></i>Edit Session
                     </a>
-                    <form action="{{ route('admin.ttt.toggle-status', $ttt) }}" method="POST" class="inline">
+                    <form action="{{ route('admin.ccl.toggle-status', $ccl) }}" method="POST" class="inline">
                         @csrf
                         <button type="submit" 
                                 class="px-4 py-2 rounded-lg text-white transition-colors
-                                       {{ $ttt->is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700' }}">
-                            <i class="fas fa-{{ $ttt->is_active ? 'pause' : 'play' }} mr-2"></i>
-                            {{ $ttt->is_active ? 'Deactivate' : 'Activate' }}
+                                       {{ $ccl->is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700' }}">
+                            <i class="fas fa-{{ $ccl->is_active ? 'pause' : 'play' }} mr-2"></i>
+                            {{ $ccl->is_active ? 'Deactivate' : 'Activate' }}
                         </button>
                     </form>
                 </div>
             </div>
-            <h1 class="text-3xl font-bold text-gray-900">{{ $ttt->title }}</h1>
+            <h1 class="text-3xl font-bold text-gray-900">{{ $ccl->title }}</h1>
             <div class="flex items-center mt-2 space-x-4">
                 <span class="px-3 py-1 text-sm font-semibold rounded-full 
-                            {{ $ttt->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                    {{ $ttt->is_active ? 'Active' : 'Inactive' }}
+                            {{ $ccl->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                    {{ $ccl->is_active ? 'Active' : 'Inactive' }}
                 </span>
-                @if($ttt->division)
+                @if($ccl->division)
                     <span class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
-                        {{ $ttt->division->name }}
+                        {{ $ccl->division->name }}
                     </span>
                 @endif
-                @if($ttt->pdDay)
+                @if($ccl->pdDay)
                     <span class="px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full">
-                        {{ $ttt->pdDay->title }}
+                        {{ $ccl->pdDay->title }}
                     </span>
                 @endif
             </div>
@@ -61,69 +61,69 @@
                 <div class="bg-white rounded-lg shadow p-6">
                     <h2 class="text-xl font-semibold text-gray-900 mb-4">Session Details</h2>
                     
-                    @if($ttt->description)
+                    @if($ccl->description)
                         <div class="mb-4">
                             <h3 class="text-sm font-medium text-gray-700 mb-2">Description</h3>
-                            <p class="text-gray-600 whitespace-pre-line">{{ $ttt->description }}</p>
+                            <p class="text-gray-600 whitespace-pre-line">{{ $ccl->description }}</p>
                         </div>
                     @endif
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <h3 class="text-sm font-medium text-gray-700 mb-1">Date & Time</h3>
-                            <p class="text-gray-900">{{ $ttt->date->format('l, F j, Y') }}</p>
+                            <p class="text-gray-900">{{ $ccl->date->format('l, F j, Y') }}</p>
                             <p class="text-gray-600">
-                                @if($ttt->start_time && $ttt->end_time)
-                                    {{ $ttt->start_time->format('g:i A') }} - {{ $ttt->end_time->format('g:i A') }}
+                                @if($ccl->start_time && $ccl->end_time)
+                                    {{ $ccl->start_time->format('g:i A') }} - {{ $ccl->end_time->format('g:i A') }}
                                 @else
                                     <span class="text-gray-400">Not specified</span>
                                 @endif
                             </p>
                         </div>
 
-                        @if($ttt->location)
+                        @if($ccl->location)
                             <div>
                                 <h3 class="text-sm font-medium text-gray-700 mb-1">Location</h3>
-                                <p class="text-gray-900">{{ $ttt->location }}</p>
+                                <p class="text-gray-900">{{ $ccl->location }}</p>
                             </div>
                         @endif
 
                         <div>
                             <h3 class="text-sm font-medium text-gray-700 mb-1">Contact Hours</h3>
-                            <p class="text-gray-900">{{ $ttt->contact_hours ?: $ttt->calculateContactHours() }} hours</p>
+                            <p class="text-gray-900">{{ $ccl->contact_hours ?: $ccl->calculateContactHours() }} hours</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Presenter Information -->
-                @if($ttt->presenter_name || $ttt->presenter_bio || $ttt->presenter_email || $ttt->co_presenter_name || $ttt->co_presenter_email)
+                @if($ccl->presenter_name || $ccl->presenter_bio || $ccl->presenter_email || $ccl->co_presenter_name || $ccl->co_presenter_email)
                     <div class="bg-white rounded-lg shadow p-6">
                         <h2 class="text-xl font-semibold text-gray-900 mb-4">Presenter Information</h2>
                         
-                        @if($ttt->presenter_name)
+                        @if($ccl->presenter_name)
                             <div class="mb-4">
                                 <h3 class="text-sm font-medium text-gray-700 mb-2">Presenter Information</h3>
                                 <div class="bg-gray-50 rounded-lg p-4">
                                     <div class="mb-3">
                                         <h4 class="text-sm font-semibold text-gray-800 mb-1">Primary Presenter</h4>
-                                        <p class="text-gray-900 font-medium">{{ $ttt->presenter_name }}</p>
-                                        @if($ttt->presenter_email)
+                                        <p class="text-gray-900 font-medium">{{ $ccl->presenter_name }}</p>
+                                        @if($ccl->presenter_email)
                                             <p class="text-gray-600 text-sm">
-                                                <a href="mailto:{{ $ttt->presenter_email }}" class="hover:underline">
-                                                    {{ $ttt->presenter_email }}
+                                                <a href="mailto:{{ $ccl->presenter_email }}" class="hover:underline">
+                                                    {{ $ccl->presenter_email }}
                                                 </a>
                                             </p>
                                         @endif
                                     </div>
                                     
-                                    @if($ttt->co_presenter_name)
+                                    @if($ccl->co_presenter_name)
                                         <div class="border-t pt-3">
                                             <h4 class="text-sm font-semibold text-gray-800 mb-1">Co-Presenter(s)</h4>
-                                            <p class="text-gray-900 font-medium">{{ $ttt->co_presenter_name }}</p>
-                                            @if($ttt->co_presenter_email)
+                                            <p class="text-gray-900 font-medium">{{ $ccl->co_presenter_name }}</p>
+                                            @if($ccl->co_presenter_email)
                                                 <p class="text-gray-600 text-sm">
-                                                    <a href="mailto:{{ $ttt->co_presenter_email }}" class="hover:underline">
-                                                        {{ $ttt->co_presenter_email }}
+                                                    <a href="mailto:{{ $ccl->co_presenter_email }}" class="hover:underline">
+                                                        {{ $ccl->co_presenter_email }}
                                                     </a>
                                                 </p>
                                             @endif
@@ -133,21 +133,21 @@
                             </div>
                         @endif
 
-                        @if($ttt->presenter_bio)
+                        @if($ccl->presenter_bio)
                             <div>
                                 <h3 class="text-sm font-medium text-gray-700 mb-1">Bio</h3>
-                                <p class="text-gray-600 whitespace-pre-line">{{ $ttt->presenter_bio }}</p>
+                                <p class="text-gray-600 whitespace-pre-line">{{ $ccl->presenter_bio }}</p>
                             </div>
                         @endif
                     </div>
                 @endif
 
                 <!-- Resources -->
-                @if($ttt->links->count() > 0)
+                @if($ccl->links->count() > 0)
                     <div class="bg-white rounded-lg shadow p-6">
                         <h2 class="text-xl font-semibold text-gray-900 mb-4">Resources</h2>
                         <div class="space-y-3">
-                            @foreach($ttt->links as $link)
+                            @foreach($ccl->links as $link)
                                 <a href="{{ $link->formatted_url }}" target="_blank" 
                                    class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                                     <div class="flex items-center">
@@ -198,22 +198,22 @@
                     <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
                     
                     <div class="space-y-3">
-                        <a href="{{ route('admin.ttt.edit', $ttt) }}" 
+                        <a href="{{ route('admin.ccl.edit', $ccl) }}" 
                            class="block w-full text-center bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg transition-colors">
                             <i class="fas fa-edit mr-2"></i>Edit Session
                         </a>
                         
-                        <form action="{{ route('admin.ttt.toggle-status', $ttt) }}" method="POST">
+                        <form action="{{ route('admin.ccl.toggle-status', $ccl) }}" method="POST">
                             @csrf
                             <button type="submit" 
                                     class="w-full px-4 py-2 rounded-lg text-white transition-colors
-                                           {{ $ttt->is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700' }}">
-                                <i class="fas fa-{{ $ttt->is_active ? 'pause' : 'play' }} mr-2"></i>
-                                {{ $ttt->is_active ? 'Deactivate' : 'Activate' }}
+                                           {{ $ccl->is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700' }}">
+                                <i class="fas fa-{{ $ccl->is_active ? 'pause' : 'play' }} mr-2"></i>
+                                {{ $ccl->is_active ? 'Deactivate' : 'Activate' }}
                             </button>
                         </form>
 
-                        <form action="{{ route('admin.ttt.destroy', $ttt) }}" method="POST" 
+                        <form action="{{ route('admin.ccl.destroy', $ccl) }}" method="POST" 
                               onsubmit="return confirm('Are you sure you want to delete this session? This action cannot be undone.')">
                             @csrf
                             @method('DELETE')
@@ -232,9 +232,9 @@
                     <div class="space-y-3">
                         <div>
                             <h3 class="text-sm font-medium text-gray-700 mb-1">PD Day</h3>
-                            @if($ttt->pdDay)
+                            @if($ccl->pdDay)
                                 <span class="px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full">
-                                    {{ $ttt->pdDay->title }}
+                                    {{ $ccl->pdDay->title }}
                                 </span>
                             @else
                                 <p class="text-gray-500 text-sm">Not assigned</p>
@@ -243,9 +243,9 @@
 
                         <div>
                             <h3 class="text-sm font-medium text-gray-700 mb-1">Division</h3>
-                            @if($ttt->division)
+                            @if($ccl->division)
                                 <span class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
-                                    {{ $ttt->division->full_name }}
+                                    {{ $ccl->division->full_name }}
                                 </span>
                             @else
                                 <p class="text-gray-500 text-sm">All Divisions</p>
@@ -283,7 +283,7 @@
                                             {{ $enrollment->enrolled_at->format('g:i A') }}
                                         </p>
                                     </div>
-                                    <form action="{{ route('admin.ttt.remove-enrollment', $ttt) }}" method="POST" 
+                                    <form action="{{ route('admin.ccl.remove-enrollment', $ccl) }}" method="POST" 
                                           onsubmit="return confirm('Are you sure you want to remove {{ $enrollment->user->name }} from this session?')">
                                         @csrf
                                         <input type="hidden" name="user_id" value="{{ $enrollment->user->id }}">

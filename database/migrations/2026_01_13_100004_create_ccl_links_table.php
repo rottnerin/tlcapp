@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ttt_links', function (Blueprint $table) {
+        Schema::create('ccl_links', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ttt_session_id')->constrained('ttt_sessions')->onDelete('cascade');
+            $table->foreignId('ccl_session_id')->constrained('ccl_sessions')->onDelete('cascade');
             $table->string('title');
             $table->string('url');
             $table->string('type')->default('resource'); // resource, video, document, etc.
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ttt_links');
+        Schema::dropIfExists('ccl_links');
     }
 };

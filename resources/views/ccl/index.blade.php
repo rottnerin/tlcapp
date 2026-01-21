@@ -1,6 +1,6 @@
 @extends('layouts.user')
 
-@section('title', 'Teachers Teaching Teachers - TLC Professional Learning')
+@section('title', 'Collaborative Community Learning Sessions - TLC Professional Learning')
 
 @section('content')
 <style>
@@ -185,7 +185,7 @@
             $endTime = $firstSession->end_time;
         @endphp
         
-        <!-- TTT Session {{ $sessionNumber }} Header -->
+        <!-- CCL Session {{ $sessionNumber }} Header -->
         <div class="mb-4 mt-{{ $sessionNumber > 1 ? '10' : '0' }}">
             <div class="session-header-card rounded-2xl shadow-lg overflow-hidden" style="border: 3px solid {{ $sessionNumber === 1 ? '#f4d35e' : '#ee964b' }};">
                 <div class="px-6 py-5" style="background: linear-gradient(135deg, {{ $sessionNumber === 1 ? '#0d3b66 0%, #1a5490 100%' : '#7c2d12 0%, #9a3412 100%' }});">
@@ -196,7 +196,7 @@
                             </div>
                             <div>
                                 <h2 class="text-2xl font-black tracking-wide" style="color: {{ $sessionNumber === 1 ? '#f4d35e' : '#fed7aa' }}; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
-                                    TTT SESSION {{ $sessionNumber }}
+                                    CCL SESSION {{ $sessionNumber }}
                                 </h2>
                                 <p class="text-base font-semibold mt-1" style="color: white;">
                                     <i class="fas fa-calendar-alt mr-2"></i>{{ $sessionDate->format('l, F j, Y') }}
@@ -220,10 +220,10 @@
             @php
                 $isEnrolled = isset($userEnrollments[$session->id]) && $userEnrollments[$session->id];
                 // Find corresponding schedule item to check capacity
-                // Match by title and session_type since TTT sessions are unique by title within the PD day
+                // Match by title and session_type since CCL sessions are unique by title within the PD day
                 $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
                     ->where('title', $session->title)
-                    ->where('session_type', 'ttt')
+                    ->where('session_type', 'ccl')
                     ->whereDate('date', $session->date)
                     ->first();
                 $currentEnrollment = $scheduleItem ? $scheduleItem->current_enrollment : 0;
@@ -291,7 +291,7 @@
                     @endif
                 </div>
                 <div class="ttt-card-footer">
-                    <a href="{{ route('spring.ttt.show', $session) }}" class="view-btn">
+                    <a href="{{ route('spring.ccl.show', $session) }}" class="view-btn">
                         <i class="fas fa-eye mr-1"></i>View Details
                     </a>
                     @if($isEnrolled)
@@ -303,7 +303,7 @@
                             <i class="fas fa-times mr-1"></i>Full
                         </button>
                     @else
-                        <form action="{{ route('spring.ttt.join', $session) }}" method="POST" style="display: inline;">
+                        <form action="{{ route('spring.ccl.join', $session) }}" method="POST" style="display: inline;">
                             @csrf
                             <button type="submit" class="join-btn">
                                 <i class="fas fa-user-plus mr-1"></i>Join Session
@@ -320,8 +320,8 @@
         @else
         <div class="empty-state">
             <div class="text-5xl mb-4">👨‍🏫</div>
-            <h3 class="text-xl font-semibold text-gray-700 mb-2">No TTT Sessions Available</h3>
-            <p class="text-gray-500">Teachers Teaching Teachers sessions will be posted here when available.</p>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">No CCL Sessions Available</h3>
+            <p class="text-gray-500">Collaborative Community Learning Sessions sessions will be posted here when available.</p>
         </div>
         @endif
     </div>

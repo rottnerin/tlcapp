@@ -3,22 +3,22 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\TTTSession;
-use App\Models\TTTSetting;
+use App\Models\CCLSession;
+use App\Models\CCLSetting;
 use App\Models\PDDay;
 use App\Models\Division;
 use App\Models\ScheduleItem;
 use Carbon\Carbon;
 
-class TTTSessionSeeder extends Seeder
+class CCLSessionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        // Ensure TTT is active
-        $settings = TTTSetting::getSettings();
+        // Ensure CCL is active
+        $settings = CCLSetting::getSettings();
         $settings->is_active = true;
         $settings->save();
 
@@ -29,7 +29,7 @@ class TTTSessionSeeder extends Seeder
             // Create a spring PD day if it doesn't exist
             $springPDDay = PDDay::create([
                 'title' => 'Spring 2026 Professional Learning Days',
-                'description' => 'Spring professional development sessions including TTT.',
+                'description' => 'Spring professional development sessions including CCL.',
                 'start_date' => Carbon::parse('2026-03-02'),
                 'end_date' => Carbon::parse('2026-03-03'),
                 'is_active' => true,
@@ -44,11 +44,11 @@ class TTTSessionSeeder extends Seeder
         $msDivision = Division::where('name', 'MS')->first();
         $hsDivision = Division::where('name', 'HS')->first();
 
-        // Create TTT sessions for the two time slots
-        // TTT Session 1: March 2nd, 1:30 PM - 2:30 PM
-        // TTT Session 2: March 3rd, 1:45 PM - 2:45 PM
+        // Create CCL sessions for the two time slots
+        // CCL Session 1: March 2nd, 1:30 PM - 2:30 PM
+        // CCL Session 2: March 3rd, 1:45 PM - 2:45 PM
         $sessions = [
-            // ===== TTT Session 1: March 2nd, 1:30 PM - 2:30 PM =====
+            // ===== CCL Session 1: March 2nd, 1:30 PM - 2:30 PM =====
             [
                 'title' => 'Innovative Assessment Strategies',
                 'description' => 'Learn creative ways to assess student learning beyond traditional tests. Explore project-based assessments, portfolios, and authentic evaluation methods that engage students and provide meaningful feedback.',
@@ -99,7 +99,7 @@ class TTTSessionSeeder extends Seeder
                 'is_active' => true,
             ],
 
-            // ===== TTT Session 2: March 3rd (Tuesday), 1:45 PM - 2:45 PM =====
+            // ===== CCL Session 2: March 3rd (Tuesday), 1:45 PM - 2:45 PM =====
             [
                 'title' => 'Project-Based Learning Essentials',
                 'description' => 'Learn how to design and implement engaging project-based learning experiences that connect curriculum to real-world applications. Includes examples from various subject areas.',
@@ -155,11 +155,11 @@ class TTTSessionSeeder extends Seeder
             $endTime = $sessionData['end_time'];
             $divisionId = $sessionData['division_id'];
             
-            // Convert start_time and end_time to time format (H:i:s) for TTTSession
+            // Convert start_time and end_time to time format (H:i:s) for CCLSession
             $sessionData['start_time'] = $startTime->format('H:i:s');
             $sessionData['end_time'] = $endTime->format('H:i:s');
             
-            $tttSession = TTTSession::create($sessionData);
+            $tttSession = CCLSession::create($sessionData);
             
             // Create corresponding ScheduleItem with capacity
             // Varying capacities for testing: 15, 20, or 25
@@ -180,7 +180,7 @@ class TTTSessionSeeder extends Seeder
                 'start_time' => $date->format('Y-m-d') . ' ' . $startTime->format('H:i:s'),
                 'end_time' => $date->format('Y-m-d') . ' ' . $endTime->format('H:i:s'),
                 'location' => $sessionData['location'],
-                'session_type' => 'ttt',
+                'session_type' => 'ccl',
                 'max_participants' => $maxParticipants,
                 'current_enrollment' => $currentEnrollment,
                 'is_active' => true,
@@ -195,6 +195,6 @@ class TTTSessionSeeder extends Seeder
             }
         }
 
-        $this->command->info('Created ' . count($sessions) . ' TTT sessions with schedule items.');
+        $this->command->info('Created ' . count($sessions) . ' CCL sessions with schedule items.');
     }
 }

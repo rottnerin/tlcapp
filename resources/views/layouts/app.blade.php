@@ -162,9 +162,9 @@
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.schedule.*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 Schedule
                             </a>
-                            <a href="{{ route('admin.ttt.index') }}" 
-                               class="text-white hover:text-gray-200 {{ request()->routeIs('admin.ttt.*') ? 'font-medium underline underline-offset-4' : '' }}">
-                                TTT
+                            <a href="{{ route('admin.ccl.index') }}" 
+                               class="text-white hover:text-gray-200 {{ request()->routeIs('admin.ccl.*') ? 'font-medium underline underline-offset-4' : '' }}">
+                                CCL
                             </a>
                             <a href="{{ route('admin.users.index') }}" 
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.users.*') ? 'font-medium underline underline-offset-4' : '' }}">
@@ -208,9 +208,9 @@
                            class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.schedule.*') ? 'bg-white/10' : '' }}">
                             Schedule
                         </a>
-                        <a href="{{ route('admin.ttt.index') }}"
-                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.ttt.*') ? 'bg-white/10' : '' }}">
-                            TTT
+                        <a href="{{ route('admin.ccl.index') }}"
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.ccl.*') ? 'bg-white/10' : '' }}">
+                            CCL
                         </a>
                         <a href="{{ route('admin.users.index') }}"
                            class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.users.*') ? 'bg-white/10' : '' }}">

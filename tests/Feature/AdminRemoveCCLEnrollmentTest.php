@@ -4,16 +4,16 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
-use App\Models\TTTSession;
+use App\Models\CCLSession;
 use App\Models\ScheduleItem;
 use App\Models\UserSession;
 use App\Models\PDDay;
 use App\Models\Division;
-use App\Models\TTTSetting;
+use App\Models\CCLSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Carbon\Carbon;
 
-class AdminRemoveTTTEnrollmentTest extends TestCase
+class AdminRemoveCCLEnrollmentTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -30,8 +30,8 @@ class AdminRemoveTTTEnrollmentTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Ensure TTT settings exist and are active
-        $settings = TTTSetting::firstOrCreate([], [
+        // Ensure CCL settings exist and are active
+        $settings = CCLSetting::firstOrCreate([], [
             'is_active' => true,
         ]);
         $settings->is_active = true;
@@ -67,13 +67,13 @@ class AdminRemoveTTTEnrollmentTest extends TestCase
             'academic_year' => PDDay::getCurrentAcademicYear(),
         ]);
 
-        // Create a TTT session
+        // Create a CCL session
         $sessionDate = Carbon::now()->addDays(7);
         $startTime = Carbon::createFromTime(10, 0, 0);
         
-        $tttSession = TTTSession::create([
-            'title' => 'Test TTT Session',
-            'description' => 'A test TTT session',
+        $tttSession = CCLSession::create([
+            'title' => 'Test CCL Session',
+            'description' => 'A test CCL session',
             'presenter_name' => 'Test Presenter',
             'location' => 'Test Location',
             'date' => $sessionDate,
@@ -98,7 +98,7 @@ class AdminRemoveTTTEnrollmentTest extends TestCase
             'date' => $tttSession->date,
             'presenter_primary' => $tttSession->presenter_name,
             'is_active' => true,
-            'session_type' => 'ttt',
+            'session_type' => 'ccl',
             'p_d_day_id' => $pdDay->id,
             'max_participants' => 20,
             'current_enrollment' => 0,
@@ -122,7 +122,7 @@ class AdminRemoveTTTEnrollmentTest extends TestCase
 
         // Act as admin and remove the enrollment
         $response = $this->actingAs($admin)->post(
-            route('admin.ttt.remove-enrollment', $tttSession),
+            route('admin.ccl.remove-enrollment', $tttSession),
             [
                 'user_id' => $user->id,
             ]
@@ -170,13 +170,13 @@ class AdminRemoveTTTEnrollmentTest extends TestCase
             'academic_year' => PDDay::getCurrentAcademicYear(),
         ]);
 
-        // Create a TTT session
+        // Create a CCL session
         $sessionDate = Carbon::now()->addDays(7);
         $startTime = Carbon::createFromTime(10, 0, 0);
         
-        $tttSession = TTTSession::create([
-            'title' => 'Test TTT Session',
-            'description' => 'A test TTT session',
+        $tttSession = CCLSession::create([
+            'title' => 'Test CCL Session',
+            'description' => 'A test CCL session',
             'presenter_name' => 'Test Presenter',
             'location' => 'Test Location',
             'date' => $sessionDate,
@@ -201,13 +201,13 @@ class AdminRemoveTTTEnrollmentTest extends TestCase
             'date' => $tttSession->date,
             'presenter_primary' => $tttSession->presenter_name,
             'is_active' => true,
-            'session_type' => 'ttt',
+            'session_type' => 'ccl',
             'p_d_day_id' => $pdDay->id,
         ]);
 
         // Attempt to remove user who is not enrolled
         $response = $this->actingAs($admin)->post(
-            route('admin.ttt.remove-enrollment', $tttSession),
+            route('admin.ccl.remove-enrollment', $tttSession),
             [
                 'user_id' => $user->id,
             ]
@@ -247,13 +247,13 @@ class AdminRemoveTTTEnrollmentTest extends TestCase
             'academic_year' => PDDay::getCurrentAcademicYear(),
         ]);
 
-        // Create a TTT session
+        // Create a CCL session
         $sessionDate = Carbon::now()->addDays(7);
         $startTime = Carbon::createFromTime(10, 0, 0);
         
-        $tttSession = TTTSession::create([
-            'title' => 'Test TTT Session',
-            'description' => 'A test TTT session',
+        $tttSession = CCLSession::create([
+            'title' => 'Test CCL Session',
+            'description' => 'A test CCL session',
             'presenter_name' => 'Test Presenter',
             'location' => 'Test Location',
             'date' => $sessionDate,
@@ -278,7 +278,7 @@ class AdminRemoveTTTEnrollmentTest extends TestCase
             'date' => $tttSession->date,
             'presenter_primary' => $tttSession->presenter_name,
             'is_active' => true,
-            'session_type' => 'ttt',
+            'session_type' => 'ccl',
             'p_d_day_id' => $pdDay->id,
         ]);
 
@@ -292,7 +292,7 @@ class AdminRemoveTTTEnrollmentTest extends TestCase
 
         // Attempt to remove enrollment as non-admin
         $response = $this->actingAs($regularUser)->post(
-            route('admin.ttt.remove-enrollment', $tttSession),
+            route('admin.ccl.remove-enrollment', $tttSession),
             [
                 'user_id' => $enrolledUser->id,
             ]

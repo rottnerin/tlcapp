@@ -2,28 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\TTTSession;
-use App\Models\TTTSetting;
+use App\Models\CCLSession;
+use App\Models\CCLSetting;
 use App\Models\PDDay;
 use Illuminate\Http\Request;
 
-class TTTController extends Controller
+class CCLController extends Controller
 {
     /**
-     * Display TTT sessions for users
+     * Display CCL sessions for users
      */
     public function index(Request $request)
     {
-        // Check if TTT feature is active
-        if (!TTTSetting::isActive()) {
+        // Check if CCL feature is active
+        if (!CCLSetting::isActive()) {
             return redirect()->route('dashboard')
-                ->with('error', 'Teachers Teaching Teachers is not currently available.');
+                ->with('error', 'Collaborative Community Learning Sessions is not currently available.');
         }
 
         // Get active spring PD day
         $pdDay = PDDay::spring()->active()->first();
 
-        $sessions = TTTSession::active()
+        $sessions = CCLSession::active()
             ->when($pdDay, function($query) use ($pdDay) {
                 return $query->where('p_d_day_id', $pdDay->id);
             })
@@ -32,15 +32,15 @@ class TTTController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        $settings = TTTSetting::getSettings();
+        $settings = CCLSetting::getSettings();
         
         // Check user enrollments for each session
         $user = auth()->user();
         $userEnrollments = [];
         if ($user && $pdDay) {
-            // Get all schedule items for TTT sessions
+            // Get all schedule items for CCL sessions
             $scheduleItems = \App\Models\ScheduleItem::where('p_d_day_id', $pdDay->id)
-                ->where('session_type', 'ttt')
+                ->where('session_type', 'ccl')
                 ->get()
                 ->keyBy(function($item) {
                     return $item->date->format('Y-m-d') . '_' . $item->start_time->format('H:i:s') . '_' . $item->title;
@@ -66,16 +66,16 @@ class TTTController extends Controller
             }
         }
 
-        return view('ttt.index', compact('sessions', 'settings', 'pdDay', 'userEnrollments'));
+        return view('ccl.index', compact('sessions', 'settings', 'pdDay', 'userEnrollments'));
     }
 
     /**
-     * Display a specific TTT session
+     * Display a specific CCL session
      */
-    public function show(TTTSession $session)
+    public function show(CCLSession $session)
     {
-        if (!TTTSetting::isActive() || !$session->is_active) {
-            return redirect()->route('spring.ttt')
+        if (!CCLSetting::isActive() || !$session->is_active) {
+            return redirect()->route('spring.ccl')
                 ->with('error', 'This session is not currently available.');
         }
 
@@ -85,12 +85,12 @@ class TTTController extends Controller
         $user = auth()->user();
         $userEnrollment = null;
         if ($user) {
-            // Find the corresponding ScheduleItem for this TTT session
+            // Find the corresponding ScheduleItem for this CCL session
             $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
                 ->where('date', $session->date)
                 ->where('start_time', $session->start_time)
                 ->where('title', $session->title)
-                ->where('session_type', 'ttt')
+                ->where('session_type', 'ccl')
                 ->first();
             
             if ($scheduleItem) {
@@ -101,27 +101,27 @@ class TTTController extends Controller
             }
         }
 
-        return view('ttt.show', compact('session', 'userEnrollment'));
+        return view('ccl.show', compact('session', 'userEnrollment'));
     }
 
     /**
-     * Join a TTT session (enroll user)
+     * Join a CCL session (enroll user)
      */
-    public function join(Request $request, TTTSession $session)
+    public function join(Request $request, CCLSession $session)
     {
-        // Check if TTT feature is active
-        if (!TTTSetting::isActive() || !$session->is_active) {
+        // Check if CCL feature is active
+        if (!CCLSetting::isActive() || !$session->is_active) {
             return back()->with('error', 'This session is not currently available.');
         }
 
         $user = auth()->user();
         
-        // Find the corresponding ScheduleItem for this TTT session
+        // Find the corresponding ScheduleItem for this CCL session
         $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
             ->where('date', $session->date)
             ->where('start_time', $session->start_time)
             ->where('title', $session->title)
-            ->where('session_type', 'ttt')
+            ->where('session_type', 'ccl')
             ->first();
         
         if (!$scheduleItem) {
@@ -138,16 +138,16 @@ class TTTController extends Controller
             return back()->with('error', 'You are already enrolled in this session.');
         }
         
-        // Check if user is already enrolled in any TTT session
-        $existingTTTEnrollment = \App\Models\UserSession::where('user_id', $user->id)
+        // Check if user is already enrolled in any CCL session
+        $existingCCLEnrollment = \App\Models\UserSession::where('user_id', $user->id)
             ->whereHas('scheduleItem', function($query) {
-                $query->where('session_type', 'ttt');
+                $query->where('session_type', 'ccl');
             })
             ->where('status', '!=', 'cancelled')
             ->first();
         
-        if ($existingTTTEnrollment) {
-            return back()->with('error', 'You can only join one TTT session. You are already enrolled in another TTT session.');
+        if ($existingCCLEnrollment) {
+            return back()->with('error', 'You can only join one CCL session. You are already enrolled in another CCL session.');
         }
         
         // Check for time conflicts with wellness session
@@ -166,7 +166,7 @@ class TTTController extends Controller
             $wellnessEnd = $wellnessSession->end_time;
             
             if ($tttStart < $wellnessEnd && $tttEnd > $wellnessStart) {
-                return back()->with('error', 'This TTT session conflicts with your selected wellness session time. Please select a TTT session at a different time.');
+                return back()->with('error', 'This CCL session conflicts with your selected wellness session time. Please select a CCL session at a different time.');
             }
         }
         

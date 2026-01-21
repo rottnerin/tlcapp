@@ -1,6 +1,6 @@
 @extends('layouts.user')
 
-@section('title', $session->title . ' - TTT')
+@section('title', $session->title . ' - CCL')
 
 @section('content')
 <style>
@@ -215,9 +215,9 @@
 
 <div class="min-h-screen" style="background-color: var(--tlc-cream);">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <a href="{{ route('spring.ttt') }}" class="back-link">
+        <a href="{{ route('spring.ccl') }}" class="back-link">
             <i class="fas fa-arrow-left"></i>
-            Back to TTT Sessions
+            Back to CCL Sessions
         </a>
 
         <div class="session-detail-card">
@@ -324,7 +324,7 @@
                             ->where('date', $session->date)
                             ->where('start_time', $session->start_time)
                             ->where('title', $session->title)
-                            ->where('session_type', 'ttt')
+                            ->where('session_type', 'ccl')
                             ->first();
                         $isFull = $scheduleItem && $scheduleItem->max_participants !== null && $scheduleItem->current_enrollment >= $scheduleItem->max_participants;
                     @endphp
@@ -337,7 +337,7 @@
                             <i class="fas fa-times mr-1"></i>Full
                         </button>
                     @else
-                        <form action="{{ route('spring.ttt.join', $session) }}" method="POST" style="display: inline;">
+                        <form action="{{ route('spring.ccl.join', $session) }}" method="POST" style="display: inline;">
                             @csrf
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-user-plus mr-1"></i>Join Session

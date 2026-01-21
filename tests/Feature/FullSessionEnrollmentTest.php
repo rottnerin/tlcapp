@@ -4,13 +4,13 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
-use App\Models\TTTSession;
+use App\Models\CCLSession;
 use App\Models\WellnessSession;
 use App\Models\ScheduleItem;
 use App\Models\UserSession;
 use App\Models\PDDay;
 use App\Models\Division;
-use App\Models\TTTSetting;
+use App\Models\CCLSetting;
 use App\Models\WellnessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Carbon\Carbon;
@@ -32,8 +32,8 @@ class FullSessionEnrollmentTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Ensure TTT settings exist and are active
-        $tttSettings = TTTSetting::firstOrCreate([], [
+        // Ensure CCL settings exist and are active
+        $tttSettings = CCLSetting::firstOrCreate([], [
             'is_active' => true,
         ]);
         $tttSettings->is_active = true;
@@ -127,13 +127,13 @@ class FullSessionEnrollmentTest extends TestCase
             'academic_year' => PDDay::getCurrentAcademicYear(),
         ]);
 
-        // Create a TTT session
+        // Create a CCL session
         $sessionDate = Carbon::now()->addDays(7);
         $startTime = Carbon::createFromTime(10, 0, 0);
         
-        $tttSession = TTTSession::create([
-            'title' => 'Full TTT Session',
-            'description' => 'A TTT session that is full',
+        $tttSession = CCLSession::create([
+            'title' => 'Full CCL Session',
+            'description' => 'A CCL session that is full',
             'presenter_name' => 'Test Presenter',
             'location' => 'Test Location',
             'date' => $sessionDate,
@@ -237,13 +237,13 @@ class FullSessionEnrollmentTest extends TestCase
             'academic_year' => PDDay::getCurrentAcademicYear(),
         ]);
 
-        // Create a TTT session
+        // Create a CCL session
         $sessionDate = Carbon::now()->addDays(7);
         $startTime = Carbon::createFromTime(10, 0, 0);
         
-        $tttSession = TTTSession::create([
-            'title' => 'Full TTT Session',
-            'description' => 'A TTT session at capacity',
+        $tttSession = CCLSession::create([
+            'title' => 'Full CCL Session',
+            'description' => 'A CCL session at capacity',
             'presenter_name' => 'Test Presenter',
             'location' => 'Test Location',
             'date' => $sessionDate,

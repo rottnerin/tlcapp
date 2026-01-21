@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TTTSetting extends Model
+class CCLSetting extends Model
 {
     use HasFactory;
 
@@ -20,19 +20,19 @@ class TTTSetting extends Model
     ];
 
     /**
-     * Get the current TTT settings (singleton pattern)
+     * Get the current CCL settings (singleton pattern)
      */
     public static function getSettings(): self
     {
         return static::first() ?? static::create([
             'is_active' => false,
-            'title' => 'Teachers Teaching Teachers',
+            'title' => 'Collaborative Community Learning Sessions',
             'description' => 'Professional learning sessions led by our own teachers sharing their expertise.',
         ]);
     }
 
     /**
-     * Check if TTT feature is active
+     * Check if CCL feature is active
      */
     public static function isActive(): bool
     {
@@ -40,7 +40,7 @@ class TTTSetting extends Model
     }
 
     /**
-     * Toggle the TTT feature
+     * Toggle the CCL feature
      */
     public static function toggle(): bool
     {

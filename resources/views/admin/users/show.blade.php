@@ -248,9 +248,9 @@
                                                         Wellness
                                                     </span>
                                                 @elseif($enrollment->scheduleItem)
-                                                    @if($enrollment->scheduleItem->session_type === 'ttt')
+                                                    @if($enrollment->scheduleItem->session_type === 'ccl')
                                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                            TTT
+                                                            CCL
                                                         </span>
                                                     @else
                                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -296,17 +296,17 @@
                                                             <i class="fas fa-times"></i>
                                                         </button>
                                                     </form>
-                                                @elseif($enrollment->scheduleItem && $enrollment->scheduleItem->session_type === 'ttt' && $enrollment->status !== 'cancelled')
+                                                @elseif($enrollment->scheduleItem && $enrollment->scheduleItem->session_type === 'ccl' && $enrollment->status !== 'cancelled')
                                                     @php
-                                                        $tttSession = \App\Models\TTTSession::where('p_d_day_id', $enrollment->scheduleItem->p_d_day_id)
+                                                        $cclSession = \App\Models\CCLSession::where('p_d_day_id', $enrollment->scheduleItem->p_d_day_id)
                                                             ->where('date', $enrollment->scheduleItem->date)
                                                             ->whereTime('start_time', $enrollment->scheduleItem->start_time->format('H:i:s'))
                                                             ->where('title', $enrollment->scheduleItem->title)
                                                             ->first();
                                                     @endphp
-                                                    @if($tttSession)
-                                                        <form action="{{ route('admin.ttt.remove-enrollment', $tttSession) }}" method="POST" 
-                                                              onsubmit="return confirm('Are you sure you want to remove this user from this TTT session?')" class="inline">
+                                                    @if($cclSession)
+                                                        <form action="{{ route('admin.ccl.remove-enrollment', $cclSession) }}" method="POST" 
+                                                              onsubmit="return confirm('Are you sure you want to remove this user from this CCL session?')" class="inline">
                                                             @csrf
                                                             <input type="hidden" name="user_id" value="{{ $user->id }}">
                                                             <button type="submit" 

@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Carbon\Carbon;
 
-class TTTSession extends Model
+class CCLSession extends Model
 {
     use HasFactory;
 
-    protected $table = 'ttt_sessions';
+    protected $table = 'ccl_sessions';
 
     protected $fillable = [
         'title',
@@ -64,7 +64,7 @@ class TTTSession extends Model
      */
     public function links(): HasMany
     {
-        return $this->hasMany(TTTLink::class, 'ttt_session_id')->orderBy('order');
+        return $this->hasMany(CCLLink::class, 'ccl_session_id')->orderBy('order');
     }
 
     /**
