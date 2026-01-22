@@ -46,6 +46,14 @@ class DivisionSeeder extends Seeder
                 'color_secondary' => '#FFB74D',
                 'is_active' => true,
             ],
+            [
+                'id' => 400,
+                'name' => 'NTS',
+                'full_name' => 'Non-Teaching Staff',
+                'color_primary' => '#9E9E9E',
+                'color_secondary' => '#BDBDBD',
+                'is_active' => true,
+            ],
         ];
 
         foreach ($divisions as $division) {
