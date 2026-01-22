@@ -9,6 +9,8 @@ class CCLSetting extends Model
 {
     use HasFactory;
 
+    protected $table = 'ccl_settings';
+
     protected $fillable = [
         'is_active',
         'title',

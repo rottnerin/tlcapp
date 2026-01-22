@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 class AdminAuthController extends Controller
 {
     /**
-     * Show the admin login form (redirects to welcome page)
+     * Show the admin login form
      */
     public function showLoginForm()
     {
@@ -20,8 +20,7 @@ class AdminAuthController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        // Redirect to the unified welcome page
-        return redirect('/');
+        return view('admin.login');
     }
 
     /**

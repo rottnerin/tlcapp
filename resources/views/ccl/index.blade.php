@@ -156,7 +156,6 @@
         <div class="bg-white rounded-2xl shadow-xl border border-gray-200 mb-8 overflow-hidden">
             <div class="section-header">
                 <div class="flex items-center justify-center">
-                    <div class="text-2xl mr-3">👨‍🏫</div>
                     <div class="text-center">
                         <h1 class="text-xl font-bold">{{ $settings->title }}</h1>
                         @if($settings->description)
