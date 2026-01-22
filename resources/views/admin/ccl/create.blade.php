@@ -174,23 +174,6 @@
                         </div>
 
                         <div>
-                            <label for="division_id" class="block text-sm font-medium text-gray-700 mb-1">Division</label>
-                            <select id="division_id" name="division_id"
-                                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
-                                           @error('division_id') border-red-300 @enderror">
-                                <option value="">All Divisions</option>
-                                @foreach($divisions as $division)
-                                    <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>
-                                        {{ $division->full_name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('division_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
                             <label for="contact_hours" class="block text-sm font-medium text-gray-700 mb-1">Contact Hours</label>
                             <input type="number" id="contact_hours" name="contact_hours" 
                                    value="{{ old('contact_hours') }}" step="0.5" min="0" max="24"

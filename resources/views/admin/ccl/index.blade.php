@@ -145,11 +145,6 @@
                                 <td class="px-6 py-4">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900">{{ $session->title }}</div>
-                                        @if($session->division)
-                                            <div class="text-sm text-gray-500 mt-1">
-                                                <i class="fas fa-building mr-1"></i>{{ $session->division->name }}
-                                            </div>
-                                        @endif
                                         @if($session->location)
                                             <div class="text-sm text-gray-500 mt-1">
                                                 <i class="fas fa-map-marker-alt mr-1"></i>{{ $session->location }}

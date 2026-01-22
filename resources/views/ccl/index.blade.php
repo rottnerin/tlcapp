@@ -280,14 +280,6 @@
                         <span>{{ $session->location }}</span>
                     </div>
                     @endif
-
-                    @if($session->division)
-                    <div class="mt-2">
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {{ $session->division->full_name }}
-                        </span>
-                    </div>
-                    @endif
                 </div>
                 <div class="ttt-card-footer">
                     <a href="{{ route('spring.ccl.show', $session) }}" class="view-btn">
