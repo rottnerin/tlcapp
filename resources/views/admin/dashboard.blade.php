@@ -43,32 +43,37 @@
 
                 <div class="flex items-center space-x-4">
                     <nav class="space-x-4">
-                        <a href="{{ route('admin.pl-wednesday.index') }}" 
+                        <a href="{{ route('admin.pl-wednesday.index') }}"
                            class="{{ request()->routeIs('admin.pl-wednesday.*') ? 'font-medium' : '' }}"
                            style="color: {{ request()->routeIs('admin.pl-wednesday.*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
                             PL Wednesday
                         </a>
-                        <a href="{{ route('admin.pddays.index') }}" 
+                        <a href="{{ route('admin.pddays.index') }}"
                            class="{{ request()->routeIs('admin.pddays.*') ? 'font-medium' : '' }}"
                            style="color: {{ request()->routeIs('admin.pddays.*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
                             PL Days
                         </a>
-                        <a href="{{ route('admin.wellness.index') }}" 
+                        <a href="{{ route('admin.wellness.index') }}"
                            class="{{ request()->routeIs('admin.wellness.*') ? 'font-medium' : '' }}"
                            style="color: {{ request()->routeIs('admin.wellness.*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
                             Wellness
                         </a>
-                        <a href="{{ route('admin.schedule.index') }}" 
+                        <a href="{{ route('admin.ccl.index') }}"
+                           class="{{ request()->routeIs('admin.ccl.*') ? 'font-medium' : '' }}"
+                           style="color: {{ request()->routeIs('admin.ccl.*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
+                            CCL
+                        </a>
+                        <a href="{{ route('admin.schedule.index') }}"
                            class="{{ request()->routeIs('admin.schedule.*') ? 'font-medium' : '' }}"
                            style="color: {{ request()->routeIs('admin.schedule.*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
                             Schedule
                         </a>
-                        <a href="{{ route('admin.users.index') }}" 
+                        <a href="{{ route('admin.users.index') }}"
                            class="{{ request()->routeIs('admin.users.*') ? 'font-medium' : '' }}"
                            style="color: {{ request()->routeIs('admin.users.*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
                             Users
                         </a>
-                        <a href="{{ route('admin.reports') }}" 
+                        <a href="{{ route('admin.reports') }}"
                            class="{{ request()->routeIs('admin.reports*') ? 'font-medium' : '' }}"
                            style="color: {{ request()->routeIs('admin.reports*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
                             Reports

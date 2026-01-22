@@ -15,7 +15,7 @@ class DivisionSeeder extends Seeder
     {
         $divisions = [
             [
-                'id' => 0,
+                'id' => 1,
                 'name' => 'ALL',
                 'full_name' => 'All School (K-12)',
                 'color_primary' => '#9C27B0',
