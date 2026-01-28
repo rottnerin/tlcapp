@@ -2,7 +2,7 @@
 
 A Laravel-based web application for managing Professional Development activities at the American Embassy School (AES). The system handles PD Days, Wellness Sessions, PL Wednesday sessions, and Teachers Teaching Teachers (TTT) programs.
 
-![TLC 2.0 Dashboard](docs/screenshots/schedule-view.png)
+![TLC 2.0 Homepage](screenshot-1-homepage.png)
 
 ## Features
 
@@ -30,20 +30,25 @@ A Laravel-based web application for managing Professional Development activities
 
 ## Screenshots
 
-### User Schedule View
-The schedule view shows sessions organized by day with division filtering:
+### Homepage - User Authentication
+The landing page offers Google OAuth for users and admin login:
 
-![Schedule View](docs/screenshots/schedule-view.png)
+![Homepage](screenshot-1-homepage.png)
 
-### Admin PL Days Management
-Manage PL Days with active/inactive/archived status:
+### Landing Page View
+Clean, professional interface with dual authentication options:
 
-![Admin PL Days](docs/screenshots/admin-pddays.png)
+![Landing Page](screenshot-3-landing-page.png)
 
-### Archive Navigation
-Archived PL Days appear in the sub-navigation for easy access:
+### Admin Login Portal
+Secure admin access with email/password authentication:
 
-![Archive Navigation](docs/screenshots/archive-nav.png)
+![Admin Login](screenshot-2-admin-login.png)
+
+### Admin Login Section
+Dedicated admin interface for managing PD activities:
+
+![Admin Section](screenshot-4-admin-section.png)
 
 ## Quick Start
 
