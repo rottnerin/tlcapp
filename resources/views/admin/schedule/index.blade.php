@@ -12,16 +12,18 @@
                 <p class="text-gray-600 mt-1">Manage the professional development schedule</p>
             </div>
             <div class="flex space-x-3">
-                <a href="{{ route('admin.schedule.by-pdday') }}" 
-                   class="text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md" class="btn-navy-lighten">
+                <a href="{{ route('admin.schedule.by-pdday') }}"
+                   class="px-4 py-3 rounded-lg font-medium transition-colors shadow-md"
+                   style="background-color: var(--tlc-gold); color: var(--tlc-navy);">
                     <i class="fas fa-calendar mr-2"></i>By PL Day
                 </a>
-                <button onclick="toggleBulkActions()" 
+                <button onclick="toggleBulkActions()"
                         class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
                     <i class="fas fa-tasks mr-2"></i>Bulk Actions
                 </button>
-                <a href="{{ route('admin.schedule.create') }}" 
-                   class="text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md" class="btn-orange-to-navy">
+                <a href="{{ route('admin.schedule.create') }}"
+                   class="text-white px-6 py-3 rounded-lg font-medium transition-colors shadow-md"
+                   style="background-color: var(--tlc-orange);">
                     <i class="fas fa-plus mr-2"></i>Add Schedule Item
                 </a>
             </div>

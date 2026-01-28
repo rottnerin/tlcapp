@@ -215,7 +215,7 @@
 
 <div class="min-h-screen" style="background-color: var(--tlc-cream);">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <a href="{{ route('spring.ccl') }}" class="back-link">
+        <a href="/spring-pl-days/ccl" class="back-link">
             <i class="fas fa-arrow-left"></i>
             Back to CCL Sessions
         </a>

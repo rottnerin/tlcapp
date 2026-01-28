@@ -22,10 +22,24 @@ class MyPLController extends Controller
         $academicYear = $request->get('year', PDDay::getCurrentAcademicYear());
         
         // Get all selected sessions for this academic year
-        $selectedSessions = $user->selectedSessions()
+        $allSelections = $user->selectedSessions()
             ->where('academic_year', $academicYear)
             ->with('selectable')
             ->get();
+
+        // Filter out orphaned records (where selectable no longer exists)
+        $selectedSessions = $allSelections->filter(function($selection) {
+            return $selection->selectable !== null;
+        });
+
+        // Clean up orphaned records (delete selections where selectable no longer exists)
+        $orphanedIds = $allSelections->filter(function($selection) {
+            return $selection->selectable === null;
+        })->pluck('id');
+
+        if ($orphanedIds->isNotEmpty()) {
+            UserSelectedSession::whereIn('id', $orphanedIds)->delete();
+        }
 
         // Group sessions by type
         $groupedSessions = [
@@ -146,10 +160,24 @@ class MyPLController extends Controller
         $academicYear = $request->get('year', PDDay::getCurrentAcademicYear());
         
         // Get all selected sessions for this academic year
-        $selectedSessions = $user->selectedSessions()
+        $allSelections = $user->selectedSessions()
             ->where('academic_year', $academicYear)
             ->with('selectable')
             ->get();
+
+        // Filter out orphaned records (where selectable no longer exists)
+        $selectedSessions = $allSelections->filter(function($selection) {
+            return $selection->selectable !== null;
+        });
+
+        // Clean up orphaned records (delete selections where selectable no longer exists)
+        $orphanedIds = $allSelections->filter(function($selection) {
+            return $selection->selectable === null;
+        })->pluck('id');
+
+        if ($orphanedIds->isNotEmpty()) {
+            UserSelectedSession::whereIn('id', $orphanedIds)->delete();
+        }
 
         // Build transcript data
         $transcriptItems = [];

@@ -30,15 +30,10 @@
             </div>
             <h1 class="text-3xl font-bold text-gray-900">{{ $ccl->title }}</h1>
             <div class="flex items-center mt-2 space-x-4">
-                <span class="px-3 py-1 text-sm font-semibold rounded-full 
+                <span class="px-3 py-1 text-sm font-semibold rounded-full
                             {{ $ccl->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                     {{ $ccl->is_active ? 'Active' : 'Inactive' }}
                 </span>
-                @if($ccl->division)
-                    <span class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
-                        {{ $ccl->division->name }}
-                    </span>
-                @endif
                 @if($ccl->pdDay)
                     <span class="px-3 py-1 text-sm bg-purple-100 text-purple-800 rounded-full">
                         {{ $ccl->pdDay->title }}
@@ -238,17 +233,6 @@
                                 </span>
                             @else
                                 <p class="text-gray-500 text-sm">Not assigned</p>
-                            @endif
-                        </div>
-
-                        <div>
-                            <h3 class="text-sm font-medium text-gray-700 mb-1">Division</h3>
-                            @if($ccl->division)
-                                <span class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
-                                    {{ $ccl->division->full_name }}
-                                </span>
-                            @else
-                                <p class="text-gray-500 text-sm">All Divisions</p>
                             @endif
                         </div>
                     </div>

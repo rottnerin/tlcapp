@@ -14,13 +14,14 @@
                 </div>
                 <div class="flex gap-3">
                     <button class="inline-flex items-center px-4 py-2 rounded-lg transition-colors shadow-sm font-medium
-                                {{ $settings->is_active ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-700' }}" 
+                                {{ $settings->is_active ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-700' }}"
                             id="toggle-ttt-btn">
                         <i class="fas {{ $settings->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }} mr-2"></i>
                         CCL {{ $settings->is_active ? 'Active' : 'Inactive' }}
                     </button>
-                    <a href="{{ route('admin.ccl.create') }}" 
-                       class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" style="background-color: var(--tlc-orange);" onmouseover="this.style.backgroundColor='#0d3b66'" onmouseout="this.style.backgroundColor='#ee964b'">
+                    <a href="{{ route('admin.ccl.create') }}"
+                       class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm font-medium"
+                       style="background-color: var(--tlc-orange);">
                         <i class="fas fa-plus mr-2"></i>
                         Add New Session
                     </a>
@@ -144,11 +145,6 @@
                                 <td class="px-6 py-4">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900">{{ $session->title }}</div>
-                                        @if($session->division)
-                                            <div class="text-sm text-gray-500 mt-1">
-                                                <i class="fas fa-building mr-1"></i>{{ $session->division->name }}
-                                            </div>
-                                        @endif
                                         @if($session->location)
                                             <div class="text-sm text-gray-500 mt-1">
                                                 <i class="fas fa-map-marker-alt mr-1"></i>{{ $session->location }}

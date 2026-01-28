@@ -168,31 +168,31 @@
 
                     <div class="flex items-center space-x-4">
                         <nav class="space-x-4">
-                            <a href="{{ route('admin.pl-wednesday.index') }}" 
+                            <a href="{{ route('admin.pl-wednesday.index') }}"
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.pl-wednesday.*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 PL Wednesday
                             </a>
-                            <a href="{{ route('admin.pddays.index') }}" 
+                            <a href="{{ route('admin.pddays.index') }}"
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.pddays.*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 PL Days
                             </a>
-                            <a href="{{ route('admin.wellness.index') }}" 
+                            <a href="{{ route('admin.wellness.index') }}"
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.wellness.*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 Wellness
                             </a>
-                            <a href="{{ route('admin.schedule.index') }}" 
-                               class="text-white hover:text-gray-200 {{ request()->routeIs('admin.schedule.*') ? 'font-medium underline underline-offset-4' : '' }}">
-                                Schedule
-                            </a>
-                            <a href="{{ route('admin.ccl.index') }}" 
+                            <a href="{{ route('admin.ccl.index') }}"
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.ccl.*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 CCL
                             </a>
-                            <a href="{{ route('admin.users.index') }}" 
+                            <a href="{{ route('admin.schedule.index') }}"
+                               class="text-white hover:text-gray-200 {{ request()->routeIs('admin.schedule.*') ? 'font-medium underline underline-offset-4' : '' }}">
+                                Schedule
+                            </a>
+                            <a href="{{ route('admin.users.index') }}"
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.users.*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 Users
                             </a>
-                            <a href="{{ route('admin.reports') }}" 
+                            <a href="{{ route('admin.reports') }}"
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.reports*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 Reports
                             </a>
@@ -226,13 +226,13 @@
                            class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.wellness.*') ? 'bg-white/10' : '' }}">
                             Wellness
                         </a>
-                        <a href="{{ route('admin.schedule.index') }}"
-                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.schedule.*') ? 'bg-white/10' : '' }}">
-                            Schedule
-                        </a>
                         <a href="{{ route('admin.ccl.index') }}"
                            class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.ccl.*') ? 'bg-white/10' : '' }}">
                             CCL
+                        </a>
+                        <a href="{{ route('admin.schedule.index') }}"
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.schedule.*') ? 'bg-white/10' : '' }}">
+                            Schedule
                         </a>
                         <a href="{{ route('admin.users.index') }}"
                            class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.users.*') ? 'bg-white/10' : '' }}">

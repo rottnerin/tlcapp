@@ -216,7 +216,7 @@
 
 <div class="min-h-screen" style="background-color: var(--tlc-cream);">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <a href="{{ route('wellness.index') }}" class="back-link">
+        <a href="/spring-pl-days/wellness" class="back-link">
             <i class="fas fa-arrow-left"></i>
             Back to Wellness Sessions
         </a>
@@ -363,28 +363,6 @@
                     Preparation Notes
                 </div>
                 <div class="description" style="margin-bottom: 1.5rem;">{{ $session->preparation_notes }}</div>
-                @endif
-
-                <!-- Participants -->
-                @if($participants->count() > 0)
-                <div class="section-title">
-                    <i class="fas fa-users"></i>
-                    Participants ({{ $participants->count() }})
-                </div>
-                <div class="participants-grid">
-                    @foreach($participants as $participant)
-                    <div class="participant-item">
-                        @if($participant->avatar)
-                            <img src="{{ $participant->avatar }}" alt="{{ $participant->name }}" class="participant-avatar">
-                        @else
-                            <div class="participant-initial">
-                                {{ substr($participant->name, 0, 1) }}
-                            </div>
-                        @endif
-                        <span class="text-sm" style="color: #4b5563;">{{ $participant->name }}</span>
-                    </div>
-                    @endforeach
-                </div>
                 @endif
 
                 <!-- Action Buttons -->
