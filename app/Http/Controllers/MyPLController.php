@@ -14,13 +14,14 @@ use Illuminate\Support\Facades\Auth;
 class MyPLController extends Controller
 {
     /**
-     * Display the user's personal PL schedule
+     * Get valid user selections for a given academic year, filtering out orphaned records
+     *
+     * @param \App\Models\User $user
+     * @param string $academicYear
+     * @return \Illuminate\Support\Collection
      */
-    public function index(Request $request)
+    private function getValidSelections($user, string $academicYear)
     {
-        $user = Auth::user();
-        $academicYear = $request->get('year', PDDay::getCurrentAcademicYear());
-        
         // Get all selected sessions for this academic year
         $allSelections = $user->selectedSessions()
             ->where('academic_year', $academicYear)
@@ -28,18 +29,20 @@ class MyPLController extends Controller
             ->get();
 
         // Filter out orphaned records (where selectable no longer exists)
-        $selectedSessions = $allSelections->filter(function($selection) {
-            return $selection->selectable !== null;
-        });
+        // Note: Orphaned records are cleaned up by scheduled command 'selections:clean-orphaned'
+        return $allSelections->filter(fn($selection) => $selection->selectable !== null);
+    }
 
-        // Clean up orphaned records (delete selections where selectable no longer exists)
-        $orphanedIds = $allSelections->filter(function($selection) {
-            return $selection->selectable === null;
-        })->pluck('id');
+    /**
+     * Display the user's personal PL schedule
+     */
+    public function index(Request $request)
+    {
+        $user = Auth::user();
+        $academicYear = $request->get('year', PDDay::getCurrentAcademicYear());
 
-        if ($orphanedIds->isNotEmpty()) {
-            UserSelectedSession::whereIn('id', $orphanedIds)->delete();
-        }
+        // Get valid selections (orphans are filtered out, cleaned by scheduled command)
+        $selectedSessions = $this->getValidSelections($user, $academicYear);
 
         // Group sessions by type
         $groupedSessions = [
@@ -158,26 +161,9 @@ class MyPLController extends Controller
     {
         $user = Auth::user();
         $academicYear = $request->get('year', PDDay::getCurrentAcademicYear());
-        
-        // Get all selected sessions for this academic year
-        $allSelections = $user->selectedSessions()
-            ->where('academic_year', $academicYear)
-            ->with('selectable')
-            ->get();
 
-        // Filter out orphaned records (where selectable no longer exists)
-        $selectedSessions = $allSelections->filter(function($selection) {
-            return $selection->selectable !== null;
-        });
-
-        // Clean up orphaned records (delete selections where selectable no longer exists)
-        $orphanedIds = $allSelections->filter(function($selection) {
-            return $selection->selectable === null;
-        })->pluck('id');
-
-        if ($orphanedIds->isNotEmpty()) {
-            UserSelectedSession::whereIn('id', $orphanedIds)->delete();
-        }
+        // Get valid selections (orphans are filtered out, cleaned by scheduled command)
+        $selectedSessions = $this->getValidSelections($user, $academicYear);
 
         // Build transcript data
         $transcriptItems = [];
