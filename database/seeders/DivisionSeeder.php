@@ -15,15 +15,13 @@ class DivisionSeeder extends Seeder
     {
         $divisions = [
             [
-                'id' => 1,
                 'name' => 'ALL',
-                'full_name' => 'All School (K-12)',
+                'full_name' => 'All School (PreK-12)',
                 'color_primary' => '#9C27B0',
                 'color_secondary' => '#BA68C8',
                 'is_active' => true,
             ],
             [
-                'id' => 100,
                 'name' => 'ES',
                 'full_name' => 'Elementary School',
                 'color_primary' => '#4CAF50',
@@ -31,7 +29,6 @@ class DivisionSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'id' => 200,
                 'name' => 'MS',
                 'full_name' => 'Middle School',
                 'color_primary' => '#2196F3',
@@ -39,7 +36,6 @@ class DivisionSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'id' => 300,
                 'name' => 'HS',
                 'full_name' => 'High School',
                 'color_primary' => '#FF9800',
@@ -47,7 +43,6 @@ class DivisionSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'id' => 400,
                 'name' => 'NTS',
                 'full_name' => 'Non-Teaching Staff',
                 'color_primary' => '#9E9E9E',
@@ -57,8 +52,8 @@ class DivisionSeeder extends Seeder
         ];
 
         foreach ($divisions as $division) {
-            Division::firstOrCreate(
-                ['id' => $division['id']],
+            Division::updateOrCreate(
+                ['name' => $division['name']], // Match by name, not ID
                 $division
             );
         }

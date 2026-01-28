@@ -24,6 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 : route('google.login')
         );
     })
+    ->withSchedule(function ($schedule): void {
+        // Clean up orphaned session selections daily at 2 AM
+        $schedule->command('selections:clean-orphaned')->dailyAt('02:00');
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
