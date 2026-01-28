@@ -1,14 +1,37 @@
 # TLC 2.0 - Professional Learning Management System
 
-A Laravel-based platform for managing professional development at the American Embassy School. Teachers discover sessions, enroll in programs, and track their learning journey across PD Days, Wellness Sessions, PL Wednesday, and CCL (Collaborative Community Learning).
+**Empowering Teacher Professional Growth at the American Embassy School**
+
+TLC 2.0 is a comprehensive platform that streamlines how teachers at AES discover, enroll in, and track their professional development. The system replaces manual sign-up processes with an intuitive digital experience, enabling teachers to browse division-specific sessions (Elementary, Middle, High School), manage their learning calendar, and administrators to coordinate PD programs with real-time capacity tracking and analytics.
+
+![Professional Learning Sessions](screenshot-pl-wednesday.png)
+
+## What Problem Does TLC Solve?
+
+**For Teachers:**
+- **Discovery Challenge** - Teachers previously struggled to find relevant PD sessions across multiple programs (PD Days, Wellness, PL Wednesday, CCL). TLC provides a unified catalog with division-based filtering.
+- **Enrollment Friction** - Manual sign-up sheets and email chains are replaced with one-click enrollment and instant capacity updates.
+- **Schedule Management** - "My PL" dashboard consolidates all enrolled sessions across different programs into a single printable schedule.
+
+**For Administrators:**
+- **Coordination Complexity** - Creating and managing multiple PD days with dozens of sessions is streamlined with bulk operations, CSV import, and session copying.
+- **Capacity Blind Spots** - Real-time enrollment tracking prevents over-booking and provides visibility into session popularity.
+- **Reporting Gaps** - Built-in analytics show capacity utilization, division breakdowns, and participant lists for better program planning.
+
+### Real-World Example
+
+**Before TLC 2.0:**
+> "A high school teacher wants to attend a wellness session during the Fall PD Day. They check their email for the sign-up spreadsheet link, navigate to find sessions for HS teachers, manually add their name to a Google Sheet, hope it's not full, then separately track which schedule sessions they're attending. On PD Day morning, they piece together their schedule from multiple sources."
+
+**With TLC 2.0:**
+> "The teacher logs in with their AES Google account, immediately sees sessions tagged for High School, clicks 'Add to My PL' on the wellness session (capacity shown as 8/15), browses schedule items, adds two more sessions, then visits 'My PL' to see their complete day schedule. They print it or view it on their phone throughout the day."
 
 ## Table of Contents
 
+- [What Problem Does TLC Solve?](#what-problem-does-tlc-solve)
+- [How It Works](#how-it-works)
 - [Overview](#overview)
 - [Information Flow](#information-flow)
-  - [User Journey](#user-journey)
-  - [Admin Workflow](#admin-workflow)
-  - [Data Architecture](#data-architecture)
 - [Core Features](#core-features)
 - [Quick Start](#quick-start)
 - [System Architecture](#system-architecture)
@@ -16,6 +39,31 @@ A Laravel-based platform for managing professional development at the American E
 - [Architecture Details](#architecture-details)
 - [Database Schema](#database-schema)
 - [Development Commands](#development-commands)
+
+## How It Works
+
+### For Teachers
+
+1. **Sign In** - Use your AES Google account to log in (division auto-detected from email)
+2. **Browse Sessions** - View upcoming PD sessions filtered by your division (ES/MS/HS)
+3. **Enroll** - Click "Add to My PL" on sessions that interest you (capacity shown in real-time)
+4. **Track** - Visit "My PL" to see all your enrolled sessions across all programs
+5. **Print** - Export your personal schedule for offline reference
+
+**Session Types Available:**
+- **PD Days** - Full-day professional development sessions (Fall & Spring)
+- **Wellness Sessions** - Physical and mental wellness activities during PD Days
+- **PL Wednesday** - Weekly professional learning sessions (Wednesdays 3:00-5:00 PM)
+- **CCL** - Collaborative Community Learning sessions throughout the year
+
+### For Administrators
+
+1. **Create PD Day** - Define dates and activate when ready for teacher viewing
+2. **Add Sessions** - Manually create sessions or bulk import via CSV
+3. **Set Parameters** - Assign divisions, set capacity limits, add session links
+4. **Monitor Enrollments** - Track real-time enrollment numbers and capacity
+5. **Generate Reports** - Export participant lists, capacity utilization, division summaries
+6. **Manage Programs** - Use feature toggles to enable/disable entire programs
 
 ## Overview
 
@@ -133,6 +181,22 @@ GOOGLE_CLIENT_ID=your-client-id
 GOOGLE_CLIENT_SECRET=your-client-secret
 GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google/callback
 ```
+
+## Screenshots
+
+### Professional Learning Sessions Interface
+
+Teachers browse sessions by date with clear session details, location, time, and one-click enrollment:
+
+![PL Wednesday Sessions](screenshot-pl-wednesday.png)
+
+**Key UI Features:**
+- **Division Badge** - Shows which school divisions each session targets (ES/MS/HS)
+- **Session Cards** - Display title, description, time, location, and presenter
+- **Add to My PL** - One-click enrollment with instant capacity feedback
+- **View Details** - Expandable session information with links and resources
+- **Date Grouping** - Sessions organized chronologically for easy scanning
+- **Navigation** - Quick access to My PL, Fall PL Day, Spring PL Days, and PL Wednesday
 
 ## System Architecture
 
