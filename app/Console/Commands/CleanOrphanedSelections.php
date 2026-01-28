@@ -36,49 +36,34 @@ class CleanOrphanedSelections extends Command
         $totalDeleted = 0;
 
         DB::transaction(function () use (&$totalDeleted) {
-            // Clean up orphaned ScheduleItem selections
-            $deletedSchedule = UserSelectedSession::where('selectable_type', ScheduleItem::class)
-                ->whereNotExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('schedule_items')
-                        ->whereColumn('schedule_items.id', 'user_selected_sessions.selectable_id');
-                })
-                ->delete();
+            // Define model classes and their table names
+            $modelTypes = [
+                ScheduleItem::class => (new ScheduleItem())->getTable(),
+                WellnessSession::class => (new WellnessSession())->getTable(),
+                PLWednesdaySession::class => (new PLWednesdaySession())->getTable(),
+                CCLSession::class => (new CCLSession())->getTable(),
+            ];
 
-            // Clean up orphaned WellnessSession selections
-            $deletedWellness = UserSelectedSession::where('selectable_type', WellnessSession::class)
-                ->whereNotExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('wellness_sessions')
-                        ->whereColumn('wellness_sessions.id', 'user_selected_sessions.selectable_id');
-                })
-                ->delete();
+            $deletedCounts = [];
 
-            // Clean up orphaned PLWednesdaySession selections
-            $deletedPLWednesday = UserSelectedSession::where('selectable_type', PLWednesdaySession::class)
-                ->whereNotExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('p_l_wednesday_sessions')
-                        ->whereColumn('p_l_wednesday_sessions.id', 'user_selected_sessions.selectable_id');
-                })
-                ->delete();
+            foreach ($modelTypes as $modelClass => $tableName) {
+                $deleted = UserSelectedSession::where('selectable_type', $modelClass)
+                    ->whereNotExists(function ($query) use ($tableName) {
+                        $query->select(DB::raw(1))
+                            ->from($tableName)
+                            ->whereColumn("{$tableName}.id", 'user_selected_sessions.selectable_id');
+                    })
+                    ->delete();
 
-            // Clean up orphaned CCLSession selections
-            $deletedCCL = UserSelectedSession::where('selectable_type', CCLSession::class)
-                ->whereNotExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('c_c_l_sessions')
-                        ->whereColumn('c_c_l_sessions.id', 'user_selected_sessions.selectable_id');
-                })
-                ->delete();
-
-            $totalDeleted = $deletedSchedule + $deletedWellness + $deletedPLWednesday + $deletedCCL;
+                $deletedCounts[$modelClass] = $deleted;
+                $totalDeleted += $deleted;
+            }
 
             $this->info("Cleaned up orphaned selections:");
-            $this->info("  - ScheduleItem: {$deletedSchedule}");
-            $this->info("  - WellnessSession: {$deletedWellness}");
-            $this->info("  - PLWednesdaySession: {$deletedPLWednesday}");
-            $this->info("  - CCLSession: {$deletedCCL}");
+            $this->info("  - ScheduleItem: {$deletedCounts[ScheduleItem::class]}");
+            $this->info("  - WellnessSession: {$deletedCounts[WellnessSession::class]}");
+            $this->info("  - PLWednesdaySession: {$deletedCounts[PLWednesdaySession::class]}");
+            $this->info("  - CCLSession: {$deletedCounts[CCLSession::class]}");
         });
 
         $this->info("✅ Total orphaned selections cleaned: {$totalDeleted}");
