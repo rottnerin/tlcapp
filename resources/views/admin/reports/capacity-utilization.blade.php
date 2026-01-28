@@ -12,8 +12,11 @@
                     <a href="{{ route('admin.reports') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Reports
                     </a>
-                    <a href="{{ request()->fullUrlWithQuery(['export' => '1']) }}" class="btn btn-success">
+                    <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-success">
                         <i class="fas fa-download"></i> Export CSV
+                    </a>
+                    <a href="{{ request()->fullUrlWithQuery(['export' => 'pdf']) }}" class="btn btn-danger">
+                        <i class="fas fa-file-pdf"></i> Export PDF
                     </a>
                 </div>
             </div>

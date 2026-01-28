@@ -42,7 +42,7 @@ This CSV template is used to import schedule items into the system.
 
 ## Division Names
 Use the following division names (separated by pipe | if multiple):
-- **ALL**: All School (K-12)
+- **ALL**: All School (PreK-12)
 - **ES**: Elementary School
 - **MS**: Middle School
 - **HS**: High School
@@ -52,7 +52,7 @@ Separate division names with a **pipe character (|)**. Examples:
 - Single division: `ES`
 - Multiple divisions: `ES|MS` (for both Elementary and Middle School)
 - Multiple divisions: `ES|MS|HS` (for all three divisions)
-- All divisions: `ALL` (for all school K-12)
+- All divisions: `ALL` (for all school PreK-12)
 
 **Important:** Do NOT use commas, semicolons, or spaces. Only use the pipe character (|).
 

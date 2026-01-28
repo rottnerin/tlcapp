@@ -857,7 +857,7 @@ body {
                                       <div class="text-center">
                                           <span class="font-semibold text-sm
                                               {{ in_array($division->id, $selectedDivisions) ? 'text-amber-800' : 'text-gray-800 group-hover:text-amber-700' }}">
-                                              {{ $division->full_name == "All School (K-12)" ? "All School (PreK-12)" : $division->full_name }}
+                                              {{ $division->full_name }}
                                           </span>
                                       </div>
                                   </div>
@@ -932,9 +932,9 @@ body {
                                                     @foreach($item->divisions as $division)
                                             <span class="tag
                                                 {{ strtolower($division->name) === 'es' ? 'tag-elementary' :
-                                                   (strtolower($division->name) === 'ms' ? 'tag-middle' : 
+                                                   (strtolower($division->name) === 'ms' ? 'tag-middle' :
                                                    (strtolower($division->name) === 'hs' ? 'tag-high' : 'tag-all')) }}">
-                                                            {{ $division->full_name == "All School (K-12)" ? "All School (PreK-12)" : $division->full_name }}
+                                                            {{ $division->full_name }}
                                                         </span>
                                                     @endforeach
                                                 </div>

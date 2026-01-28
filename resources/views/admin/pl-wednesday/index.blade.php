@@ -11,8 +11,9 @@
                     <h1 class="text-3xl font-bold text-gray-900">PL Wednesday Sessions</h1>
                     <p class="mt-2 text-gray-600">Manage Professional Learning Wednesday sessions</p>
                 </div>
-                <a href="{{ route('admin.pl-wednesday.create') }}" 
-                   class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm" class="btn-orange-to-navy">
+                <a href="{{ route('admin.pl-wednesday.create') }}"
+                   class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm font-medium"
+                   style="background-color: var(--tlc-orange);">
                     <i class="fas fa-plus mr-2"></i>
                     Add New Session
                 </a>

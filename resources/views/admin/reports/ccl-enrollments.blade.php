@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Wellness Enrollments Report')
+@section('title', 'CCL Enrollments Report')
 
 @section('content')
 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -8,8 +8,8 @@
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-2">Wellness Enrollments Report</h1>
-                <p class="text-gray-600">Detailed view of all wellness session enrollments</p>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">CCL Enrollments Report</h1>
+                <p class="text-gray-600">Detailed view of all Collaborative Community Learning session enrollments</p>
             </div>
             <div class="flex space-x-3">
                 <a href="{{ route('admin.reports') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
@@ -37,15 +37,15 @@
     <!-- Filters -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
-        <form method="GET" action="{{ route('admin.reports.wellness-enrollments') }}">
+        <form method="GET" action="{{ route('admin.reports.ccl-enrollments') }}">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
-                    <label for="session_id" class="block text-sm font-medium text-gray-700 mb-1">Wellness Session</label>
+                    <label for="session_id" class="block text-sm font-medium text-gray-700 mb-1">CCL Session</label>
                     <select name="session_id" id="session_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">All Sessions</option>
-                        @foreach($wellnessSessions as $session)
+                        @foreach($cclSessions as $session)
                             <option value="{{ $session->id }}" {{ $sessionId == $session->id ? 'selected' : '' }}>
-                                {{ $session->title }} ({{ $session->date->format('M d, Y') }})
+                                {{ $session->title }} ({{ $session->date->format('M d, Y') }}, {{ $session->start_time->format('g:i A') }})
                             </option>
                         @endforeach
                     </select>
@@ -67,7 +67,7 @@
                     <input type="date" name="date_to" id="date_to" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="{{ $dateTo }}">
                 </div>
                 <div class="flex items-end">
-                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors duration-200" class="btn-orange-to-navy">
+                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors duration-200" style="background-color: var(--tlc-orange);">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
@@ -82,8 +82,8 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-center">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                 </div>
@@ -139,7 +139,7 @@
         <div class="px-6 py-4 border-b border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900">Enrollment Details ({{ $enrollments->count() }} results)</h3>
         </div>
-        
+
         @if($enrollments->count() > 0)
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -157,7 +157,7 @@
                             <tr class="hover:bg-gray-50 transition-colors duration-150">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold mr-3">
+                                        <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-semibold mr-3">
                                             {{ substr($enrollment->user->name, 0, 1) }}
                                         </div>
                                         <div>
@@ -167,14 +167,17 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ $enrollment->wellnessSession->title ?? 'N/A' }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $enrollment->scheduleItem->title ?? 'N/A' }}</div>
                                     <div class="text-sm text-gray-500">
-                                        {{ $enrollment->wellnessSession->date ? $enrollment->wellnessSession->date->format('M d, Y') : 'N/A' }}
+                                        {{ $enrollment->scheduleItem->date ? $enrollment->scheduleItem->date->format('M d, Y') : 'N/A' }}
+                                        @if($enrollment->scheduleItem->start_time)
+                                            - {{ $enrollment->scheduleItem->start_time->format('g:i A') }}
+                                        @endif
                                     </div>
-                                    @if($enrollment->wellnessSession->category_names)
+                                    @if($enrollment->scheduleItem->location)
                                         <div class="mt-1">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                                {{ $enrollment->wellnessSession->category_names }}
+                                                {{ $enrollment->scheduleItem->location }}
                                             </span>
                                         </div>
                                     @endif

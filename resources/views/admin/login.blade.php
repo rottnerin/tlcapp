@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Login - TLC Professional Learning</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=lexend:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         :root {
@@ -15,7 +15,7 @@
             --tlc-orange: #ee964b;
         }
         body {
-            font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+            font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
         }

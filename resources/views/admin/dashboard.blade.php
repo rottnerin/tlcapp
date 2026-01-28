@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Dashboard - TLC Professional Learning</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=dm-sans:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=lexend:400,500,600,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+
     <style>
         :root {
             --tlc-navy: #0d3b66;
@@ -16,7 +16,7 @@
             --tlc-gold: #f4d35e;
             --tlc-orange: #ee964b;
         }
-        body { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
+        body { font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif; }
         .gradient-header { background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%); }
         .stat-card { transition: all 0.2s ease; background: #ffffff; }
         .stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(13, 59, 102, 0.15); }
@@ -117,6 +117,71 @@
                 </div>
                 <div class="mt-4 md:mt-0 text-sm" style="color: #64748b;">
                     <i class="far fa-calendar mr-2"></i>{{ now()->format('l, F j, Y') }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Center -->
+        <div class="mb-8">
+            <div class="card rounded-2xl shadow-sm overflow-hidden">
+                <div class="px-6 py-4" style="background: linear-gradient(135deg, rgba(13, 59, 102, 0.05) 0%, rgba(244, 211, 94, 0.1) 100%); border-bottom: 1px solid rgba(13, 59, 102, 0.1);">
+                    <h2 class="text-xl font-semibold" style="color: var(--tlc-navy);">
+                        <i class="fas fa-bolt mr-2" style="color: var(--tlc-gold);"></i>Action Center
+                    </h2>
+                    <p class="text-sm mt-1" style="color: #64748b;">Quick access to common tasks</p>
+                </div>
+
+                <div class="p-6">
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide mb-4" style="color: var(--tlc-navy);">Quick Actions</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                                <a href="{{ route('admin.schedule.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(13, 59, 102, 0.05); border-color: rgba(13, 59, 102, 0.2);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-navy);">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: var(--tlc-navy);">Schedule</span>
+                                </a>
+                                <a href="{{ route('admin.wellness.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(238, 150, 75, 0.1); border-color: rgba(238, 150, 75, 0.3);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-orange);">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: var(--tlc-orange);">Wellness</span>
+                                </a>
+                                <a href="{{ route('admin.pddays.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(244, 211, 94, 0.2); border-color: rgba(244, 211, 94, 0.5);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-gold);">
+                                        <i class="fas fa-plus" style="color: var(--tlc-navy);"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: var(--tlc-navy);">PL Day</span>
+                                </a>
+                                <a href="{{ route('admin.ccl.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(238, 150, 75, 0.1); border-color: rgba(238, 150, 75, 0.3);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-orange);">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: var(--tlc-orange);">CCL</span>
+                                </a>
+                                <a href="{{ route('admin.pl-wednesday.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(13, 59, 102, 0.05); border-color: rgba(13, 59, 102, 0.2);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-navy);">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: var(--tlc-navy);">PL Wed</span>
+                                </a>
+                            </div>
+
+                        <!-- Additional Quick Links -->
+                        <div class="mt-4 pt-4" style="border-top: 1px solid rgba(13, 59, 102, 0.1);">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <a href="{{ route('admin.users.index') }}" class="text-sm px-3 py-2 rounded-lg hover:bg-opacity-80 transition-colors" style="background: rgba(13, 59, 102, 0.1); color: var(--tlc-navy);">
+                                    <i class="fas fa-users mr-1"></i>Manage Users
+                                </a>
+                                <a href="{{ route('admin.reports') }}" class="text-sm px-3 py-2 rounded-lg hover:bg-opacity-80 transition-colors" style="background: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);">
+                                    <i class="fas fa-chart-bar mr-1"></i>View Reports
+                                </a>
+                                <a href="{{ route('admin.schedule.index') }}" class="text-sm px-3 py-2 rounded-lg hover:bg-opacity-80 transition-colors" style="background: rgba(238, 150, 75, 0.2); color: var(--tlc-navy);">
+                                    <i class="fas fa-calendar-alt mr-1"></i>All Schedules
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -266,65 +331,6 @@
                                 <p class="text-sm" style="color: #64748b;">No recent activity</p>
                             </div>
                         @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Center -->
-        <div class="mb-8">
-            <div class="card rounded-2xl shadow-sm overflow-hidden">
-                <div class="px-6 py-4" style="background: linear-gradient(135deg, rgba(13, 59, 102, 0.05) 0%, rgba(244, 211, 94, 0.1) 100%); border-bottom: 1px solid rgba(13, 59, 102, 0.1);">
-                    <h2 class="text-xl font-semibold" style="color: var(--tlc-navy);">
-                        <i class="fas fa-bolt mr-2" style="color: var(--tlc-gold);"></i>Action Center
-                    </h2>
-                    <p class="text-sm mt-1" style="color: #64748b;">Quick access to common tasks</p>
-                </div>
-                
-                <div class="p-6">
-                    <div>
-                        <h3 class="text-sm font-semibold uppercase tracking-wide mb-4" style="color: var(--tlc-navy);">Quick Actions</h3>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                <a href="{{ route('admin.schedule.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(13, 59, 102, 0.05); border-color: rgba(13, 59, 102, 0.2);">
-                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-navy);">
-                                        <i class="fas fa-plus text-white"></i>
-                                    </div>
-                                    <span class="text-sm font-medium" style="color: var(--tlc-navy);">Schedule</span>
-                                </a>
-                                <a href="{{ route('admin.wellness.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(238, 150, 75, 0.1); border-color: rgba(238, 150, 75, 0.3);">
-                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-orange);">
-                                        <i class="fas fa-plus text-white"></i>
-                                    </div>
-                                    <span class="text-sm font-medium" style="color: var(--tlc-orange);">Wellness</span>
-                                </a>
-                                <a href="{{ route('admin.pddays.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(244, 211, 94, 0.2); border-color: rgba(244, 211, 94, 0.5);">
-                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-gold);">
-                                        <i class="fas fa-plus" style="color: var(--tlc-navy);"></i>
-                                    </div>
-                                    <span class="text-sm font-medium" style="color: var(--tlc-navy);">PL Day</span>
-                                </a>
-                                <a href="{{ route('admin.pl-wednesday.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(13, 59, 102, 0.05); border-color: rgba(13, 59, 102, 0.2);">
-                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-navy);">
-                                        <i class="fas fa-plus text-white"></i>
-                                    </div>
-                                    <span class="text-sm font-medium" style="color: var(--tlc-navy);">PL Wed</span>
-                                </a>
-                            </div>
-                            
-                        <!-- Additional Quick Links -->
-                        <div class="mt-4 pt-4" style="border-top: 1px solid rgba(13, 59, 102, 0.1);">
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                <a href="{{ route('admin.users.index') }}" class="text-sm px-3 py-2 rounded-lg hover:bg-opacity-80 transition-colors" style="background: rgba(13, 59, 102, 0.1); color: var(--tlc-navy);">
-                                    <i class="fas fa-users mr-1"></i>Manage Users
-                                </a>
-                                <a href="{{ route('admin.reports') }}" class="text-sm px-3 py-2 rounded-lg hover:bg-opacity-80 transition-colors" style="background: rgba(244, 211, 94, 0.3); color: var(--tlc-navy);">
-                                    <i class="fas fa-chart-bar mr-1"></i>View Reports
-                                </a>
-                                <a href="{{ route('admin.schedule.index') }}" class="text-sm px-3 py-2 rounded-lg hover:bg-opacity-80 transition-colors" style="background: rgba(238, 150, 75, 0.2); color: var(--tlc-navy);">
-                                    <i class="fas fa-calendar-alt mr-1"></i>All Schedules
-                                </a>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -10,7 +10,7 @@
             <h1 class="text-3xl font-bold" style="color: var(--tlc-navy);">Schedule by PL Days</h1>
             <p class="mt-2 text-gray-600">Manage schedule items grouped by PL day events</p>
         </div>
-        <a href="{{ route('admin.schedule.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg whitespace-nowrap" class="btn-orange-to-navy">
+        <a href="{{ route('admin.schedule.create') }}" class="inline-flex items-center px-6 py-3 border border-transparent rounded-md font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg whitespace-nowrap" style="background-color: var(--tlc-orange);">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
