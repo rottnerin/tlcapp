@@ -104,6 +104,51 @@
                 </div>
             </form>
         </div>
+
+        <!-- Participants List -->
+        @if(isset($confirmedParticipants) && $confirmedParticipants->count() > 0)
+            <div class="mt-8 bg-white rounded-lg shadow-card border">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-900">Enrolled Participants ({{ $confirmedParticipants->count() }})</h2>
+                </div>
+
+                <div class="p-6">
+                    <div class="space-y-3">
+                        @foreach($confirmedParticipants as $selection)
+                            <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">{{ $selection->user->name }}</p>
+                                    <p class="text-sm text-gray-600">{{ $selection->user->email }}</p>
+                                    @if($selection->user->division)
+                                        <p class="text-xs text-gray-500">{{ $selection->user->division->name }}</p>
+                                    @endif
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="text-right">
+                                        <p class="text-sm text-gray-600">
+                                            {{ $selection->created_at->format('M j, Y') }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            {{ $selection->created_at->format('g:i A') }}
+                                        </p>
+                                    </div>
+                                    <form action="{{ route('admin.pl-wednesday.remove-enrollment', $plWednesday) }}" method="POST"
+                                          onsubmit="return confirm('Are you sure you want to remove {{ $selection->user->name }} from this session?')">
+                                        @csrf
+                                        <input type="hidden" name="user_id" value="{{ $selection->user->id }}">
+                                        <button type="submit"
+                                                class="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                                                title="Remove from session">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 

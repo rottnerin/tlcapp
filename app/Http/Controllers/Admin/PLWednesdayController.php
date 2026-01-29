@@ -167,16 +167,23 @@ class PLWednesdayController extends Controller
         $plWednesday = PLWednesdaySession::findOrFail($pl_wednesday);
         PLWednesdaySetting::initialize();
         $settings = PLWednesdaySetting::getActive();
-        
+
         // Generate list of valid Wednesday dates
         $wednesdayDates = $this->getWednesdayDates($settings->start_date, $settings->end_date);
-        
+
         // Get all active divisions
         $divisions = Division::active()->orderBy('name')->get();
-        
+
         $plWednesday->load('links');
 
-        return view('admin.pl-wednesday.edit', compact('plWednesday', 'settings', 'wednesdayDates', 'divisions'));
+        // Load confirmed participants
+        $plWednesday->load(['userSelectedSessions' => function($query) {
+            $query->with('user.division')->orderBy('created_at');
+        }]);
+
+        $confirmedParticipants = $plWednesday->userSelectedSessions;
+
+        return view('admin.pl-wednesday.edit', compact('plWednesday', 'settings', 'wednesdayDates', 'divisions', 'confirmedParticipants'));
     }
 
     /**

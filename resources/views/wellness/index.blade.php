@@ -33,15 +33,73 @@
     border-radius: 1rem;
     box-shadow: 0 4px 12px rgba(0, 70, 67, 0.08);
     overflow: hidden;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
+.wellness-card.joined {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: 4px solid #10b981;
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4), 0 0 0 3px rgba(16, 185, 129, 0.2);
+    transform: scale(1.02);
+    position: relative;
+}
+
+.wellness-card.joined::before {
+    content: '✓ JOINED';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: white;
+    color: #059669;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 800;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    letter-spacing: 1px;
+}
+
+.admin-unjoin-btn {
+    position: absolute;
+    top: 56px;
+    right: 12px;
+    background: #dc2626;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.admin-unjoin-btn:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(220, 38, 38, 0.4);
+}
+
+.wellness-card.joined .wellness-card-header {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.wellness-card.joined .wellness-card-body {
+    background: white;
+}
+
 @media (hover: hover) {
     .wellness-card:hover {
-        transform: translateY(-2px);
+        transform: translateY(-4px);
         box-shadow: 0 8px 24px rgba(0, 70, 67, 0.12);
     }
 }
@@ -58,6 +116,9 @@
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: white;
+    min-height: 3.75rem;
+    display: flex;
+    align-items: center;
 }
 
 .wellness-card-header .meta {
@@ -186,6 +247,26 @@
 
 <div class="min-h-screen" style="background-color: var(--tlc-cream);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+            <div class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    {{ session('success') }}
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    {{ session('error') }}
+                </div>
+            </div>
+        @endif
+
         <!-- Header -->
         <div class="bg-white rounded-2xl shadow-xl border border-gray-200 mb-8 overflow-hidden">
             <div class="section-header">
@@ -201,7 +282,7 @@
         <!-- Filters -->
             <div class="bg-white rounded-lg shadow-sm border mb-8 p-6" style="border-color: rgba(0, 70, 67, 0.2);">
             <h3 class="text-lg font-semibold mb-4" style="color: var(--tlc-navy);">Filter Sessions</h3>
-            <form method="GET" action="{{ route('wellness.index') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <form method="GET" action="{{ route($routePrefix ?? 'wellness.index') }}" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Search -->
                 <div>
                     <label for="search" class="block text-sm font-medium mb-1" style="color: var(--tlc-navy);">Search</label>
@@ -271,7 +352,7 @@
             <!-- Clear Filters -->
             @if(request()->hasAny(['search', 'category']))
                 <div class="mt-4 pt-4" style="border-top: 1px solid rgba(0, 70, 67, 0.2);">
-                    <a href="{{ route('wellness.index') }}" 
+                    <a href="{{ route($routePrefix ?? 'wellness.index') }}"
                        class="text-sm font-medium" style="color: var(--wellness-teal);">
                         <i class="fas fa-times mr-1"></i>Clear all filters
                     </a>
@@ -307,14 +388,26 @@
                 $hasUserEnrollment = $userWellnessEnrollment !== null;
                 $userEnrollment = $session->userSessions->firstWhere('user_id', auth()->id());
                 $isEnrolled = $userEnrollment && $userEnrollment->status !== 'cancelled';
-                
+
+                // Admins can join multiple sessions for testing
+                $isAdmin = auth()->user()->isAdmin();
+                $showAlreadyEnrolled = $hasUserEnrollment && !$isUserEnrolled && !$isAdmin;
+
                 // Enrollment/capacity info
                 $currentEnrollment = $session->current_enrollment ?? 0;
                 $maxParticipants = $session->max_participants;
                 $isFull = $session->isFull();
                 $enrollmentPercentage = ($maxParticipants && $maxParticipants > 0) ? min(100, ($currentEnrollment / $maxParticipants) * 100) : 0;
             @endphp
-            <div class="wellness-card">
+            <div class="wellness-card {{ $isEnrolled ? 'joined' : '' }}">
+                @if($isEnrolled && $isAdmin)
+                    <form action="{{ route(($routePrefix ?? 'wellness') . '.unjoin', $session) }}" method="POST" style="display: inline;" onsubmit="return confirm('Leave this session?');">
+                        @csrf
+                        <button type="submit" class="admin-unjoin-btn">
+                            <i class="fas fa-times"></i> Unjoin
+                        </button>
+                    </form>
+                @endif
                 <div class="wellness-card-header">
                     <h3>{{ $session->title }}</h3>
                     <!-- Enrollment Badge -->
@@ -404,23 +497,23 @@
                     @endif
                 </div>
                 <div class="wellness-card-footer">
-                    <a href="{{ route('wellness.show', $session) }}" class="view-btn">
+                    <a href="{{ route(($routePrefix ?? 'wellness') . '.show', $session) }}" class="view-btn">
                         <i class="fas fa-eye mr-1"></i>View Details
                     </a>
                     @if($isEnrolled)
-                        <button class="join-btn" disabled style="background: #004643; color: white; cursor: not-allowed; border-color: #005A56;">
-                            <i class="fas fa-check mr-1"></i>Joined
+                        <button class="join-btn" disabled style="background: #10b981; color: white; cursor: not-allowed; border-color: #059669;">
+                            <i class="fas fa-check mr-1"></i>Enrolled
                         </button>
                     @elseif($session->isFull())
                         <button class="join-btn" disabled style="background: #ef4444; color: white; cursor: not-allowed; border-color: #dc2626;">
                             <i class="fas fa-times mr-1"></i>Full
                         </button>
-                    @elseif($hasUserEnrollment && !$isUserEnrolled)
+                    @elseif($showAlreadyEnrolled)
                         <button class="join-btn" disabled style="background: #6b7280; color: white; cursor: not-allowed; border-color: #4b5563;">
                             <i class="fas fa-info-circle mr-1"></i>Already Enrolled
                         </button>
                     @else
-                        <form action="{{ route('wellness.enroll', $session) }}" method="POST" style="display: inline;" onclick="event.stopPropagation();">
+                        <form action="{{ route(($routePrefix ?? 'wellness') . '.enroll', $session) }}" method="POST" style="display: inline;" onclick="event.stopPropagation();">
                             @csrf
                             <button type="submit" class="join-btn">
                                 <i class="fas fa-user-plus mr-1"></i>Join Session

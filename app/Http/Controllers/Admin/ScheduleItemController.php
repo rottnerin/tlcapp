@@ -172,8 +172,15 @@ class ScheduleItemController extends Controller
         $divisions = Division::orderBy('name')->get();
         $pdDays = PDDay::orderBy('start_date', 'desc')->get();
         $wellnessSessions = WellnessSession::orderBy('created_at', 'desc')->get();
-        
-        return view('admin.schedule.edit', compact('schedule', 'divisions', 'pdDays', 'wellnessSessions'));
+
+        // Load confirmed participants
+        $confirmedParticipants = \App\Models\UserSession::where('schedule_item_id', $schedule->id)
+            ->where('status', 'confirmed')
+            ->with('user.division')
+            ->orderBy('enrolled_at')
+            ->get();
+
+        return view('admin.schedule.edit', compact('schedule', 'divisions', 'pdDays', 'wellnessSessions', 'confirmedParticipants'));
     }
 
     /**

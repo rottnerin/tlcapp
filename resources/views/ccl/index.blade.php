@@ -41,6 +41,64 @@
     box-shadow: 0 8px 24px rgba(13, 59, 102, 0.12);
 }
 
+.ttt-card.joined {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border: 4px solid #f59e0b;
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.45), 0 0 0 3px rgba(245, 158, 11, 0.25);
+    transform: scale(1.02);
+    position: relative;
+}
+
+.ttt-card.joined::before {
+    content: '✓ JOINED';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: white;
+    color: #d97706;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 800;
+    font-size: 0.875rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    letter-spacing: 1px;
+}
+
+.admin-unjoin-btn-ccl {
+    position: absolute;
+    top: 56px;
+    right: 12px;
+    background: #dc2626;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.admin-unjoin-btn-ccl:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(220, 38, 38, 0.4);
+}
+
+.ttt-card.joined .ttt-card-header {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+.ttt-card.joined .ttt-card-body {
+    background: white;
+}
+
 .ttt-card-header {
     background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%);
     color: white;
@@ -53,6 +111,9 @@
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: white;
+    min-height: 3.75rem;
+    display: flex;
+    align-items: center;
 }
 
 .ttt-card-header .meta {
@@ -152,6 +213,26 @@
 
 <div class="min-h-screen" style="background-color: var(--tlc-cream);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Success/Error Messages -->
+        @if(session('success'))
+            <div class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    {{ session('success') }}
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    {{ session('error') }}
+                </div>
+            </div>
+        @endif
+
         <!-- Header -->
         <div class="bg-white rounded-2xl shadow-xl border border-gray-200 mb-8 overflow-hidden">
             <div class="section-header">
@@ -219,18 +300,28 @@
             @php
                 $isEnrolled = isset($userEnrollments[$session->id]) && $userEnrollments[$session->id];
                 // Find corresponding schedule item to check capacity
-                // Match by title and session_type since CCL sessions are unique by title within the PD day
+                // Match by title, session_type, date, and start_time (as datetime)
+                $scheduleItemStartTime = $session->date->format('Y-m-d') . ' ' . $session->start_time->format('H:i:s');
                 $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
                     ->where('title', $session->title)
                     ->where('session_type', 'ccl')
-                    ->whereDate('date', $session->date)
+                    ->where('date', $session->date->format('Y-m-d'))
+                    ->where('start_time', $scheduleItemStartTime)
                     ->first();
                 $currentEnrollment = $scheduleItem ? $scheduleItem->current_enrollment : 0;
                 $maxParticipants = $scheduleItem ? $scheduleItem->max_participants : null;
                 $isFull = $scheduleItem && $maxParticipants !== null && $currentEnrollment >= $maxParticipants;
                 $enrollmentPercentage = ($maxParticipants && $maxParticipants > 0) ? min(100, ($currentEnrollment / $maxParticipants) * 100) : 0;
             @endphp
-            <div class="ttt-card">
+            <div class="ttt-card {{ $isEnrolled ? 'joined' : '' }}">
+                @if($isEnrolled && auth()->user()->isAdmin())
+                    <form action="{{ route('spring.ccl.unjoin', $session) }}" method="POST" style="display: inline;" onsubmit="return confirm('Leave this session?');">
+                        @csrf
+                        <button type="submit" class="admin-unjoin-btn-ccl">
+                            <i class="fas fa-times"></i> Unjoin
+                        </button>
+                    </form>
+                @endif
                 <div class="ttt-card-header">
                     <div class="flex items-center justify-between">
                         <h3 class="flex-1">{{ $session->title }}</h3>
@@ -286,8 +377,8 @@
                         <i class="fas fa-eye mr-1"></i>View Details
                     </a>
                     @if($isEnrolled)
-                        <button class="join-btn" disabled style="background: #10b981; color: white; cursor: not-allowed;">
-                            <i class="fas fa-check mr-1"></i>Joined
+                        <button class="join-btn" disabled style="background: #f59e0b; color: white; cursor: not-allowed;">
+                            <i class="fas fa-check mr-1"></i>Enrolled
                         </button>
                     @elseif($isFull)
                         <button class="join-btn" disabled style="background: #ef4444; color: white; cursor: not-allowed;">

@@ -30,6 +30,16 @@ Route::get('/typography-preview', function () {
     return view('typography-preview');
 })->name('typography.preview');
 
+// TEMPORARY: Test login route for browser automation testing
+Route::get('/test-login', function () {
+    $user = \App\Models\User::where('email', 'testuser@hs.aes.ac.in')->first();
+    if ($user) {
+        Auth::login($user);
+        return redirect('/spring-pl-days/ccl');
+    }
+    return 'User not found';
+});
+
 // Claude Code Settings Interface
 Route::prefix('claude-settings')->name('claude.settings.')->group(function () {
     Route::get('/', [ClaudeSettingsController::class, 'index'])->name('index');
@@ -68,6 +78,7 @@ Route::middleware(['user.only'])->group(function () {
         Route::get('/wellness', [WellnessController::class, 'fallIndex'])->name('fall.wellness');
         Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('fall.wellness.show');
         Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('fall.wellness.enroll');
+        Route::post('/wellness/{session}/unjoin', [WellnessController::class, 'unjoin'])->name('fall.wellness.unjoin');
     });
 
     // Spring PL Days Routes
@@ -77,9 +88,11 @@ Route::middleware(['user.only'])->group(function () {
         Route::get('/wellness', [WellnessController::class, 'springIndex'])->name('spring.wellness');
         Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('spring.wellness.show');
         Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('spring.wellness.enroll');
+        Route::post('/wellness/{session}/unjoin', [WellnessController::class, 'unjoin'])->name('spring.wellness.unjoin');
         Route::get('/ccl', [CCLController::class, 'index'])->name('spring.ccl');
         Route::get('/ccl/{session}', [CCLController::class, 'show'])->name('spring.ccl.show');
         Route::post('/ccl/{session}/join', [CCLController::class, 'join'])->name('spring.ccl.join');
+        Route::post('/ccl/{session}/unjoin', [CCLController::class, 'unjoin'])->name('spring.ccl.unjoin');
     });
 
     // Legacy Schedule routes (for backwards compatibility)
@@ -90,6 +103,7 @@ Route::middleware(['user.only'])->group(function () {
     Route::get('/wellness', [WellnessController::class, 'index'])->name('wellness.index');
     Route::get('/wellness/{session}', [WellnessController::class, 'show'])->name('wellness.show');
     Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('wellness.enroll');
+    Route::post('/wellness/{session}/unjoin', [WellnessController::class, 'unjoin'])->name('wellness.unjoin');
     
     // Professional Learning Wednesday
     Route::get('/professional-learning', [PLWednesdayController::class, 'index'])->name('pl-wednesday.index');
@@ -124,6 +138,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Schedule Items Management
     Route::resource('schedule', ScheduleItemController::class);
     Route::post('/schedule/{schedule}/toggle-status', [ScheduleItemController::class, 'toggleStatus'])->name('schedule.toggle-status');
+    Route::post('/schedule/{schedule}/remove-enrollment', [ScheduleItemController::class, 'removeEnrollment'])->name('schedule.remove-enrollment');
     Route::post('/schedule/bulk-update', [ScheduleItemController::class, 'bulkUpdate'])->name('schedule.bulk-update');
     Route::get('/schedule-by-pdday', [ScheduleItemController::class, 'byPdDay'])->name('schedule.by-pdday');
     Route::get('/schedule-copy/{pdday}', [ScheduleItemController::class, 'showCopyForm'])->name('schedule.copy-form');

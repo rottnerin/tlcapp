@@ -81,7 +81,8 @@ class WellnessController extends Controller
                 return $query->where('p_d_day_id', $activePDDay->id);
             })
             ->with(['userSessions' => function($query) use ($user) {
-                $query->where('user_id', $user->id);
+                $query->where('user_id', $user->id)
+                      ->where('status', '!=', 'cancelled');
             }]);
         
         // Apply category filter if provided
@@ -116,11 +117,14 @@ class WellnessController extends Controller
             ->sort()
             ->values();
         
+        $routePrefix = 'wellness';
+
         return view('wellness.index', compact(
             'user',
             'sessions',
             'userWellnessEnrollment',
-            'categories'
+            'categories',
+            'routePrefix'
         ));
     }
 
@@ -142,7 +146,8 @@ class WellnessController extends Controller
                 return $query->where('p_d_day_id', $activePDDay->id);
             })
             ->with(['userSessions' => function($query) use ($user) {
-                $query->where('user_id', $user->id);
+                $query->where('user_id', $user->id)
+                      ->where('status', '!=', 'cancelled');
             }]);
         
         // Apply category filter if provided
@@ -177,11 +182,14 @@ class WellnessController extends Controller
             ->sort()
             ->values();
         
+        $routePrefix = $season ? ($season . '.wellness') : 'wellness';
+
         return view('wellness.index', compact(
             'user',
             'sessions',
             'userWellnessEnrollment',
-            'categories'
+            'categories',
+            'routePrefix'
         ))->with('season', $season);
     }
 
@@ -237,30 +245,41 @@ class WellnessController extends Controller
         }
 
         $user = auth()->user();
-        
+
         // Check if user is already enrolled in this specific session
         $existingEnrollment = UserSession::where('user_id', $user->id)
             ->where('wellness_session_id', $session->id)
             ->where('status', '!=', 'cancelled')
             ->first();
-        
+
         if ($existingEnrollment) {
             return back()->with('error', 'You are already enrolled in this session.');
         }
-        
+
         // Check if user is already enrolled in any wellness session
         $existingWellnessEnrollment = UserSession::where('user_id', $user->id)
             ->whereNotNull('wellness_session_id')
             ->where('status', '!=', 'cancelled')
+            ->with('wellnessSession')
             ->first();
-        
+
         if ($existingWellnessEnrollment) {
-            return back()->with('error', 'You can only enroll in one wellness session. Please cancel your current enrollment before enrolling in a new session.');
+            // For admins: automatically cancel previous enrollment to allow testing
+            if ($user->isAdmin()) {
+                $previousSession = $existingWellnessEnrollment->wellnessSession;
+                $existingWellnessEnrollment->update(['status' => 'cancelled']);
+                if ($previousSession) {
+                    $previousSession->decrement('current_enrollment');
+                }
+            } else {
+                // For regular users: show error
+                return back()->with('error', 'You can only enroll in one wellness session. Please cancel your current enrollment before enrolling in a new session.');
+            }
         }
-        
+
         // Note: Time conflict check removed since all wellness sessions are at the same time (14:30-15:30)
         // and users can only enroll in one wellness session total (checked above)
-        
+
         // Use database transaction with locking to prevent race conditions
         try {
             $result = \DB::transaction(function() use ($user, $session) {
@@ -268,19 +287,19 @@ class WellnessController extends Controller
                 $lockedSession = WellnessSession::where('id', $session->id)
                     ->lockForUpdate()
                     ->first();
-                
+
                 if (!$lockedSession) {
                     throw new \Exception('Session not found.');
                 }
-                
+
                 // Check capacity again after acquiring lock
                 $hasCapacity = $lockedSession->current_enrollment < $lockedSession->max_participants;
-                
+
                 // If no capacity, abort
                 if (!$hasCapacity) {
                     throw new \Exception('This session is full.');
                 }
-                
+
                 // Create enrollment record
                 $enrollment = UserSession::create([
                     'user_id' => $user->id,
@@ -288,21 +307,62 @@ class WellnessController extends Controller
                     'status' => 'confirmed',
                     'enrolled_at' => now(),
                 ]);
-                
+
                 // Update session enrollment count if confirmed
                 $lockedSession->increment('current_enrollment');
-                
+
                 return [
                     'enrollment' => $enrollment,
                     'session' => $lockedSession->fresh()
                 ];
             });
-            
+
             return back()->with('success', 'Successfully enrolled in the session!');
-            
+
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Unjoin user from a wellness session (admin only)
+     */
+    public function unjoin(Request $request, WellnessSession $session)
+    {
+        // Check if Wellness feature is enabled
+        WellnessSetting::initialize();
+        if (!WellnessSetting::isActive()) {
+            abort(404);
+        }
+
+        $user = auth()->user();
+
+        // Only allow admins to unjoin
+        if (!$user->isAdmin()) {
+            return back()->with('error', 'You do not have permission to perform this action.');
+        }
+
+        // Find the user's enrollment in this session
+        $enrollment = UserSession::where('user_id', $user->id)
+            ->where('wellness_session_id', $session->id)
+            ->where('status', '!=', 'cancelled')
+            ->first();
+
+        if (!$enrollment) {
+            return back()->with('error', 'You are not enrolled in this session.');
+        }
+
+        $wasConfirmed = $enrollment->status === 'confirmed';
+
+        // Update enrollment status to cancelled
+        $enrollment->update(['status' => 'cancelled']);
+
+        // If was confirmed, decrease enrollment count
+        if ($wasConfirmed) {
+            $session->decrement('current_enrollment');
+        }
+
+        return back()->with('success', 'Successfully left the session.');
     }
 
 }

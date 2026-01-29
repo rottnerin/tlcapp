@@ -43,20 +43,24 @@ class CCLController extends Controller
                 ->where('session_type', 'ccl')
                 ->get()
                 ->keyBy(function($item) {
-                    return $item->date->format('Y-m-d') . '_' . $item->start_time->format('H:i:s') . '_' . $item->title;
+                    // Format date consistently as Y-m-d for matching
+                    $date = \Carbon\Carbon::parse($item->date)->format('Y-m-d');
+                    $time = \Carbon\Carbon::parse($item->start_time)->format('H:i:s');
+                    return $date . '_' . $time . '_' . $item->title;
                 });
-            
+
             // Get user's enrollments
             $enrollments = \App\Models\UserSession::where('user_id', $user->id)
                 ->whereNotNull('schedule_item_id')
                 ->where('status', '!=', 'cancelled')
                 ->with('scheduleItem')
                 ->get();
-            
+
             foreach ($sessions as $session) {
+                // Create key matching the format used above
                 $key = $session->date->format('Y-m-d') . '_' . $session->start_time->format('H:i:s') . '_' . $session->title;
                 $scheduleItem = $scheduleItems->get($key);
-                
+
                 if ($scheduleItem) {
                     $enrollment = $enrollments->firstWhere('schedule_item_id', $scheduleItem->id);
                     $userEnrollments[$session->id] = $enrollment ? true : false;
@@ -86,9 +90,12 @@ class CCLController extends Controller
         $userEnrollment = null;
         if ($user) {
             // Find the corresponding ScheduleItem for this CCL session
+            // Combine date and time to match the datetime stored in schedule_items
+            $scheduleItemStartTime = $session->date->format('Y-m-d') . ' ' . $session->start_time->format('H:i:s');
+
             $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
-                ->where('date', $session->date)
-                ->where('start_time', $session->start_time)
+                ->where('date', $session->date->format('Y-m-d'))
+                ->where('start_time', $scheduleItemStartTime)
                 ->where('title', $session->title)
                 ->where('session_type', 'ccl')
                 ->first();
@@ -115,61 +122,78 @@ class CCLController extends Controller
         }
 
         $user = auth()->user();
-        
+
         // Find the corresponding ScheduleItem for this CCL session
+        // Combine date and time to match the datetime stored in schedule_items
+        $scheduleItemStartTime = $session->date->format('Y-m-d') . ' ' . $session->start_time->format('H:i:s');
+
         $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
-            ->where('date', $session->date)
-            ->where('start_time', $session->start_time)
+            ->where('date', $session->date->format('Y-m-d'))
+            ->where('start_time', $scheduleItemStartTime)
             ->where('title', $session->title)
             ->where('session_type', 'ccl')
             ->first();
-        
+
         if (!$scheduleItem) {
             return back()->with('error', 'Schedule item not found for this session.');
         }
-        
+
         // Check if user is already enrolled in this session
         $existingEnrollment = \App\Models\UserSession::where('user_id', $user->id)
             ->where('schedule_item_id', $scheduleItem->id)
             ->where('status', '!=', 'cancelled')
             ->first();
-        
+
         if ($existingEnrollment) {
             return back()->with('error', 'You are already enrolled in this session.');
         }
-        
-        // Check if user is already enrolled in any CCL session
-        $existingCCLEnrollment = \App\Models\UserSession::where('user_id', $user->id)
-            ->whereHas('scheduleItem', function($query) {
-                $query->where('session_type', 'ccl');
+
+        // Check if user is already enrolled in a CCL session at the same time slot
+        $existingCCLEnrollmentSameTime = \App\Models\UserSession::where('user_id', $user->id)
+            ->whereHas('scheduleItem', function($query) use ($session) {
+                $query->where('session_type', 'ccl')
+                      ->where('date', $session->date->format('Y-m-d'))
+                      ->whereRaw('DATE_FORMAT(start_time, "%H:%i") = ?', [$session->start_time->format('H:i')]);
             })
             ->where('status', '!=', 'cancelled')
+            ->with('scheduleItem')
             ->first();
-        
-        if ($existingCCLEnrollment) {
-            return back()->with('error', 'You can only join one CCL session. You are already enrolled in another CCL session.');
-        }
-        
-        // Check for time conflicts with wellness session
-        $userWellnessEnrollment = \App\Models\UserSession::where('user_id', $user->id)
-            ->whereNotNull('wellness_session_id')
-            ->where('status', '!=', 'cancelled')
-            ->with('wellnessSession')
-            ->first();
-        
-        if ($userWellnessEnrollment && $userWellnessEnrollment->wellnessSession) {
-            $wellnessSession = $userWellnessEnrollment->wellnessSession;
-            // Check if times overlap
-            $tttStart = $session->start_time;
-            $tttEnd = $session->end_time;
-            $wellnessStart = $wellnessSession->start_time;
-            $wellnessEnd = $wellnessSession->end_time;
-            
-            if ($tttStart < $wellnessEnd && $tttEnd > $wellnessStart) {
-                return back()->with('error', 'This CCL session conflicts with your selected wellness session time. Please select a CCL session at a different time.');
+
+        if ($existingCCLEnrollmentSameTime) {
+            // For admins: automatically cancel previous enrollment to allow testing
+            if ($user->isAdmin()) {
+                $previousScheduleItem = $existingCCLEnrollmentSameTime->scheduleItem;
+                $existingCCLEnrollmentSameTime->update(['status' => 'cancelled']);
+                if ($previousScheduleItem && $previousScheduleItem->max_participants !== null) {
+                    $previousScheduleItem->decrement('current_enrollment');
+                }
+            } else {
+                return back()->with('error', 'You are already enrolled in a CCL session at this time. You can only join one session per time slot.');
             }
         }
-        
+
+        // Check for time conflicts with wellness session (skip for admins testing)
+        if (!$user->isAdmin()) {
+            $userWellnessEnrollment = \App\Models\UserSession::where('user_id', $user->id)
+                ->whereNotNull('wellness_session_id')
+                ->where('status', '!=', 'cancelled')
+                ->with('wellnessSession')
+                ->first();
+
+            if ($userWellnessEnrollment && $userWellnessEnrollment->wellnessSession) {
+                $wellnessSession = $userWellnessEnrollment->wellnessSession;
+                // Check if times overlap
+                $tttStart = $session->start_time;
+                $tttEnd = $session->end_time;
+                $wellnessStart = $wellnessSession->start_time;
+                $wellnessEnd = $wellnessSession->end_time;
+
+                if ($tttStart < $wellnessEnd && $tttEnd > $wellnessStart) {
+                    return back()->with('error', 'This CCL session conflicts with your selected wellness session time. Please select a CCL session at a different time.');
+                }
+            }
+        }
+
         // Use database transaction with locking to prevent race conditions
         try {
             $result = \DB::transaction(function() use ($user, $scheduleItem) {
@@ -177,20 +201,20 @@ class CCLController extends Controller
                 $lockedItem = \App\Models\ScheduleItem::where('id', $scheduleItem->id)
                     ->lockForUpdate()
                     ->first();
-                
+
                 if (!$lockedItem) {
                     throw new \Exception('Schedule item not found.');
                 }
-                
+
                 // Check capacity if max_participants is set
                 if ($lockedItem->max_participants !== null) {
                     $hasCapacity = $lockedItem->current_enrollment < $lockedItem->max_participants;
-                    
+
                     if (!$hasCapacity) {
                         throw new \Exception('This session is full.');
                     }
                 }
-                
+
                 // Create enrollment record
                 $enrollment = \App\Models\UserSession::create([
                     'user_id' => $user->id,
@@ -198,22 +222,76 @@ class CCLController extends Controller
                     'status' => 'confirmed',
                     'enrolled_at' => now(),
                 ]);
-                
+
                 // Update enrollment count if max_participants is set
                 if ($lockedItem->max_participants !== null) {
                     $lockedItem->increment('current_enrollment');
                 }
-                
+
                 return [
                     'enrollment' => $enrollment,
                     'scheduleItem' => $lockedItem->fresh()
                 ];
             });
-            
+
             return back()->with('success', 'Successfully joined the session!');
-            
+
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Unjoin user from a CCL session (admin only)
+     */
+    public function unjoin(Request $request, CCLSession $session)
+    {
+        // Check if CCL feature is active
+        if (!CCLSetting::isActive()) {
+            return back()->with('error', 'This session is not currently available.');
+        }
+
+        $user = auth()->user();
+
+        // Only allow admins to unjoin
+        if (!$user->isAdmin()) {
+            return back()->with('error', 'You do not have permission to perform this action.');
+        }
+
+        // Find the corresponding ScheduleItem for this CCL session
+        $scheduleItemStartTime = $session->date->format('Y-m-d') . ' ' . $session->start_time->format('H:i:s');
+
+        $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
+            ->where('date', $session->date->format('Y-m-d'))
+            ->where('start_time', $scheduleItemStartTime)
+            ->where('title', $session->title)
+            ->where('session_type', 'ccl')
+            ->first();
+
+        if (!$scheduleItem) {
+            return back()->with('error', 'Schedule item not found for this session.');
+        }
+
+        // Find the user's enrollment in this session
+        $enrollment = \App\Models\UserSession::where('user_id', $user->id)
+            ->where('schedule_item_id', $scheduleItem->id)
+            ->where('status', '!=', 'cancelled')
+            ->first();
+
+        if (!$enrollment) {
+            return back()->with('error', 'You are not enrolled in this session.');
+        }
+
+        $wasConfirmed = $enrollment->status === 'confirmed';
+
+        // Update enrollment status to cancelled
+        $enrollment->update(['status' => 'cancelled']);
+
+        // If was confirmed, decrease enrollment count
+        if ($wasConfirmed && $scheduleItem->max_participants !== null) {
+            $scheduleItem->decrement('current_enrollment');
+        }
+
+        return back()->with('success', 'Successfully left the session.');
     }
 }

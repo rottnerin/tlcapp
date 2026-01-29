@@ -36,6 +36,39 @@ composer test                  # Run all PHPUnit tests
 - **Middleware**: `AdminMiddleware` (admin routes), `UserOnly` (user routes), `NoAdminAccess` (blocks admin from user routes)
 - Division auto-detected from email patterns (es@, ms@, hs@)
 
+### User Enrollment Behavior
+Session enrollment works differently for admin and regular users:
+
+**Admin Users** (for testing and management):
+- Can join multiple sessions across all types (Wellness, CCL, etc.)
+- Can unjoin any session they're enrolled in via red "Unjoin" button
+- For Wellness: When joining a new session, previous enrollment is automatically cancelled
+- See an "Unjoin" button on enrolled sessions (red button, top-right of card)
+- Can freely switch between sessions for testing purposes
+- Identified by `is_admin = true` in users table
+
+**Regular End Users**:
+- **Wellness Sessions**: Can only join ONE wellness session total (enforced at controller level)
+  - Cannot join additional wellness sessions until admin cancels their current enrollment
+  - Attempting to join a second wellness session shows error: "You can only enroll in one wellness session"
+  - UI shows "Already Enrolled" (disabled) on other wellness sessions when enrolled in one
+- **CCL Sessions**: Can join ONE CCL session per time slot
+  - Users can join multiple CCL sessions if they're at different times (e.g., one at 10:00 AM, one at 1:00 PM)
+  - Cannot join two CCL sessions at the same time (e.g., both at 10:00 AM)
+  - Attempting to join a second session at same time shows error: "You are already enrolled in a CCL session at this time"
+  - Time conflict check also prevents joining CCL if it overlaps with enrolled Wellness session
+- **Cannot unjoin any sessions** - Do NOT see "Unjoin" button
+  - Must contact admin to be removed from sessions
+  - Admin must manually cancel enrollment from admin panel
+
+**Important Implementation Notes**:
+- `WellnessController@enroll` checks `$user->isAdmin()` for wellness-specific behavior
+- `WellnessController@unjoin` restricted to admin users only
+- `CCLController@unjoin` also restricted to admin users only
+- Eager loading filters: `->where('status', '!=', 'cancelled')` to show only active enrollments
+- View logic uses `$isAdmin` to conditionally render the unjoin button
+- Tests: See `tests/Feature/WellnessUserTypesTest.php` for behavioral differences
+
 ### Feature Toggle Pattern
 Each major feature has a settings model that enables/disables it globally:
 - `PLDaysSetting` - Fall/Spring PD Days
