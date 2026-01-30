@@ -265,7 +265,7 @@
             $endTime = $firstSession->end_time;
         @endphp
         
-        <!-- CCL Session {{ $sessionNumber }} Header -->
+        <!-- Collaborative Community Learning Session {{ $sessionNumber }} Header -->
         <div class="mb-4 mt-{{ $sessionNumber > 1 ? '10' : '0' }}">
             <div class="session-header-card rounded-2xl shadow-lg overflow-hidden" style="border: 3px solid #ee964b;">
                 <div class="px-6 py-5" style="background: linear-gradient(135deg, #7c2d12 0%, #9a3412 100%);">
@@ -276,7 +276,7 @@
                             </div>
                             <div>
                                 <h2 class="text-2xl font-black tracking-wide" style="color: #fed7aa; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
-                                    CCL SESSION {{ $sessionNumber }}
+                                    COLLABORATIVE COMMUNITY LEARNING SESSION {{ $sessionNumber }}
                                 </h2>
                                 <p class="text-base font-semibold mt-1" style="color: white;">
                                     <i class="fas fa-calendar-alt mr-2"></i>{{ $sessionDate->format('l, F j, Y') }}
@@ -288,11 +288,7 @@
                         </div>
                         <div class="px-4 py-2 rounded-full text-sm font-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3);">
                             <i class="fas fa-chalkboard-teacher mr-2"></i>
-                            @if($sessionNumber === 1)
-                                Choose 1
-                            @else
-                                {{ $slotSessions->count() }} {{ Str::plural('option', $slotSessions->count()) }} available
-                            @endif
+                            Choose 1
                         </div>
                     </div>
                 </div>
@@ -406,7 +402,7 @@
         @else
         <div class="empty-state">
             <div class="text-5xl mb-4">👨‍🏫</div>
-            <h3 class="text-xl font-semibold text-gray-700 mb-2">No CCL Sessions Available</h3>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">No Collaborative Community Learning Sessions Available</h3>
             <p class="text-gray-500">Collaborative Community Learning Sessions sessions will be posted here when available.</p>
         </div>
         @endif
