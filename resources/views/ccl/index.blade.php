@@ -267,15 +267,15 @@
         
         <!-- CCL Session {{ $sessionNumber }} Header -->
         <div class="mb-4 mt-{{ $sessionNumber > 1 ? '10' : '0' }}">
-            <div class="session-header-card rounded-2xl shadow-lg overflow-hidden" style="border: 3px solid {{ $sessionNumber === 1 ? '#f4d35e' : '#ee964b' }};">
-                <div class="px-6 py-5" style="background: linear-gradient(135deg, {{ $sessionNumber === 1 ? '#0d3b66 0%, #1a5490 100%' : '#7c2d12 0%, #9a3412 100%' }});">
+            <div class="session-header-card rounded-2xl shadow-lg overflow-hidden" style="border: 3px solid #ee964b;">
+                <div class="px-6 py-5" style="background: linear-gradient(135deg, {{ $sessionNumber === 1 ? '#ea580c 0%, #c2410c 100%' : '#7c2d12 0%, #9a3412 100%' }});">
                     <div class="flex items-center justify-between flex-wrap gap-4">
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg" style="background: {{ $sessionNumber === 1 ? 'linear-gradient(135deg, #f4d35e, #fbbf24)' : 'linear-gradient(135deg, #ee964b, #f97316)' }};">
-                                <span class="font-black text-2xl" style="color: {{ $sessionNumber === 1 ? '#0d3b66' : '#7c2d12' }};">{{ $sessionNumber }}</span>
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #ee964b, #f97316);">
+                                <span class="font-black text-2xl" style="color: white;">{{ $sessionNumber }}</span>
                             </div>
                             <div>
-                                <h2 class="text-2xl font-black tracking-wide" style="color: {{ $sessionNumber === 1 ? '#f4d35e' : '#fed7aa' }}; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+                                <h2 class="text-2xl font-black tracking-wide" style="color: #fed7aa; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
                                     CCL SESSION {{ $sessionNumber }}
                                 </h2>
                                 <p class="text-base font-semibold mt-1" style="color: white;">
@@ -288,7 +288,11 @@
                         </div>
                         <div class="px-4 py-2 rounded-full text-sm font-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3);">
                             <i class="fas fa-chalkboard-teacher mr-2"></i>
-                            {{ $slotSessions->count() }} {{ Str::plural('option', $slotSessions->count()) }} available
+                            @if($sessionNumber === 1)
+                                Choose 1
+                            @else
+                                {{ $slotSessions->count() }} {{ Str::plural('option', $slotSessions->count()) }} available
+                            @endif
                         </div>
                     </div>
                 </div>
