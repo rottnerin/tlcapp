@@ -642,6 +642,12 @@ body {
   color: var(--tlc-orange);
 }
 
+/* Print Schedule Button */
+.print-schedule-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(13, 59, 102, 0.4);
+}
+
 /* Archive Tabs Styling */
 .archive-tabs {
   display: flex;
@@ -827,12 +833,25 @@ body {
     @if($divisions->count() > 0)
         <div class="bg-white rounded-2xl shadow-xl border border-gray-200 mb-8 overflow-hidden">
             <div class="section-header">
-                <div class="flex items-center justify-center">
-                    <div class="text-3xl mr-4">🔍</div>
-                    <div class="text-center">
-                        <h2 class="text-xl font-bold">Filter by Division</h2>
-                        <p class="mt-1 opacity-90 text-sm">Click divisions to filter your schedule view instantly</p>
+                <div class="flex items-center justify-between px-4">
+                    <div class="flex items-center">
+                        <div class="text-3xl mr-4">🔍</div>
+                        <div class="text-center">
+                            <h2 class="text-xl font-bold">Filter by Division</h2>
+                            <p class="mt-1 opacity-90 text-sm">Click divisions to filter your schedule view instantly</p>
+                        </div>
                     </div>
+
+                    <!-- Print Schedule Button -->
+                    <a href="{{ route($scheduleRoute . '.print', array_filter([
+                        'day' => $activeTab,
+                        'divisions' => $selectedDivisions,
+                        'pdday' => (isset($isArchiveView) && $isArchiveView && $activePDDay) ? $activePDDay->id : null
+                    ])) }}"
+                       target="_blank"
+                       class="print-schedule-btn flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-tlc-navy to-blue-700 text-white rounded-lg font-semibold text-sm hover:shadow-lg transition-all duration-200">
+                        🖨️ Print Schedule
+                    </a>
                 </div>
             </div>
             

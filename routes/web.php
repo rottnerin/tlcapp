@@ -73,6 +73,7 @@ Route::middleware(['user.only'])->group(function () {
 
     // Fall PL Day Routes
     Route::prefix('fall-pl-day')->group(function () {
+        Route::get('/schedule/print', [ScheduleController::class, 'printSchedule'])->name('fall.schedule.print');
         Route::get('/schedule/{pdday?}', [ScheduleController::class, 'fallIndex'])->name('fall.schedule');
         Route::get('/schedule-item/{scheduleItem}', [ScheduleController::class, 'show'])->name('fall.schedule.show');
         Route::get('/wellness', [WellnessController::class, 'fallIndex'])->name('fall.wellness');
@@ -83,6 +84,7 @@ Route::middleware(['user.only'])->group(function () {
 
     // Spring PL Days Routes
     Route::prefix('spring-pl-days')->group(function () {
+        Route::get('/schedule/print', [ScheduleController::class, 'printSchedule'])->name('spring.schedule.print');
         Route::get('/schedule/{pdday?}', [ScheduleController::class, 'springIndex'])->name('spring.schedule');
         Route::get('/schedule-item/{scheduleItem}', [ScheduleController::class, 'show'])->name('spring.schedule.show');
         Route::get('/wellness', [WellnessController::class, 'springIndex'])->name('spring.wellness');

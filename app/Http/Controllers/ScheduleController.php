@@ -192,6 +192,83 @@ class ScheduleController extends Controller
     }
 
     /**
+     * Print schedule view for Fall or Spring
+     */
+    public function printSchedule(Request $request)
+    {
+        PLDaysSetting::initialize();
+        if (!PLDaysSetting::isActive()) {
+            abort(404);
+        }
+
+        $user = auth()->user();
+
+        // Determine season from route name
+        $season = str_contains($request->route()->getName(), 'spring') ? 'spring' : 'fall';
+
+        // Get PD Day (active or archived if pdday param provided)
+        $pdDayId = $request->get('pdday');
+        if ($pdDayId) {
+            $activePDDay = PDDay::find($pdDayId);
+        } else {
+            $activePDDay = PDDay::where('is_active', true)
+                ->where('season', $season)
+                ->first();
+        }
+
+        if (!$activePDDay) {
+            abort(404, 'No active PD Day found for ' . ucfirst($season));
+        }
+
+        // Generate date range for the PD Day
+        $eventDates = [];
+        $start = Carbon::parse($activePDDay->start_date);
+        $end = Carbon::parse($activePDDay->end_date);
+        while ($start->lte($end)) {
+            $eventDates[] = $start->copy();
+            $start->addDay();
+        }
+
+        // Get selected day (from day tab)
+        $activeTab = $request->get('day', 'day1');
+        $dayIndex = (int) str_replace('day', '', $activeTab) - 1;
+        $selectedDate = $eventDates[$dayIndex] ?? $eventDates[0] ?? null;
+
+        // Get division filter
+        $selectedDivisions = $request->get('divisions', []);
+
+        // Load schedule items with division filtering
+        $scheduleItems = collect();
+        if ($selectedDate && $activePDDay) {
+            $scheduleItems = ScheduleItem::active()
+                ->where('p_d_day_id', $activePDDay->id)
+                ->whereDate('date', $selectedDate)
+                ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions) {
+                    return $query->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
+                        $subQ->whereIn('divisions.id', $selectedDivisions);
+                    });
+                })
+                ->with(['divisions'])
+                ->orderBy('start_time')
+                ->get();
+        }
+
+        // Get active divisions for display
+        $divisions = Division::active()->get();
+
+        return view('schedule.print', compact(
+            'user',
+            'divisions',
+            'selectedDivisions',
+            'scheduleItems',
+            'selectedDate',
+            'activePDDay',
+            'season',
+            'activeTab'
+        ));
+    }
+
+    /**
      * Display schedule for a specific season
      */
     protected function seasonIndex(Request $request, string $season, ?PDDay $pdday = null)
@@ -254,7 +331,14 @@ class ScheduleController extends Controller
         $dayIndex = (int) str_replace('day', '', $activeTab) - 1;
         $selectedDate = $eventDates[$dayIndex] ?? null;
 
-        $selectedDivisions = $request->get('divisions', []);
+        // Default to user's division on first load, otherwise respect explicit filter
+        if (!$request->has('divisions')) {
+            // First page load - default to user's division if available
+            $selectedDivisions = $user->division_id ? [$user->division_id] : [];
+        } else {
+            // User has interacted with filters - respect their choice
+            $selectedDivisions = $request->get('divisions', []);
+        }
 
         if (empty($selectedDivisions)) {
             $allSchoolSelected = true;
