@@ -268,7 +268,7 @@
         <!-- CCL Session {{ $sessionNumber }} Header -->
         <div class="mb-4 mt-{{ $sessionNumber > 1 ? '10' : '0' }}">
             <div class="session-header-card rounded-2xl shadow-lg overflow-hidden" style="border: 3px solid #ee964b;">
-                <div class="px-6 py-5" style="background: linear-gradient(135deg, {{ $sessionNumber === 1 ? '#ea580c 0%, #c2410c 100%' : '#7c2d12 0%, #9a3412 100%' }});">
+                <div class="px-6 py-5" style="background: linear-gradient(135deg, #7c2d12 0%, #9a3412 100%);">
                     <div class="flex items-center justify-between flex-wrap gap-4">
                         <div class="flex items-center gap-4">
                             <div class="w-16 h-16 rounded-full flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, #ee964b, #f97316);">
