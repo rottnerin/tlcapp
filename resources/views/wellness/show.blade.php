@@ -1,6 +1,6 @@
 @extends('layouts.user')
 
-@section('title', $session->title . ' - Wellness')
+@section('title', $session->title . ' - Community & Well-being')
 
 @section('content')
 <style>
@@ -218,7 +218,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <a href="/spring-pl-days/wellness" class="back-link">
             <i class="fas fa-arrow-left"></i>
-            Back to Wellness Sessions
+            Back to Community & Well-being Sessions
         </a>
 
         <div class="session-detail-card">

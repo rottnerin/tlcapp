@@ -272,7 +272,7 @@
             <div class="section-header">
                 <div class="flex items-center justify-center">
                     <div class="text-center">
-                        <h1 class="text-xl font-bold">Wellness Sessions</h1>
+                        <h1 class="text-xl font-bold">Community & Well-being Sessions</h1>
                         <p class="mt-1 text-sm opacity-90">Choose from a variety of wellness activities to enhance your professional learning experience</p>
                     </div>
                 </div>
