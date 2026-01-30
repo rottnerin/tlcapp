@@ -424,7 +424,7 @@
                             </a>
                             @if($cclActive ?? false)
                             <a href="{{ route('spring.ccl') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('spring.ccl') ? 'text-tlc-gold font-semibold' : '' }}">
-                                CCL
+                                Collaborative Community Learning
                             </a>
                             @endif
                             @if(isset($archivedSpringPDDays) && $archivedSpringPDDays->count() > 0)
@@ -515,7 +515,7 @@
                 @if($cclActive ?? false)
                 <a href="{{ route('spring.ccl') }}"
                    class="sub-nav-item {{ request()->routeIs('spring.ccl') ? 'active' : '' }}">
-                    CCL
+                    Collaborative Community Learning
                 </a>
                 @endif
                 @if(isset($archivedSpringPDDays) && $archivedSpringPDDays->count() > 0)
