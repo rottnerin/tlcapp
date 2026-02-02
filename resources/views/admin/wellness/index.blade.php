@@ -193,6 +193,7 @@
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenter</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrollment</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PD Day</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -226,9 +227,13 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
-                                    <div class="font-medium">{{ \Carbon\Carbon::parse($session->date)->format('M j, Y') }}</div>
+                                    <div class="font-medium">{{ $session->date->format('M j, Y') }}</div>
                                     <div class="text-gray-500">
-                                        2:30 PM - 3:30 PM
+                                        @if($session->start_time && $session->end_time)
+                                            {{ $session->start_time->format('g:i A') }} - {{ $session->end_time->format('g:i A') }}
+                                        @else
+                                            <span class="text-gray-400">—</span>
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
@@ -249,6 +254,15 @@
                                                  style="background-color: var(--tlc-gold); width: {{ $session->max_participants > 0 ? ($session->user_sessions_count / $session->max_participants) * 100 : 0 }}%"></div>
                                         </div>
                                     </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    @if($session->pdDay)
+                                        <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                                            {{ $session->pdDay->title }}
+                                        </span>
+                                    @else
+                                        <span class="text-gray-400">—</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -281,7 +295,7 @@
                                         </form>
                                         @if($session->user_sessions_count == 0)
                                             <form action="{{ route('admin.wellness.destroy', $session) }}" method="POST" 
-                                                  class="inline" onsubmit="return confirm('Are you sure you want to delete this session?')">
+                                                  class="inline" onsubmit="return confirm('Are you sure you want to delete this Wellness session? This action cannot be undone.');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-900 transition-colors" title="Delete">
@@ -294,7 +308,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                                     <div class="flex flex-col items-center">
                                         <i class="fas fa-spa text-6xl text-gray-300 mb-6"></i>
                                         <h3 class="text-lg font-medium text-gray-900 mb-2">No wellness sessions found</h3>

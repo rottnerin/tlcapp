@@ -48,7 +48,8 @@ class WellnessSessionController extends Controller
             }
         }
 
-        $sessions = $query->withCount(['userSessions' => function($q) {
+        $sessions = $query->with('pdDay')
+        ->withCount(['userSessions' => function($q) {
             $q->where('status', 'confirmed');
         }])
         ->orderBy('date')

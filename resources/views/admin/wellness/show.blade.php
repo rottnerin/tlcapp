@@ -229,7 +229,7 @@
 
                         @if($confirmedParticipants->count() == 0)
                             <form action="{{ route('admin.wellness.destroy', $wellness) }}" method="POST" 
-                                  onsubmit="return confirm('Are you sure you want to delete this session? This action cannot be undone.')">
+                                  onsubmit="return confirm('Are you sure you want to delete this Wellness session? This action cannot be undone.');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" 

@@ -7,7 +7,6 @@ use App\Models\CCLSession;
 use App\Models\CCLSetting;
 use App\Models\PDDay;
 use App\Models\Division;
-use App\Models\ScheduleItem;
 use Carbon\Carbon;
 
 class CCLSessionSeeder extends Seeder
@@ -149,52 +148,18 @@ class CCLSessionSeeder extends Seeder
 
         foreach ($sessions as $index => $sessionData) {
             $sessionData['p_d_day_id'] = $springPDDay->id;
-            // Store original Carbon instances for ScheduleItem
-            $date = $sessionData['date'];
             $startTime = $sessionData['start_time'];
             $endTime = $sessionData['end_time'];
-            $divisionId = $sessionData['division_id'];
-            
+
             // Convert start_time and end_time to time format (H:i:s) for CCLSession
             $sessionData['start_time'] = $startTime->format('H:i:s');
             $sessionData['end_time'] = $endTime->format('H:i:s');
             
             $tttSession = CCLSession::create($sessionData);
-            
-            // Create corresponding ScheduleItem with capacity
-            // Varying capacities for testing: 15, 20, or 25
-            $capacities = [20, 25, 15, 20, 25, 15];
-            $maxParticipants = $capacities[$index % count($capacities)];
-            
-            // Add some random enrollments for testing display
-            $currentEnrollment = rand(0, min(12, $maxParticipants));
-            
-            // Create schedule item with proper datetime format (date + time combined)
-            $scheduleItem = ScheduleItem::create([
-                'p_d_day_id' => $springPDDay->id,
-                'title' => $sessionData['title'],
-                'description' => $sessionData['description'],
-                'presenter_primary' => $sessionData['presenter_name'],
-                'presenter_secondary' => $sessionData['co_presenter_name'] ?? null,
-                'date' => $date->format('Y-m-d'),
-                'start_time' => $date->format('Y-m-d') . ' ' . $startTime->format('H:i:s'),
-                'end_time' => $date->format('Y-m-d') . ' ' . $endTime->format('H:i:s'),
-                'location' => $sessionData['location'],
-                'session_type' => 'ccl',
-                'max_participants' => $maxParticipants,
-                'current_enrollment' => $currentEnrollment,
-                'is_active' => true,
-            ]);
-            
-            // Attach division if specified, otherwise attach all divisions
-            if ($divisionId) {
-                $scheduleItem->divisions()->attach($divisionId);
-            } else {
-                // Attach all divisions if no specific division
-                $scheduleItem->divisions()->attach(Division::all()->pluck('id'));
-            }
+
+            // Schedule item creation skipped - add via .md import or admin UI
         }
 
-        $this->command->info('Created ' . count($sessions) . ' CCL sessions with schedule items.');
+        $this->command->info('Created ' . count($sessions) . ' CCL sessions.');
     }
 }

@@ -92,6 +92,23 @@ class CCLSession extends Model
     }
 
     /**
+     * Get the ScheduleItem that corresponds to this CCL session (for enrollment tracking)
+     */
+    public function matchingScheduleItem(): ?\App\Models\ScheduleItem
+    {
+        if (!$this->date || !$this->start_time) {
+            return null;
+        }
+
+        return \App\Models\ScheduleItem::where('p_d_day_id', $this->p_d_day_id)
+            ->where('date', $this->date)
+            ->where('start_time', $this->start_time)
+            ->where('title', $this->title)
+            ->where('session_type', 'ccl')
+            ->first();
+    }
+
+    /**
      * Get the start time as a Carbon instance
      */
     public function getStartTimeAttribute($value): ?Carbon

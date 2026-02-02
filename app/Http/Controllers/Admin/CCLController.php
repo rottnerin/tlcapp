@@ -26,7 +26,50 @@ class CCLController extends Controller
 
         $settings = CCLSetting::getSettings();
 
-        return view('admin.ccl.index', compact('sessions', 'settings'));
+        // Build enrollment data for each session (enrollments are tracked via ScheduleItem)
+        $enrollmentData = [];
+        $pdDayIds = $sessions->pluck('p_d_day_id')->filter()->unique()->values()->all();
+        $cclScheduleItems = collect();
+
+        if (!empty($pdDayIds)) {
+            $cclScheduleItems = ScheduleItem::where('session_type', 'ccl')
+                ->whereIn('p_d_day_id', $pdDayIds)
+                ->get();
+        }
+
+        $scheduleItemBySession = [];
+        foreach ($sessions as $session) {
+            $match = $cclScheduleItems->first(function ($si) use ($session) {
+                return $si->p_d_day_id == $session->p_d_day_id
+                    && $si->date && $session->date && $si->date->format('Y-m-d') === $session->date->format('Y-m-d')
+                    && $si->start_time && $session->start_time
+                    && $si->start_time->format('H:i') === $session->start_time->format('H:i')
+                    && $si->title === $session->title;
+            });
+            if ($match) {
+                $scheduleItemBySession[$session->id] = $match;
+            } else {
+                $enrollmentData[$session->id] = ['count' => 0, 'max' => null];
+            }
+        }
+
+        if (!empty($scheduleItemBySession)) {
+            $ids = array_values(array_map(fn ($si) => $si->id, $scheduleItemBySession));
+            $counts = UserSession::whereIn('schedule_item_id', $ids)
+                ->where('status', 'confirmed')
+                ->selectRaw('schedule_item_id, count(*) as cnt')
+                ->groupBy('schedule_item_id')
+                ->pluck('cnt', 'schedule_item_id');
+
+            foreach ($scheduleItemBySession as $sessionId => $scheduleItem) {
+                $enrollmentData[$sessionId] = [
+                    'count' => (int) ($counts[$scheduleItem->id] ?? 0),
+                    'max' => $scheduleItem->max_participants,
+                ];
+            }
+        }
+
+        return view('admin.ccl.index', compact('sessions', 'settings', 'enrollmentData'));
     }
 
     /**
@@ -133,17 +176,17 @@ class CCLController extends Controller
     /**
      * Show the form for editing the specified CCL session
      */
-    public function edit(CCLSession $ttt)
+    public function edit(CCLSession $ccl)
     {
         $divisions = Division::all();
         $pdDays = PDDay::orderBy('start_date', 'desc')->get();
-        $ttt->load('links');
+        $ccl->load('links');
 
         // Find the corresponding ScheduleItem for this CCL session
-        $scheduleItem = ScheduleItem::where('p_d_day_id', $ttt->p_d_day_id)
-            ->where('date', $ttt->date)
-            ->where('start_time', $ttt->start_time)
-            ->where('title', $ttt->title)
+        $scheduleItem = ScheduleItem::where('p_d_day_id', $ccl->p_d_day_id)
+            ->where('date', $ccl->date)
+            ->where('start_time', $ccl->start_time)
+            ->where('title', $ccl->title)
             ->where('session_type', 'ccl')
             ->first();
 
@@ -156,7 +199,27 @@ class CCLController extends Controller
                 ->get();
         }
 
-        return view('admin.ccl.edit', compact('ttt', 'divisions', 'pdDays', 'confirmedParticipants', 'scheduleItem'));
+        $categories = $this->getCCLCategories();
+
+        return view('admin.ccl.edit', compact('ccl', 'divisions', 'pdDays', 'categories', 'confirmedParticipants', 'scheduleItem'));
+    }
+
+    /**
+     * Get available CCL categories for the edit form
+     */
+    private function getCCLCategories(): array
+    {
+        return [
+            'SEL',
+            'Wellness',
+            'Collaborative Learning',
+            'Teaching Strategies',
+            'Technology',
+            'Assessment',
+            'Differentiation',
+            'Project-Based Learning',
+            'Other',
+        ];
     }
 
     /**

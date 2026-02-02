@@ -63,16 +63,15 @@ class ScheduleController extends Controller
         $dayIndex = (int) str_replace('day', '', $activeTab) - 1;
         $selectedDate = $eventDates[$dayIndex] ?? null;
 
-        // Get division filter preference (default to all divisions for better UX)
+        // Get division filter preference
+        // Default to user's own division if no filter is explicitly selected
         $selectedDivisions = $request->get('divisions', []);
-
-        // Handle checkbox filter
-        if (empty($selectedDivisions)) {
-            $allSchoolSelected = true;
-            $allDivisionsSelected = true;
-        } else {
-            $allSchoolSelected = false;
-            $allDivisionsSelected = false;
+        
+        if (empty($selectedDivisions) && !$request->has('divisions')) {
+            // No filter selected - default to user's division
+            if ($user->division_id) {
+                $selectedDivisions = [$user->division_id];
+            }
         }
 
         // Get schedule items for the selected date
@@ -81,8 +80,8 @@ class ScheduleController extends Controller
             $scheduleItems = ScheduleItem::active()
                 ->where('p_d_day_id', $activePDDay->id)
                 ->whereDate('date', $selectedDate)
-                ->when($selectedDivisions, function ($query) use ($selectedDivisions) {
-                    // If specific divisions are selected, show items that are assigned to those divisions
+                ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions) {
+                    // Filter to items that are assigned to the selected divisions
                     return $query->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
                         $subQ->whereIn('divisions.id', $selectedDivisions);
                     });
@@ -146,8 +145,6 @@ class ScheduleController extends Controller
             'user',
             'divisions',
             'selectedDivisions',
-            'allDivisionsSelected',
-            'allSchoolSelected',
             'scheduleItems',
             'userWellnessSession',
             'eventDates',
@@ -340,14 +337,6 @@ class ScheduleController extends Controller
             $selectedDivisions = $request->get('divisions', []);
         }
 
-        if (empty($selectedDivisions)) {
-            $allSchoolSelected = true;
-            $allDivisionsSelected = true;
-        } else {
-            $allSchoolSelected = false;
-            $allDivisionsSelected = false;
-        }
-
         $scheduleItems = collect();
         if ($selectedDate && $activePDDay) {
             $scheduleItems = ScheduleItem::active()
@@ -415,8 +404,6 @@ class ScheduleController extends Controller
             'user',
             'divisions',
             'selectedDivisions',
-            'allDivisionsSelected',
-            'allSchoolSelected',
             'scheduleItems',
             'userWellnessSession',
             'eventDates',

@@ -49,12 +49,12 @@
 
                     <div>
                         <label for="session_type" class="block text-sm font-medium text-gray-700 mb-1">
-                            Session Type <span class="text-red-500">*</span>
+                            Session Type
                         </label>
-                        <select id="session_type" name="session_type" required
+                        <select id="session_type" name="session_type"
                                 class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                        @error('session_type') border-red-300 @enderror">
-                            <option value="">Select Type</option>
+                            <option value="">Select Type (optional)</option>
                             <option value="fixed" {{ old('session_type', $schedule->session_type) == 'fixed' ? 'selected' : '' }}>Fixed</option>
                             <option value="wellness" {{ old('session_type', $schedule->session_type) == 'wellness' ? 'selected' : '' }}>Wellness</option>
                             <option value="keynote" {{ old('session_type', $schedule->session_type) == 'keynote' ? 'selected' : '' }}>Keynote</option>
@@ -303,8 +303,8 @@
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-6 py-2 text-white rounded-md font-medium transition-colors" class="btn-orange-to-navy">
-                        Update Schedule Item
+                            class="px-6 py-2 text-white rounded-md font-medium transition-colors btn-orange-to-navy">
+                        <i class="fas fa-save mr-2"></i>Save changes
                     </button>
                 </div>
             </form>

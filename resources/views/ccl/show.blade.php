@@ -220,6 +220,17 @@
             Back to CCL Sessions
         </a>
 
+        @if(session('success'))
+            <div class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
+                <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+                <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('error') }}
+            </div>
+        @endif
+
         <div class="session-detail-card">
             <div class="session-header">
                 <h1>{{ $session->title }}</h1>
@@ -337,7 +348,7 @@
                             <i class="fas fa-times mr-1"></i>Full
                         </button>
                     @else
-                        <form action="{{ route('spring.ccl.join', $session) }}" method="POST" style="display: inline;">
+                        <form action="{{ route('spring.ccl.join', $session) }}" method="POST" style="display: inline;" onsubmit="return confirm({{ json_encode('Are you sure you want to join "' . $session->title . '"?') }});">
                             @csrf
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-user-plus mr-1"></i>Join Session

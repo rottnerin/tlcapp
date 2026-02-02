@@ -206,7 +206,7 @@
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-6 py-2 text-white rounded-md transition-colors" class="btn-orange-to-navy">
+                            class="px-6 py-2 text-white rounded-md font-medium transition-colors btn-orange-to-navy">
                         <i class="fas fa-save mr-2"></i>Create Schedule Item
                     </button>
                 </div>

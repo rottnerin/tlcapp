@@ -13,12 +13,6 @@
                     <p class="mt-2 text-gray-600">Manage CCL sessions and track enrollments</p>
                 </div>
                 <div class="flex gap-3">
-                    <button class="inline-flex items-center px-4 py-2 rounded-lg transition-colors shadow-sm font-medium
-                                {{ $settings->is_active ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-700' }}"
-                            id="toggle-ttt-btn">
-                        <i class="fas {{ $settings->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }} mr-2"></i>
-                        CCL {{ $settings->is_active ? 'Active' : 'Inactive' }}
-                    </button>
                     <a href="{{ route('admin.ccl.create') }}"
                        class="inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors shadow-sm font-medium"
                        style="background-color: var(--tlc-orange);">
@@ -134,6 +128,7 @@
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Session</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenter</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enrollment</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PD Day</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -173,6 +168,20 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
+                                    @php
+                                        $enrollment = $enrollmentData[$session->id] ?? ['count' => 0, 'max' => null];
+                                        $hasCapacity = $enrollment['max'] !== null && $enrollment['max'] > 0;
+                                        $barWidth = $hasCapacity ? min(100, ($enrollment['count'] / $enrollment['max']) * 100) : 0;
+                                    @endphp
+                                    <div class="flex items-center">
+                                        <span class="mr-3 font-medium">{{ $enrollment['count'] }}{{ $enrollment['max'] !== null ? '/' . $enrollment['max'] : '' }}</span>
+                                        <div class="w-20 bg-gray-200 rounded-full h-2 flex-shrink-0">
+                                            <div class="h-2 rounded-full transition-all"
+                                                 style="background-color: var(--tlc-gold); width: {{ $barWidth }}%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
                                     @if($session->pdDay)
                                         <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
                                             {{ $session->pdDay->title }}
@@ -205,7 +214,7 @@
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.ccl.destroy', $session) }}" method="POST" 
-                                              class="inline" onsubmit="return confirm('Are you sure you want to delete this session?')">
+                                              class="inline" onsubmit="return confirm('Are you sure you want to delete this CCL session? This action cannot be undone.');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-900 transition-colors" title="Delete">
@@ -217,7 +226,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                                     <div class="flex flex-col items-center">
                                         <i class="fas fa-chalkboard-teacher text-6xl text-gray-300 mb-6"></i>
                                         <h3 class="text-lg font-medium text-gray-900 mb-2">No CCL sessions found</h3>
@@ -245,30 +254,4 @@
     </div>
 </div>
 
-@push('scripts')
-<script>
-document.getElementById('toggle-ttt-btn').addEventListener('click', function() {
-    const btn = this;
-    fetch('{{ route('admin.ccl.toggle-active') }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            if (data.is_active) {
-                btn.className = 'inline-flex items-center px-4 py-2 rounded-lg transition-colors shadow-sm font-medium bg-green-600 hover:bg-green-700 text-white';
-                btn.innerHTML = '<i class="fas fa-toggle-on mr-2"></i> CCL Active';
-            } else {
-                btn.className = 'inline-flex items-center px-4 py-2 rounded-lg transition-colors shadow-sm font-medium bg-gray-300 hover:bg-gray-400 text-gray-700';
-                btn.innerHTML = '<i class="fas fa-toggle-off mr-2"></i> CCL Inactive';
-            }
-        }
-    });
-});
-</script>
-@endpush
 @endsection

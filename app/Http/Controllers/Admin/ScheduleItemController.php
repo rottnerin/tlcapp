@@ -191,7 +191,7 @@ class ScheduleItemController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'session_type' => 'required|in:fixed,wellness,keynote,break,lunch,transition,regular',
+            'session_type' => 'nullable|in:fixed,wellness,keynote,break,lunch,transition,regular',
             'presenter_primary' => 'nullable|string|max:255',
             'presenter_secondary' => 'nullable|string|max:255',
             'presenter_bio' => 'nullable|string',
@@ -215,6 +215,11 @@ class ScheduleItemController extends Controller
         $validated['end_time'] = $validated['date'] . ' ' . $validated['end_time'];
 
         $validated['is_active'] = $request->has('is_active') ? true : false;
+
+        // Keep existing session_type if none selected (field is optional)
+        if (empty($validated['session_type'])) {
+            $validated['session_type'] = $schedule->session_type ?? 'regular';
+        }
 
         $schedule->update($validated);
 

@@ -378,14 +378,14 @@
                     </a>
                     @if($isEnrolled)
                         <button class="join-btn" disabled style="background: #f59e0b; color: white; cursor: not-allowed;">
-                            <i class="fas fa-check mr-1"></i>Enrolled
+                            <i class="fas fa-check mr-1"></i>Joined
                         </button>
                     @elseif($isFull)
                         <button class="join-btn" disabled style="background: #ef4444; color: white; cursor: not-allowed;">
                             <i class="fas fa-times mr-1"></i>Full
                         </button>
                     @else
-                        <form action="{{ route('spring.ccl.join', $session) }}" method="POST" style="display: inline;">
+                        <form action="{{ route('spring.ccl.join', $session) }}" method="POST" style="display: inline;" onsubmit="return confirm({{ json_encode('Are you sure you want to join "' . $session->title . '"?') }});">
                             @csrf
                             <button type="submit" class="join-btn">
                                 <i class="fas fa-user-plus mr-1"></i>Join Session

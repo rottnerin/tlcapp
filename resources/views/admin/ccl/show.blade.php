@@ -209,7 +209,7 @@
                         </form>
 
                         <form action="{{ route('admin.ccl.destroy', $ccl) }}" method="POST" 
-                              onsubmit="return confirm('Are you sure you want to delete this session? This action cannot be undone.')">
+                              onsubmit="return confirm('Are you sure you want to delete this CCL session? This action cannot be undone.');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" 

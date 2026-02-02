@@ -413,7 +413,7 @@
                             <i class="fas fa-info-circle mr-1"></i>Already Enrolled
                         </button>
                     @else
-                        <form action="{{ route(($routePrefix ?? 'wellness') . '.enroll', $session) }}" method="POST" style="display: inline;" onclick="event.stopPropagation();">
+                        <form action="{{ route(($routePrefix ?? 'wellness') . '.enroll', $session) }}" method="POST" style="display: inline;" onclick="event.stopPropagation();" onsubmit="return confirm({{ json_encode('Are you sure you want to join "' . $session->title . '"?') }});">
                             @csrf
                             <button type="submit" class="join-btn">
                                 <i class="fas fa-user-plus mr-1"></i>Join Session

@@ -69,6 +69,12 @@ Session enrollment works differently for admin and regular users:
 - View logic uses `$isAdmin` to conditionally render the unjoin button
 - Tests: See `tests/Feature/WellnessUserTypesTest.php` for behavioral differences
 
+**Joined-state visual feedback (fundamental — do not change)**:
+- When a user joins a Wellness or CCL session, the session card **must** change to a distinct “joined” state so it is obvious which session they are in.
+- **Wellness**: Enrolled cards use the `.joined` class — green gradient, “✓ JOINED” badge (top-right), “Enrolled” disabled button. Same for end users and admins; admins also see the red “Unjoin” button.
+- **CCL**: Enrolled cards use the `.joined` class — amber/gold gradient, “✓ JOINED” badge (top-right), “Joined” disabled button. Same for end users and admins; admins also see the red “Unjoin” button.
+- This behavior is fundamental to the app and should not be removed or altered (e.g. do not remove the card color change or badge, or make joined state less visible).
+
 ### Feature Toggle Pattern
 Each major feature has a settings model that enables/disables it globally:
 - `PLDaysSetting` - Fall/Spring PD Days

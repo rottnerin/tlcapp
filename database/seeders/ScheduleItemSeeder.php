@@ -18,7 +18,7 @@ class ScheduleItemSeeder extends Seeder
     {
         // Get spring PD day
         $springPDDay = PDDay::spring()->active()->first();
-        
+
         if (!$springPDDay) {
             $this->command->warn('No active Spring PD Day found. Please run PDDaySeeder or CCLSessionSeeder first.');
             return;
@@ -61,7 +61,7 @@ class ScheduleItemSeeder extends Seeder
                 'presenter_secondary' => $tttSession->co_presenter_name,
                 'presenter_bio' => $tttSession->presenter_bio,
                 'is_active' => true,
-                'session_type' => 'ttt',
+                'session_type' => 'ccl',
                 'p_d_day_id' => $springPDDay->id,
             ]);
 

@@ -3,6 +3,10 @@
 @section('title', 'Edit CCL Session')
 
 @section('content')
+@php
+    // Ensure we have the CCL model (from controller or route binding)
+    $ccl = $ccl ?? request()->route('ccl');
+@endphp
 <div class="min-h-screen bg-content py-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
@@ -38,7 +42,7 @@
 
         <!-- Form -->
         <div class="bg-white rounded-lg shadow-card border">
-            <form action="{{ route('admin.ccl.update', $ccl) }}" method="POST" class="p-8 space-y-8">
+            <form action="{{ route('admin.ccl.update', ['ccl' => $ccl]) }}" method="POST" class="p-8 space-y-8">
                 @csrf
                 @method('PUT')
 
@@ -76,7 +80,44 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div>
+                        <label for="division_id" class="block text-sm font-medium text-gray-700 mb-1">Division</label>
+                        <select id="division_id" name="division_id"
+                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
+                                       @error('division_id') border-red-300 @enderror">
+                            <option value="">All divisions</option>
+                            @foreach($divisions as $division)
+                                <option value="{{ $division->id }}" {{ old('division_id', $ccl->division_id) == $division->id ? 'selected' : '' }}>
+                                    {{ $division->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('division_id')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
+
+                <!-- Categories -->
+                @if(isset($categories) && count($categories) > 0)
+                <div class="border-t pt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Categories (check all that apply)</label>
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                        @foreach($categories as $category)
+                            <div class="flex items-center">
+                                <input type="checkbox" id="category_{{ $loop->index }}" name="category[]" value="{{ $category }}"
+                                       {{ in_array($category, old('category', $ccl->category ?? [])) ? 'checked' : '' }}
+                                       class="h-4 w-4 text-aes-blue border-gray-300 rounded focus:ring-aes-blue">
+                                <label for="category_{{ $loop->index }}" class="ml-2 text-sm text-gray-700">{{ $category }}</label>
+                            </div>
+                        @endforeach
+                    </div>
+                    @error('category')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                @endif
 
                 <!-- Presenter Information -->
                 <div class="border-t pt-6">
@@ -161,7 +202,7 @@
                             <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
                                 Date <span class="text-red-500">*</span>
                             </label>
-                            <input type="date" id="date" name="date" value="{{ old('date', $ccl->date->format('Y-m-d')) }}" required
+                            <input type="date" id="date" name="date" value="{{ old('date', $ccl->date?->format('Y-m-d')) }}" required
                                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                           @error('date') border-red-300 @enderror">
                             @error('date')
@@ -173,7 +214,7 @@
                             <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">
                                 Start Time <span class="text-red-500">*</span>
                             </label>
-                            <input type="time" id="start_time" name="start_time" value="{{ old('start_time', $ccl->getRawOriginal('start_time')) }}" required
+                            <input type="time" id="start_time" name="start_time" value="{{ old('start_time', $ccl->start_time?->format('H:i')) }}" required
                                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                           @error('start_time') border-red-300 @enderror">
                             @error('start_time')
@@ -185,7 +226,7 @@
                             <label for="end_time" class="block text-sm font-medium text-gray-700 mb-1">
                                 End Time <span class="text-red-500">*</span>
                             </label>
-                            <input type="time" id="end_time" name="end_time" value="{{ old('end_time', $ccl->getRawOriginal('end_time')) }}" required
+                            <input type="time" id="end_time" name="end_time" value="{{ old('end_time', $ccl->end_time?->format('H:i')) }}" required
                                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue
                                           @error('end_time') border-red-300 @enderror">
                             @error('end_time')
@@ -205,6 +246,48 @@
                             @enderror
                         </div>
                     </div>
+                </div>
+
+                <!-- Additional Links -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Resource Links</h3>
+                    <p class="text-sm text-gray-600 mb-4">Add links to materials, slides, or other resources for this session.</p>
+                    <div id="links-container" class="space-y-4">
+                        @php
+                            $oldLinks = old('links');
+                            $existingLinks = $oldLinks ?? $ccl->links->map(fn($link) => ['title' => $link->title, 'url' => $link->url, 'type' => $link->type ?? 'resource'])->toArray();
+                        @endphp
+                        @if(!empty($existingLinks))
+                            @foreach($existingLinks as $index => $link)
+                                <div class="link-card bg-gray-50 border border-gray-200 rounded-lg p-4 relative">
+                                    <button type="button" class="remove-link-btn absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors" title="Remove link">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Link Title</label>
+                                            <input type="text" name="links[{{ $index }}][title]" value="{{ $link['title'] ?? '' }}"
+                                                   placeholder="e.g., View Slides, Download Handout"
+                                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
+                                            <input type="url" name="links[{{ $index }}][url]" value="{{ $link['url'] ?? '' }}"
+                                                   placeholder="https://example.com"
+                                                   class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="links[{{ $index }}][type]" value="resource">
+                                </div>
+                            @endforeach
+                        @endif
+                        <div id="no-links-message" class="text-center py-4 text-gray-500 text-sm" style="{{ !empty($existingLinks) ? 'display: none;' : '' }}">
+                            No links added. Click "Add Link" below to add a resource.
+                        </div>
+                    </div>
+                    <button type="button" id="add-link-btn" class="mt-3 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aes-blue">
+                        <i class="fas fa-plus mr-2"></i>Add Link
+                    </button>
                 </div>
 
                 <!-- Settings -->
@@ -229,7 +312,7 @@
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-6 py-3 text-white rounded-lg transition-colors font-medium shadow-md" class="btn-orange-to-navy">
+                            class="px-6 py-3 text-white rounded-lg font-medium transition-colors shadow-md btn-orange-to-navy">
                         <i class="fas fa-save mr-2"></i>Update Session
                     </button>
                 </div>
@@ -263,7 +346,7 @@
                                             {{ $enrollment->enrolled_at->format('g:i A') }}
                                         </p>
                                     </div>
-                                    <form action="{{ route('admin.ccl.remove-enrollment', $ccl) }}" method="POST" 
+                                    <form action="{{ route('admin.ccl.remove-enrollment', ['ccl' => $ccl]) }}" method="POST" 
                                           onsubmit="return confirm('Are you sure you want to remove {{ $enrollment->user->name }} from this session?')">
                                         @csrf
                                         <input type="hidden" name="user_id" value="{{ $enrollment->user->id }}">
@@ -282,4 +365,62 @@
         @endif
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const linksContainer = document.getElementById('links-container');
+    const addLinkBtn = document.getElementById('add-link-btn');
+    const noLinksMessage = document.getElementById('no-links-message');
+    const existingCards = linksContainer.querySelectorAll('.link-card');
+    let linkIndex = existingCards.length;
+
+    function updateNoLinksMessage() {
+        const linkCards = linksContainer.querySelectorAll('.link-card');
+        noLinksMessage.style.display = linkCards.length === 0 ? 'block' : 'none';
+    }
+
+    function createLinkCard(index) {
+        const card = document.createElement('div');
+        card.className = 'link-card bg-gray-50 border border-gray-200 rounded-lg p-4 relative';
+        card.innerHTML = `
+            <button type="button" class="remove-link-btn absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors" title="Remove link">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Link Title</label>
+                    <input type="text" name="links[${index}][title]" placeholder="e.g., View Slides, Download Handout"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
+                    <input type="url" name="links[${index}][url]" placeholder="https://example.com"
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-aes-blue">
+                </div>
+            </div>
+            <input type="hidden" name="links[${index}][type]" value="resource">
+        `;
+        card.querySelector('.remove-link-btn').addEventListener('click', function() {
+            card.remove();
+            updateNoLinksMessage();
+        });
+        return card;
+    }
+
+    addLinkBtn.addEventListener('click', function() {
+        const card = createLinkCard(linkIndex);
+        linksContainer.insertBefore(card, noLinksMessage);
+        linkIndex++;
+        updateNoLinksMessage();
+        card.querySelector('input[name*="[title]"]').focus();
+    });
+
+    linksContainer.querySelectorAll('.remove-link-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            btn.closest('.link-card').remove();
+            updateNoLinksMessage();
+        });
+    });
+});
+</script>
 @endsection
