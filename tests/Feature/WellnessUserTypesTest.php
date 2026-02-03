@@ -17,17 +17,14 @@ use Carbon\Carbon;
  * when joining wellness sessions.
  *
  * Key Differences:
- * 1. Regular users can only join ONE wellness session total
- * 2. Admin users can join MULTIPLE wellness sessions (for testing purposes)
- * 3. Admin users see an "Unjoin" button on joined sessions
- * 4. Admin users can automatically switch between sessions (previous enrollment is cancelled)
+ * 1. All users can only be in ONE wellness session at a time; joining another auto-cancels the previous one
+ * 2. Admin users see an "Unjoin" button on joined sessions; regular users do not
+ * 3. Both can switch sessions by clicking "Join" on a different session
  *
  * UI Elements:
- * - Regular User (Not Enrolled): Shows "Join Session" button
- * - Regular User (Enrolled in Session A): Session A shows "✓ JOINED" badge + green highlight
- *                                         Other sessions show "Already Enrolled" (disabled)
- * - Admin User (Enrolled in Session A): Session A shows "✓ JOINED" badge + "Unjoin" button
- *                                       Other sessions show "Join Session" (enabled for testing)
+ * - Any User (Not Enrolled in this session): Shows "Join Session" button
+ * - Any User (Enrolled in this session): Session shows "✓ JOINED" badge + green highlight
+ * - Admin User (Enrolled): Also sees "Unjoin" button
  */
 class WellnessUserTypesTest extends TestCase
 {
@@ -118,14 +115,13 @@ class WellnessUserTypesTest extends TestCase
     }
 
     /**
-     * Test: Regular user cannot join a second wellness session
+     * Test: Regular user can switch wellness sessions (join another cancels previous)
      *
      * Expected UI:
      * - Session A (enrolled): Shows "✓ JOINED" badge with green highlight
-     * - Session B (not enrolled): Shows "Already Enrolled" button (disabled, gray)
-     * - User sees error message: "You can only enroll in one wellness session..."
+     * - Other sessions: Show "Join Session" button; clicking it switches enrollment
      */
-    public function test_regular_user_cannot_join_second_wellness_session(): void
+    public function test_regular_user_can_switch_wellness_sessions(): void
     {
         $user = User::factory()->create([
             'name' => 'Regular User',
@@ -169,28 +165,30 @@ class WellnessUserTypesTest extends TestCase
             ->where('wellness_session_id', $sessionA->id)
             ->first();
         $this->assertNotNull($enrollmentA);
+        $this->assertEquals('confirmed', $enrollmentA->status);
 
-        // Attempt to join Session B (should fail)
+        // Join Session B (should succeed and cancel Session A)
         $response = $this->actingAs($user)->post(
             route('wellness.enroll', $sessionB)
         );
 
         $response->assertRedirect();
-        $response->assertSessionHas('error');
-        $this->assertStringContainsString(
-            'can only enroll in one wellness session',
-            session('error')
-        );
+        $response->assertSessionHas('success', 'Successfully enrolled in the session!');
 
-        // Verify user is NOT enrolled in Session B
+        // Verify Session A enrollment is cancelled
+        $enrollmentA->refresh();
+        $this->assertEquals('cancelled', $enrollmentA->status);
+        $sessionA->refresh();
+        $this->assertEquals(0, $sessionA->current_enrollment);
+
+        // Verify user is enrolled in Session B
         $enrollmentB = UserSession::where('user_id', $user->id)
             ->where('wellness_session_id', $sessionB->id)
+            ->where('status', 'confirmed')
             ->first();
-        $this->assertNull($enrollmentB);
-
-        // Verify Session B enrollment count did not increase
+        $this->assertNotNull($enrollmentB);
         $sessionB->refresh();
-        $this->assertEquals(0, $sessionB->current_enrollment);
+        $this->assertEquals(1, $sessionB->current_enrollment);
     }
 
     /**

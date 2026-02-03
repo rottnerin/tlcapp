@@ -264,21 +264,16 @@ class WellnessController extends Controller
             ->first();
 
         if ($existingWellnessEnrollment) {
-            // For admins: automatically cancel previous enrollment to allow testing
-            if ($user->isAdmin()) {
-                $previousSession = $existingWellnessEnrollment->wellnessSession;
-                $existingWellnessEnrollment->update(['status' => 'cancelled']);
-                if ($previousSession) {
-                    $previousSession->decrement('current_enrollment');
-                }
-            } else {
-                // For regular users: show error
-                return back()->with('error', 'You can only enroll in one wellness session. Please cancel your current enrollment before enrolling in a new session.');
+            // Automatically cancel previous wellness enrollment (user is switching sessions)
+            $previousSession = $existingWellnessEnrollment->wellnessSession;
+            $existingWellnessEnrollment->update(['status' => 'cancelled']);
+            if ($previousSession) {
+                $previousSession->decrement('current_enrollment');
             }
         }
 
-        // Note: Time conflict check removed since all wellness sessions are at the same time (14:30-15:30)
-        // and users can only enroll in one wellness session total (checked above)
+        // Note: Time conflict check removed since all wellness sessions are at the same time (14:30-15:30).
+        // Users can only be in one wellness session at a time; previous enrollment is cancelled above when switching.
 
         // Use database transaction with locking to prevent race conditions
         try {

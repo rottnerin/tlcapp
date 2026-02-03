@@ -48,10 +48,9 @@ Session enrollment works differently for admin and regular users:
 - Identified by `is_admin = true` in users table
 
 **Regular End Users**:
-- **Wellness Sessions**: Can only join ONE wellness session total (enforced at controller level)
-  - Cannot join additional wellness sessions until admin cancels their current enrollment
-  - Attempting to join a second wellness session shows error: "You can only enroll in one wellness session"
-  - UI shows "Already Enrolled" (disabled) on other wellness sessions when enrolled in one
+- **Wellness Sessions**: Can only be in ONE wellness session at a time
+  - Clicking "Join" on a different wellness session automatically cancels their current enrollment and enrolls them in the new one (they can switch sessions)
+  - All wellness sessions show "Join Session" when not enrolled in that specific session
 - **CCL Sessions**: Can join ONE CCL session per time slot
   - Users can join multiple CCL sessions if they're at different times (e.g., one at 10:00 AM, one at 1:00 PM)
   - Cannot join two CCL sessions at the same time (e.g., both at 10:00 AM)
@@ -62,7 +61,7 @@ Session enrollment works differently for admin and regular users:
   - Admin must manually cancel enrollment from admin panel
 
 **Important Implementation Notes**:
-- `WellnessController@enroll` checks `$user->isAdmin()` for wellness-specific behavior
+- `WellnessController@enroll` auto-cancels previous wellness enrollment when joining a new session (same for all users)
 - `WellnessController@unjoin` restricted to admin users only
 - `CCLController@unjoin` also restricted to admin users only
 - Eager loading filters: `->where('status', '!=', 'cancelled')` to show only active enrollments

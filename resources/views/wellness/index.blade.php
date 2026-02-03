@@ -289,9 +289,9 @@
                 $userEnrollment = $session->userSessions->firstWhere('user_id', auth()->id());
                 $isEnrolled = $userEnrollment && $userEnrollment->status !== 'cancelled';
 
-                // Admins can join multiple sessions for testing
+                // Users can switch sessions; joining another auto-cancels the previous one
                 $isAdmin = auth()->user()->isAdmin();
-                $showAlreadyEnrolled = $hasUserEnrollment && !$isUserEnrolled && !$isAdmin;
+                $showAlreadyEnrolled = false;
 
                 // Enrollment/capacity info
                 $currentEnrollment = $session->current_enrollment ?? 0;
