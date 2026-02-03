@@ -329,23 +329,29 @@ class CCLController extends Controller
     public function removeEnrollment(Request $request, CCLSession $ttt)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id'
+            'user_id' => 'required|exists:users,id',
+            'schedule_item_id' => 'nullable|exists:schedule_items,id',
         ]);
 
         $user = \App\Models\User::findOrFail($request->user_id);
-        
-        // Find the corresponding ScheduleItem for this CCL session
-        $scheduleItem = ScheduleItem::where('p_d_day_id', $ttt->p_d_day_id)
-            ->where('date', $ttt->date)
-            ->where('start_time', $ttt->start_time)
-            ->where('title', $ttt->title)
-            ->where('session_type', 'ccl')
-            ->first();
 
-        if (!$scheduleItem) {
-            return back()->with('error', 'Schedule item not found for this session.');
+        // Use schedule_item_id from form when available (avoids match failure after CCL edits)
+        if ($request->filled('schedule_item_id')) {
+            $scheduleItem = ScheduleItem::where('id', $request->schedule_item_id)
+                ->where('session_type', 'ccl')
+                ->first();
+            if (!$scheduleItem) {
+                return back()->with('error', 'Schedule item not found for this session.');
+            }
+        } else {
+            // Fallback: use CCL session's matching ScheduleItem (handles null date/start_time)
+            $scheduleItem = $ttt->matchingScheduleItem();
+
+            if (!$scheduleItem) {
+                return back()->with('error', 'Schedule item not found for this session.');
+            }
         }
-        
+
         // Find the user's enrollment in this session
         $enrollment = UserSession::where('user_id', $user->id)
             ->where('schedule_item_id', $scheduleItem->id)

@@ -120,11 +120,12 @@ class AdminRemoveCCLEnrollmentTest extends TestCase
         $this->assertEquals('confirmed', $enrollment->status);
         $this->assertEquals(1, $scheduleItem->current_enrollment);
 
-        // Act as admin and remove the enrollment
+        // Act as admin and remove the enrollment (pass schedule_item_id like the edit form does)
         $response = $this->actingAs($admin)->post(
             route('admin.ccl.remove-enrollment', $tttSession),
             [
                 'user_id' => $user->id,
+                'schedule_item_id' => $scheduleItem->id,
             ]
         );
 

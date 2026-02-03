@@ -350,6 +350,9 @@
                                           onsubmit="return confirm('Are you sure you want to remove {{ $enrollment->user->name }} from this session?')">
                                         @csrf
                                         <input type="hidden" name="user_id" value="{{ $enrollment->user->id }}">
+                                        @if(isset($scheduleItem))
+                                        <input type="hidden" name="schedule_item_id" value="{{ $scheduleItem->id }}">
+                                        @endif
                                         <button type="submit" 
                                                 class="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
                                                 title="Remove from session">
