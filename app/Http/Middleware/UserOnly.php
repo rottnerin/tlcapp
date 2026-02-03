@@ -17,7 +17,7 @@ class UserOnly
     {
         // Redirect to login if not authenticated
         if (!auth()->check()) {
-            return redirect('/')->with('error', 'Please log in to access this page.');
+            return redirect()->route('login')->with('error', 'Please log in to access this page.');
         }
 
         // Allow admins to access user routes - they'll see user interface but can return to admin

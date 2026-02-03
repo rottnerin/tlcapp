@@ -33,7 +33,7 @@ class GoogleController extends Controller
             
             // Validate that this is an AES email
             if (!$this->isValidAESEmail($googleUser->email)) {
-                return redirect('/')->with('error', 'Please use your AES school email account to log in.');
+                return redirect()->route('login')->with('error', 'Please use your AES school email account to log in.');
             }
             
             // Find or create user
@@ -72,7 +72,7 @@ class GoogleController extends Controller
             }
             
         } catch (\Exception $e) {
-            return redirect('/')->with('error', 'There was an error logging in with Google. Please try again.');
+            return redirect()->route('login')->with('error', 'There was an error logging in with Google. Please try again.');
         }
     }
 

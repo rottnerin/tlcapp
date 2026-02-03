@@ -21,9 +21,13 @@ use App\Models\PDDay;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    return view('landing');
+})->name('landing');
+
+Route::get('/login', function () {
     $activePDDay = PDDay::getActive();
-    return view('welcome', compact('activePDDay'));
-});
+    return view('login', compact('activePDDay'));
+})->name('login');
 
 // Typography exploration (temporary for design review)
 Route::get('/typography-preview', function () {
