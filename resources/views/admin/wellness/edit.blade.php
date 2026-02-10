@@ -260,7 +260,7 @@
                     Cancel
                 </a>
                 <button type="submit" 
-                        class="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2" class="btn-orange-to-navy" style="--tw-ring-color: var(--tlc-orange);">
+                        class="px-4 py-2 rounded-md text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ee964b] btn-orange-to-navy">
                     Update Session
                 </button>
             </div>

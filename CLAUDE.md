@@ -69,6 +69,9 @@ Session enrollment works differently for admin and regular users:
 - View logic uses `$isAdmin` to conditionally render the unjoin button
 - Tests: See `tests/Feature/WellnessUserTypesTest.php` for behavioral differences
 
+**Session deletion (Well-being and CCL)**:
+- **Well-being (Wellness) sessions** and **CCL sessions** must not be deleted without **double confirmation** from an admin (e.g. confirm dialog plus a second step, or type-to-confirm). Implement and preserve this in admin delete flows.
+
 **Joined-state visual feedback (fundamental — do not change)**:
 - When a user joins a Wellness or CCL session, the session card **must** change to a distinct “joined” state so it is obvious which session they are in.
 - **Wellness**: Enrolled cards use the `.joined` class — green gradient, “✓ JOINED” badge (top-right), “Enrolled” disabled button. Same for end users and admins; admins also see the red “Unjoin” button.
