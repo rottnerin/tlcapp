@@ -153,7 +153,7 @@ class CCLController extends Controller
             ->whereHas('scheduleItem', function($query) use ($session) {
                 $query->where('session_type', 'ccl')
                       ->where('date', $session->date->format('Y-m-d'))
-                      ->whereRaw('DATE_FORMAT(start_time, "%H:%i") = ?', [$session->start_time->format('H:i')]);
+                      ->whereTime('start_time', '=', $session->start_time->format('H:i:s'));
             })
             ->where('status', '!=', 'cancelled')
             ->with('scheduleItem')

@@ -56,15 +56,17 @@ select:focus {
     background-color: #ffffff !important; /* bg-white */
 }
 
-/* Button styles with proper hover states */
+/* Button styles - !important so Create Session and similar buttons stay visible */
 .btn-orange-to-navy {
-    background-color: var(--color-tlc-action);
+    background-color: #ee964b !important;
+    color: #ffffff !important;
     transition: background-color 0.2s ease;
 }
 
 @media (hover: hover) {
     .btn-orange-to-navy:hover {
-        background-color: var(--color-tlc-primary);
+        background-color: #0d3b66 !important;
+        color: #ffffff !important;
     }
 }
 

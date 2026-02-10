@@ -42,6 +42,29 @@
         .border-tlc-navy { border-color: var(--tlc-navy); }
         .border-tlc-gold { border-color: var(--tlc-gold); }
         .border-tlc-orange { border-color: var(--tlc-orange); }
+
+        /* Primary action button - ensure Create Session and similar buttons are always visible */
+        .btn-orange-to-navy {
+            background-color: #ee964b !important;
+            color: #ffffff !important;
+            transition: background-color 0.2s ease;
+        }
+        @media (hover: hover) {
+            .btn-orange-to-navy:hover {
+                background-color: #0d3b66 !important;
+                color: #ffffff !important;
+            }
+        }
+        /* Force admin form primary submit button to be visible (orange bg, white text) */
+        main form button[type="submit"].btn-primary-action {
+            background-color: #ee964b !important;
+            color: #ffffff !important;
+            border: none !important;
+        }
+        main form button[type="submit"].btn-primary-action:hover {
+            background-color: #0d3b66 !important;
+            color: #ffffff !important;
+        }
         
         /* Admin navigation */
         .gradient-header { background: linear-gradient(135deg, var(--tlc-navy) 0%, #164773 100%); }

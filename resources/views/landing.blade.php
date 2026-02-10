@@ -16,9 +16,10 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; }
-        body {
+        body.landing-page {
             font-family: 'Lexend', ui-sans-serif, system-ui, sans-serif;
-            background: #000;
+            background: #000 !important;
+            background-color: #000 !important;
             -webkit-tap-highlight-color: transparent;
         }
         #landing-scene {
@@ -74,7 +75,7 @@
         }
     </style>
 </head>
-<body>
+<body class="landing-page">
     <div id="landing-scene" aria-hidden="true"></div>
     <nav class="landing-cta" aria-label="Continue to sign in">
         <a href="{{ route('login') }}">Continue</a>

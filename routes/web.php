@@ -67,8 +67,10 @@ Route::post('/logout', [GoogleController::class, 'logout'])->name('logout');
 
 // User-only protected routes
 Route::middleware(['user.only'])->group(function () {
-    // Default landing page - Schedule view (legacy, redirects to fall)
-    Route::get('/dashboard', [ScheduleController::class, 'index'])->name('dashboard');
+    // Default landing page for end users - Wellness
+    Route::get('/dashboard', function () {
+        return redirect()->route('wellness.index');
+    })->name('dashboard');
     
     // My PL Routes
     Route::get('/my-pl', [MyPLController::class, 'index'])->name('my-pl.index');

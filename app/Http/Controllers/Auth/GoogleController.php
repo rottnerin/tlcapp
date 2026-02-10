@@ -68,7 +68,7 @@ class GoogleController extends Controller
             if ($user->is_admin) {
                 return redirect('/admin/dashboard')->with('success', 'Welcome to AES Admin Panel!');
             } else {
-                return redirect()->intended('/dashboard')->with('success', 'Welcome to AES Professional Learning Days!');
+                return redirect()->intended(route('spring.ccl'))->with('success', 'Welcome to AES Professional Learning Days!');
             }
             
         } catch (\Exception $e) {

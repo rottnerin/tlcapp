@@ -249,8 +249,8 @@
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-6 py-3 text-white rounded-lg transition-colors font-medium shadow-md" class="btn-orange-to-navy">
-                        <i class="fas fa-save mr-2"></i>Create Session
+                            class="btn-primary-action px-6 py-3 rounded-lg font-medium shadow-md bg-[#ee964b] text-white border-0 hover:bg-[#0d3b66] transition-colors">
+                        <i class="fas fa-save mr-2" aria-hidden="true"></i>Create Session
                     </button>
                 </div>
             </form>

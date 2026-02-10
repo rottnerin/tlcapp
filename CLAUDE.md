@@ -15,6 +15,7 @@ composer dev
 # Individual commands
 php artisan serve              # Start dev server at localhost:8000
 npm run dev                    # Run Vite dev server for frontend assets
+npm run build                  # Build frontend assets for production; required to see all UI/UX changes (e.g. landing page)
 php artisan migrate            # Run database migrations
 php artisan db:seed            # Seed database with sample data
 php artisan migrate:fresh --seed  # Reset and reseed database
