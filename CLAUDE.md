@@ -69,8 +69,9 @@ Session enrollment works differently for admin and regular users:
 - View logic uses `$isAdmin` to conditionally render the unjoin button
 - Tests: See `tests/Feature/WellnessUserTypesTest.php` for behavioral differences
 
-**Session deletion (Well-being and CCL)**:
-- **Well-being (Wellness) sessions** and **CCL sessions** must not be deleted without **double confirmation** from an admin (e.g. confirm dialog plus a second step, or type-to-confirm). Implement and preserve this in admin delete flows.
+**Session deletion (Well-being, CCL, and PD Day schedule items)**:
+- **Well-being (Wellness) sessions**, **CCL sessions**, and **PD Day schedule items** (e.g. All School sessions) must not be deleted without **double confirmation** from an admin (e.g. confirm dialog plus a second step, or type-to-confirm). Implement and preserve this in admin delete flows.
+- PD Day schedule items use a type-to-confirm modal: admin must type `DELETE` to proceed with deletion (single or bulk).
 
 **Joined-state visual feedback (fundamental — do not change)**:
 - When a user joins a Wellness or CCL session, the session card **must** change to a distinct “joined” state so it is obvious which session they are in.
@@ -102,6 +103,22 @@ Check toggle state before rendering features: `PLWednesdaySetting::first()->is_a
 - `ScheduleItem` belongs to many `Division` via pivot table
 - `ScheduleItem` has many `ScheduleItemLink`
 - Sessions morph many `UserSelectedSession`
+
+### Separation of CCL, Wellness, and Schedule Items
+CCL, Wellness, and PD Day schedule items are **separate data sources**. They must not overwrite or replace each other.
+
+**Data storage:**
+- **Schedule items (PD Day)**: `schedule_items` with `session_type` null, `regular`, `fixed`, etc. (see `ScheduleItem::scopeDivisionOnly` / `scopeScheduleOnly`). These are division-specific or "All School" (no divisions) items shown on the Schedule tab. Enrollment for CCL uses a *subset* of this table (see below).
+- **Wellness sessions**: `wellness_sessions`. Enrollment is stored in `user_sessions.wellness_session_id`. Wellness does **not** use `schedule_items` for enrollment; the schedule view injects the user's chosen wellness session into the day view by replacing a placeholder.
+- **CCL sessions**: `ccl_sessions`. Enrollment is stored in `user_sessions.schedule_item_id` pointing to a **matching** row in `schedule_items` where `session_type = 'ccl'`. Each CCL session has a corresponding `ScheduleItem` (same title, date, time, `p_d_day_id`) created/synced by `Admin\CCLController` on create/update so that joins work.
+
+**Rules (do not violate):**
+- **CSV import** (schedule items): Only **adds** rows to `schedule_items`. It must **never** delete or overwrite existing items. Items with a `divisions` column get those divisions attached; empty divisions = "All School." Do not clear or replace existing schedule items when importing per-division (ES, MS, HS, NTS) data.
+- **CCL create/update**: Creates or updates only the **one** `ScheduleItem` that matches that CCL session (same `p_d_day_id`, title, date, start_time, `session_type = 'ccl'`). It must not touch wellness sessions, other CCL sessions, or regular/All School schedule items.
+- **Wellness**: Has its own tables and enrollment flow. No schedule item rows are used for wellness enrollment; do not create or overwrite `schedule_items` for wellness in a way that conflicts with CCL or PD Day schedule items.
+- **Placeholders on the schedule view**: The user-facing schedule replaces placeholders (e.g. "Collaborative Community Learning", "Belonging and Well-being Session") with the user's enrolled CCL/Wellness session for display only. That is view-layer substitution only; it does not modify CCL, Wellness, or schedule item data.
+
+When adding imports, syncs, or bulk updates, ensure CCL, Wellness, and schedule items remain independent and never overwrite each other.
 
 ## Database Conventions
 

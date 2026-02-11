@@ -196,6 +196,11 @@ body {
   box-shadow: 0 8px 24px rgba(13, 59, 102, 0.3);
 }
 
+.time-bubble.ccl {
+  background: linear-gradient(135deg, var(--tlc-orange) 0%, #d97706 100%);
+  box-shadow: 0 8px 24px rgba(238, 150, 75, 0.3);
+}
+
 .time-bubble .time-start {
   font-size: 1rem;
   font-weight: 700;
@@ -838,7 +843,7 @@ body {
                         <div class="text-3xl mr-4">🔍</div>
                         <div class="text-center">
                             <h2 class="text-xl font-bold">Filter by Division</h2>
-                            <p class="mt-1 opacity-90 text-sm">Click divisions to filter your schedule view instantly</p>
+                            <p class="mt-1 opacity-90 text-sm">Click a division to filter &mdash; click again to show all</p>
                         </div>
                     </div>
 
@@ -856,36 +861,43 @@ body {
             </div>
             
             <div class="p-3">
-                <form method="GET" class="space-y-3">
-                    <input type="hidden" name="day" value="{{ $activeTab }}">
-                    
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     @foreach($divisions as $division)
-                        <label class="group cursor-pointer">
-                          <input type="checkbox"
-                                name="divisions[]"
-                                value="{{ $division->id }}"
-                                {{ in_array($division->id, $selectedDivisions) ? 'checked' : '' }}
-                                    class="sr-only division-checkbox">
+                        @php
+                            $isSelected = in_array($division->id, $selectedDivisions);
+                            // Build the URL manually to handle clear vs select
+                            $filterParams = ['day' => $activeTab];
+                            if (isset($isArchiveView) && $isArchiveView && isset($activePDDay)) {
+                                $filterParams['pdday'] = $activePDDay->id;
+                            }
+                            if ($isSelected) {
+                                // Clicking active filter clears it - pass empty divisions to signal explicit clear
+                                $filterParams['divisions'] = '';
+                            } else {
+                                // Clicking inactive filter selects only this one
+                                $filterParams['divisions'] = [$division->id];
+                            }
+                        @endphp
+                        <a href="{{ route($scheduleRoute, $filterParams) }}" class="group block">
                               <div class="relative p-4 rounded-lg border-2 transition-all duration-200 group-hover:shadow-md
-                                  {{ in_array($division->id, $selectedDivisions) 
+                                  {{ $isSelected 
                                       ? 'border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-md' 
                                       : 'border-gray-200 bg-white hover:border-amber-300 hover:shadow-sm hover:bg-gradient-to-br hover:from-amber-50 hover:to-yellow-50' }}">
                                   <div class="flex items-center justify-center space-x-3">
-                                      
                                       <div class="text-center">
                                           <span class="font-semibold text-sm
-                                              {{ in_array($division->id, $selectedDivisions) ? 'text-amber-800' : 'text-gray-800 group-hover:text-amber-700' }}">
+                                              {{ $isSelected ? 'text-amber-800' : 'text-gray-800 group-hover:text-amber-700' }}">
                                               {{ $division->full_name }}
                                           </span>
+                                          @if($isSelected)
+                                              <span class="ml-1 text-amber-600 text-xs">(active)</span>
+                                          @endif
                                       </div>
                                   </div>
                               </div>
-                        </label>
+                        </a>
                     @endforeach
                     </div>
-                    
-            </form>
             </div>
         </div>
     @endif
@@ -907,22 +919,29 @@ body {
                     @foreach($scheduleItems as $item)
                         @php
                             $isWellnessSession = isset($item->session_type) && $item->session_type === 'wellness';
-                            $timeColor = $isWellnessSession ? 'from-green-500 to-emerald-600' : 'from-blue-500 to-indigo-600';
+                            $isCCLSession = isset($item->session_type) && $item->session_type === 'ccl';
+                            $timeColor = $isWellnessSession ? 'from-green-500 to-emerald-600' : ($isCCLSession ? 'from-amber-500 to-orange-600' : 'from-blue-500 to-indigo-600');
                         @endphp
                         
-                        <div class="event-card {{ $isWellnessSession ? 'ring-2 ring-green-200' : '' }}" 
+                        <div class="event-card {{ $isWellnessSession ? 'ring-2 ring-green-200' : '' }} {{ $isCCLSession ? 'ring-2 ring-amber-200' : '' }}" 
                              data-start-time="{{ $item->start_time->format('H:i') }}" 
                              data-end-time="{{ $item->end_time->format('H:i') }}"
                              data-item-id="{{ $item->id }}">
                             <div class="event-card-grid">
                                 <!-- Time Bubble -->
-                                <div class="time-bubble {{ $isWellnessSession ? 'wellness' : '' }}">
+                                <div class="time-bubble {{ $isWellnessSession ? 'wellness' : '' }} {{ $isCCLSession ? 'ccl' : '' }}">
                                     <div class="time-start">{{ $item->start_time->format('g:i A') }}</div>
                                     <div class="time-end">{{ $item->end_time->format('g:i A') }}</div>
                                     @if($isWellnessSession)
                                         <div class="mt-2">
                                             <span class="wellness-tag">
                                                 🌿 Wellness
+                                            </span>
+                                        </div>
+                                    @elseif($isCCLSession)
+                                        <div class="mt-2">
+                                            <span class="wellness-tag">
+                                                🎓 CCL
                                             </span>
                                         </div>
                                     @endif
@@ -1037,30 +1056,6 @@ body {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Enhanced division filter highlighting
-    const divisionCheckboxes = document.querySelectorAll('.division-checkbox');
-    
-    divisionCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const label = this.closest('label');
-            const card = label.querySelector('div');
-            
-            if (this.checked) {
-                card.classList.add('border-amber-400', 'bg-gradient-to-br', 'from-amber-50', 'to-yellow-50', 'shadow-md');
-                card.classList.remove('border-gray-200', 'bg-white');
-            } else {
-                card.classList.remove('border-amber-400', 'bg-gradient-to-br', 'from-amber-50', 'to-yellow-50', 'shadow-md');
-                card.classList.add('border-gray-200', 'bg-white');
-            }
-            
-            // Auto-submit the form when checkbox changes
-            const form = this.closest('form');
-            if (form) {
-                form.submit();
-            }
-        });
-    });
-    
     // Add smooth scroll behavior
     document.documentElement.style.scrollBehavior = 'smooth';
     

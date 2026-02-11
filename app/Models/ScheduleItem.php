@@ -104,6 +104,29 @@ class ScheduleItem extends Model
     }
 
     /**
+     * Scope to exclude wellness and CCL items (they have their own tabs)
+     */
+    public function scopeDivisionOnly($query)
+    {
+        return $query->whereNull('wellness_session_id')
+            ->where(function ($q) {
+                $q->whereNull('session_type')
+                  ->orWhereNotIn(\DB::raw('LOWER(session_type)'), ['wellness', 'ccl']);
+            });
+    }
+
+    /**
+     * Scope for regular schedule items only (excludes wellness & CCL session types)
+     */
+    public function scopeScheduleOnly($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereNull('session_type')
+              ->orWhereNotIn(\DB::raw('LOWER(session_type)'), ['wellness', 'ccl']);
+        });
+    }
+
+    /**
      * Scope for active schedule items
      */
     public function scopeActive($query)

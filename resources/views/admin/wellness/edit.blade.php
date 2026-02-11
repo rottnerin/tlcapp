@@ -268,13 +268,22 @@
     </div>
 
     <!-- Participants List -->
-    @if(isset($confirmedParticipants) && $confirmedParticipants->count() > 0)
-        <div class="mt-8 bg-white rounded-lg shadow-sm">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-900">Enrolled Participants ({{ $confirmedParticipants->count() }})</h2>
-            </div>
-            
-            <div class="p-6">
+    <div class="mt-8 bg-white rounded-lg shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-xl font-semibold text-gray-900">
+                Enrolled Participants ({{ isset($confirmedParticipants) ? $confirmedParticipants->count() : 0 }})
+            </h2>
+            @if(isset($confirmedParticipants) && $confirmedParticipants->count() > 0)
+                <a href="{{ route('admin.wellness.export-participants', $wellness) }}"
+                   class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+                    <i class="fas fa-file-csv mr-2"></i>
+                    Export CSV
+                </a>
+            @endif
+        </div>
+        
+        <div class="p-6">
+            @if(isset($confirmedParticipants) && $confirmedParticipants->count() > 0)
                 <div class="space-y-3">
                     @foreach($confirmedParticipants as $enrollment)
                         <div class="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
@@ -301,15 +310,21 @@
                                     <button type="submit" 
                                             class="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
                                             title="Remove from session">
-                                        <i class="fas fa-times"></i>
+                                        <i class="fas fa-user-times"></i>
                                     </button>
                                 </form>
                             </div>
                         </div>
                     @endforeach
                 </div>
-            </div>
+            @else
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-lg font-medium text-gray-600">No participants enrolled yet</p>
+                    <p class="text-sm text-gray-400 mt-1">Participants will appear here once they sign up for this session.</p>
+                </div>
+            @endif
         </div>
-    @endif
+    </div>
 </div>
 @endsection

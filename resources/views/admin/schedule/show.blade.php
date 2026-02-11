@@ -18,14 +18,10 @@
                         <i class="fas fa-edit mr-2 text-sm"></i>Edit
                     </a>
                     @if($schedule->user_sessions_count == 0)
-                        <form action="{{ route('admin.schedule.destroy', $schedule) }}" method="POST" 
-                              class="inline" onsubmit="return confirm('Are you sure you want to delete this schedule item?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
-                                <i class="fas fa-trash mr-2 text-sm"></i>Delete
-                            </button>
-                        </form>
+                        <button type="button" onclick="openScheduleDeleteModal({{ json_encode($schedule->title) }}, {{ json_encode(route('admin.schedule.destroy', $schedule)) }})"
+                                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                            <i class="fas fa-trash mr-2 text-sm"></i>Delete
+                        </button>
                     @endif
                 </div>
             </div>
@@ -239,4 +235,81 @@
         </div>
     </div>
 </div>
+
+<!-- Delete confirmation modal (type-to-confirm) -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" id="deleteModalTitle">Delete schedule item?</h3>
+        <p class="text-sm text-gray-600 mb-4">Schedule items cannot be recovered once deleted. Type <strong>DELETE</strong> to confirm.</p>
+        <form id="deleteForm" method="POST" action="">
+            @csrf
+            @method('DELETE')
+            <input type="text" id="deleteConfirmInput" placeholder="Type DELETE here"
+                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                   autocomplete="off">
+            <p id="deleteConfirmError" class="hidden mt-1 text-sm text-red-600">You must type DELETE to confirm.</p>
+            <div class="flex justify-end gap-2 mt-4">
+                <button type="button" onclick="closeScheduleDeleteModal()" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="button" id="deleteModalSubmit" onclick="tryScheduleDelete()" disabled
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openScheduleDeleteModal(title, destroyUrl) {
+    const modal = document.getElementById('deleteModal');
+    const modalTitle = document.getElementById('deleteModalTitle');
+    const confirmInput = document.getElementById('deleteConfirmInput');
+    const confirmError = document.getElementById('deleteConfirmError');
+    const submitBtn = document.getElementById('deleteModalSubmit');
+    const deleteForm = document.getElementById('deleteForm');
+    
+    modalTitle.textContent = 'Delete "' + title + '"?';
+    confirmInput.value = '';
+    confirmError.classList.add('hidden');
+    submitBtn.disabled = true;
+    deleteForm.action = destroyUrl;
+    
+    modal.classList.remove('hidden');
+    confirmInput.focus();
+}
+
+function closeScheduleDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+
+function tryScheduleDelete() {
+    const confirmInput = document.getElementById('deleteConfirmInput');
+    const confirmError = document.getElementById('deleteConfirmError');
+    
+    if (confirmInput.value.trim() !== 'DELETE') {
+        confirmError.classList.remove('hidden');
+        return;
+    }
+    
+    document.getElementById('deleteForm').submit();
+}
+
+document.getElementById('deleteConfirmInput').addEventListener('input', function() {
+    const submitBtn = document.getElementById('deleteModalSubmit');
+    const confirmError = document.getElementById('deleteConfirmError');
+    submitBtn.disabled = this.value.trim() !== 'DELETE';
+    if (this.value.trim() === 'DELETE') {
+        confirmError.classList.add('hidden');
+    }
+});
+
+document.getElementById('deleteConfirmInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && this.value.trim() === 'DELETE') {
+        e.preventDefault();
+        tryScheduleDelete();
+    }
+});
+</script>
 @endsection

@@ -18,7 +18,7 @@ class ScheduleItemController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ScheduleItem::with('divisions');
+        $query = ScheduleItem::with('divisions')->divisionOnly();
 
         // Search functionality
         if ($request->filled('search')) {
@@ -60,15 +60,17 @@ class ScheduleItemController extends Controller
         $scheduleItems = $query->orderBy('start_time')
             ->paginate(15);
 
-        // Get filter options
+        // Get filter options (scoped to division-only items)
         $divisions = Division::orderBy('name')->get();
-        $types = ScheduleItem::select('session_type')
+        $types = ScheduleItem::divisionOnly()
+            ->select('session_type')
             ->whereNotNull('session_type')
             ->distinct()
             ->pluck('session_type')
             ->sort();
 
-        $availableDates = ScheduleItem::selectRaw('DATE(start_time) as date')
+        $availableDates = ScheduleItem::divisionOnly()
+            ->selectRaw('DATE(start_time) as date')
             ->distinct()
             ->orderBy('date')
             ->pluck('date');
@@ -295,10 +297,11 @@ class ScheduleItemController extends Controller
     {
         $pdDays = PDDay::orderBy('start_date', 'desc')->get();
         $pdDaysWithCounts = $pdDays->map(function($pdDay) {
+            $items = $pdDay->scheduleItems()->divisionOnly()->get();
             return [
                 'pdDay' => $pdDay,
-                'scheduleCount' => $pdDay->scheduleItems()->count(),
-                'scheduleItems' => $pdDay->scheduleItems()->get()
+                'scheduleCount' => $items->count(),
+                'scheduleItems' => $items
             ];
         });
 
@@ -311,7 +314,9 @@ class ScheduleItemController extends Controller
     public function showCopyForm(PDDay $pdDay)
     {
         $sourcePdDays = PDDay::where('id', '!=', $pdDay->id)
-            ->whereHas('scheduleItems')
+            ->whereHas('scheduleItems', function($q) {
+                $q->divisionOnly();
+            })
             ->orderBy('start_date', 'desc')
             ->get();
 
@@ -328,7 +333,7 @@ class ScheduleItemController extends Controller
         ]);
 
         $sourcePdDay = PDDay::findOrFail($validated['source_pd_day_id']);
-        $sourceSchedules = ScheduleItem::where('p_d_day_id', $sourcePdDay->id)->get();
+        $sourceSchedules = ScheduleItem::where('p_d_day_id', $sourcePdDay->id)->divisionOnly()->get();
 
         if ($sourceSchedules->isEmpty()) {
             return back()->with('error', "Source PD day has no schedule items to copy.");
@@ -351,7 +356,13 @@ class ScheduleItemController extends Controller
     }
 
     /**
-     * Upload schedule items via CSV
+     * Upload schedule items via CSV.
+     *
+     * This method only ADDS new items — it never deletes or overwrites existing
+     * schedule items (including "All School" items that have no division).
+     * If a CSV row includes a "divisions" column (pipe-separated, e.g. "ES|MS|HS"),
+     * the imported item will be linked to those divisions. Rows without a divisions
+     * value are treated as "All School" (no division attached).
      */
     public function uploadCsv(Request $request, PDDay $pdDay)
     {
@@ -363,16 +374,32 @@ class ScheduleItemController extends Controller
             $file = $request->file('csv_file');
             $path = $file->getRealPath();
             
+            // Pre-load divisions keyed by name (case-insensitive) for fast lookup
+            $allDivisions = Division::all()->keyBy(function ($div) {
+                return strtoupper(trim($div->name));
+            });
+            
             $imported = 0;
             $errors = [];
             
             if (($handle = fopen($path, 'r')) !== false) {
+                // Read and clean headers (trim BOM and whitespace)
                 $headers = fgetcsv($handle);
+                $headers = array_map(function ($h) {
+                    return trim(preg_replace('/^\x{FEFF}/u', '', $h));
+                }, $headers);
                 
+                $rowNumber = 1;
                 while (($row = fgetcsv($handle)) !== false) {
+                    $rowNumber++;
                     if (empty(array_filter($row))) continue; // Skip empty rows
                     
                     try {
+                        // Guard against column count mismatch
+                        if (count($row) !== count($headers)) {
+                            throw new \Exception("Column count mismatch (expected " . count($headers) . ", got " . count($row) . ")");
+                        }
+
                         $data = array_combine($headers, $row);
                         
                         // Validate required fields
@@ -397,7 +424,12 @@ class ScheduleItemController extends Controller
                         $schedule->equipment_needed = $data['equipment_needed'] ?? null;
                         $schedule->special_requirements = $data['special_requirements'] ?? null;
                         $schedule->p_d_day_id = $pdDay->id;
-                        $schedule->is_active = true;
+                        $schedule->is_active = isset($data['is_active']) && $data['is_active'] !== '' ? (bool) $data['is_active'] : true;
+
+                        // Handle max_participants / capacity if present
+                        if (!empty($data['max_participants'])) {
+                            $schedule->max_participants = (int) $data['max_participants'];
+                        }
                         
                         // Parse dates if provided
                         if (!empty($data['date'])) {
@@ -412,11 +444,38 @@ class ScheduleItemController extends Controller
                         if (!empty($data['end_time'])) {
                             $schedule->end_time = \Carbon\Carbon::createFromFormat('H:i', $data['end_time']);
                         }
+
+                        // Handle link fields
+                        if (!empty($data['link_title']) && !empty($data['link_url'])) {
+                            $schedule->link_title = $data['link_title'];
+                            $schedule->link_url = $data['link_url'];
+                            $schedule->link_description = $data['link_description'] ?? null;
+                        }
                         
                         $schedule->save();
+
+                        // Attach divisions if the column exists and has a value
+                        if (isset($data['divisions']) && trim($data['divisions']) !== '') {
+                            $divisionNames = array_map('trim', explode('|', $data['divisions']));
+                            $divisionIds = [];
+
+                            foreach ($divisionNames as $divName) {
+                                $key = strtoupper($divName);
+                                if ($allDivisions->has($key)) {
+                                    $divisionIds[] = $allDivisions->get($key)->id;
+                                }
+                            }
+
+                            if (!empty($divisionIds)) {
+                                $schedule->divisions()->attach($divisionIds);
+                            }
+                        }
+                        // If divisions column is empty or missing, the item has no divisions
+                        // attached, which makes it an "All School" item — this is intentional.
+
                         $imported++;
                     } catch (\Exception $e) {
-                        $errors[] = "Row error: " . $e->getMessage();
+                        $errors[] = "Row {$rowNumber}: " . $e->getMessage();
                     }
                 }
                 fclose($handle);
@@ -424,7 +483,7 @@ class ScheduleItemController extends Controller
 
             $message = "Imported {$imported} schedule items successfully!";
             if (!empty($errors)) {
-                $message .= " (" . count($errors) . " errors)";
+                $message .= " (" . count($errors) . " error(s): " . implode('; ', array_slice($errors, 0, 3)) . ")";
             }
 
             return back()->with('success', $message);

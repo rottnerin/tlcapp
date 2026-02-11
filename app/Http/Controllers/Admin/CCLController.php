@@ -130,6 +130,9 @@ class CCLController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
+        // Create corresponding ScheduleItem for enrollment tracking
+        $this->syncScheduleItem($session);
+
         // Create links if provided
         if (!empty($validated['links'])) {
             foreach ($validated['links'] as $index => $linkData) {
@@ -250,6 +253,11 @@ class CCLController extends Controller
             'links.*.type' => 'nullable|string|max:50',
         ]);
 
+        // Capture old values for ScheduleItem lookup before the update
+        $oldTitle = $ttt->title;
+        $oldDate = $ttt->date;
+        $oldStartTime = $ttt->start_time;
+
         $ttt->update([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
@@ -268,6 +276,9 @@ class CCLController extends Controller
             'category' => $validated['category'] ?? null,
             'is_active' => $request->boolean('is_active', true),
         ]);
+
+        // Sync the corresponding ScheduleItem (uses old values to find existing, then updates)
+        $this->syncScheduleItem($ttt->fresh(), $oldTitle, $oldDate, $oldStartTime);
 
         // Update links
         $ttt->links()->delete();
@@ -321,6 +332,71 @@ class CCLController extends Controller
 
         return redirect()->back()
             ->with('success', 'Session status updated.');
+    }
+
+    /**
+     * Create or update the corresponding ScheduleItem for a CCL session.
+     *
+     * The enrollment system uses ScheduleItem records (session_type=ccl) to track
+     * user enrollments. This method ensures one exists for every CCL session.
+     *
+     * @param CCLSession $session       The CCL session to sync
+     * @param string|null $oldTitle     Previous title (for finding existing item after edits)
+     * @param mixed       $oldDate      Previous date
+     * @param mixed       $oldStartTime Previous start_time
+     */
+    private function syncScheduleItem(CCLSession $session, ?string $oldTitle = null, $oldDate = null, $oldStartTime = null): void
+    {
+        $date = $session->date ? $session->date->format('Y-m-d') : null;
+        if (!$date) {
+            return;
+        }
+
+        // Build the datetime values that ScheduleItem expects
+        $startDateTime = $date . ' ' . ($session->getRawOriginal('start_time') ?? $session->start_time->format('H:i:s'));
+        $endDateTime = $date . ' ' . ($session->getRawOriginal('end_time') ?? $session->end_time->format('H:i:s'));
+
+        // Try to find existing ScheduleItem: first by old values (for updates), then by current values
+        $scheduleItem = null;
+
+        if ($oldTitle !== null && $oldDate !== null && $oldStartTime !== null) {
+            $oldDateStr = $oldDate instanceof \Carbon\Carbon ? $oldDate->format('Y-m-d') : $oldDate;
+            $oldStartStr = $oldStartTime instanceof \Carbon\Carbon
+                ? $oldStartTime->format('Y-m-d H:i:s')
+                : $oldDateStr . ' ' . $oldStartTime;
+
+            $scheduleItem = ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
+                ->where('title', $oldTitle)
+                ->where('session_type', 'ccl')
+                ->first();
+        }
+
+        if (!$scheduleItem) {
+            $scheduleItem = ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
+                ->where('title', $session->title)
+                ->where('session_type', 'ccl')
+                ->where('date', $date)
+                ->first();
+        }
+
+        $attributes = [
+            'title' => $session->title,
+            'description' => $session->description,
+            'location' => $session->location,
+            'presenter_primary' => $session->presenter_name,
+            'date' => $date,
+            'start_time' => $startDateTime,
+            'end_time' => $endDateTime,
+            'p_d_day_id' => $session->p_d_day_id,
+            'session_type' => 'ccl',
+            'is_active' => $session->is_active,
+        ];
+
+        if ($scheduleItem) {
+            $scheduleItem->update($attributes);
+        } else {
+            ScheduleItem::create($attributes);
+        }
     }
 
     /**

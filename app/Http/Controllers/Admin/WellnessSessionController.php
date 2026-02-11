@@ -353,6 +353,44 @@ class WellnessSessionController extends Controller
     }
 
     /**
+     * Export participants of a wellness session as CSV
+     */
+    public function exportParticipants(WellnessSession $wellness)
+    {
+        $wellness->load(['userSessions' => function ($query) {
+            $query->with('user')->where('status', 'confirmed')->orderBy('enrolled_at');
+        }]);
+
+        $participants = $wellness->userSessions->where('status', 'confirmed');
+
+        $filename = 'wellness-participants-' . \Str::slug($wellness->title) . '-' . now()->format('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($wellness, $participants) {
+            $file = fopen('php://output', 'w');
+
+            // Header row
+            fputcsv($file, ['Name', 'Email', 'Enrolled At']);
+
+            foreach ($participants as $enrollment) {
+                fputcsv($file, [
+                    $enrollment->user->name ?? 'N/A',
+                    $enrollment->user->email ?? 'N/A',
+                    $enrollment->enrolled_at ? $enrollment->enrolled_at->format('M j, Y g:i A') : 'N/A',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
      * Get available wellness categories
      */
     private function getWellnessCategories(): array

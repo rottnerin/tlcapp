@@ -78,16 +78,6 @@
                                                 <p class="font-medium text-gray-900">{{ $schedule->title }}</p>
                                             </div>
                                             <p class="text-sm text-gray-500">{{ $schedule->location ?? 'No location' }}</p>
-                                            @if($schedule->wellnessSession)
-                                                <p class="text-xs text-green-600 mt-1">
-                                                    <strong>Linked to:</strong> {{ $schedule->wellnessSession->title }}
-                                                    <span class="text-green-600">✓</span>
-                                                </p>
-                                            @elseif($schedule->session_type === 'Wellness')
-                                                <p class="text-xs text-orange-600 mt-1">
-                                                    <strong>⚠ Not linked to a wellness session</strong>
-                                                </p>
-                                            @endif
                                             @if($schedule->presenter_primary)
                                                 <p class="text-xs text-gray-500 mt-1">by {{ $schedule->presenter_primary }}</p>
                                             @endif

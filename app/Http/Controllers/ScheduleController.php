@@ -33,10 +33,11 @@ class ScheduleController extends Controller
         // Get active PD Day
         $activePDDay = PDDay::getActive();
 
-        // Check if there are any active schedule items in PL Days
+        // Check if there are any active regular schedule items (exclude CCL & wellness)
         $hasActivePLDaysSessions = false;
         if ($activePDDay) {
             $hasActivePLDaysSessions = ScheduleItem::active()
+                ->scheduleOnly()
                 ->where('p_d_day_id', $activePDDay->id)
                 ->exists();
         }
@@ -65,25 +66,32 @@ class ScheduleController extends Controller
 
         // Get division filter preference
         // Default to user's own division if no filter is explicitly selected
-        $selectedDivisions = $request->get('divisions', []);
-        
-        if (empty($selectedDivisions) && !$request->has('divisions')) {
-            // No filter selected - default to user's division
-            if ($user->division_id) {
-                $selectedDivisions = [$user->division_id];
+        if (!$request->has('divisions')) {
+            // First page load - default to user's division if available
+            $selectedDivisions = $user->division_id ? [$user->division_id] : [];
+        } else {
+            // User has interacted with filters - respect their choice
+            $rawDivisions = $request->get('divisions', []);
+            if (is_array($rawDivisions)) {
+                $selectedDivisions = array_filter($rawDivisions);
+            } else {
+                $selectedDivisions = [];
             }
         }
 
-        // Get schedule items for the selected date
+        // Get schedule items for the selected date (exclude CCL & wellness - they have their own tabs)
         $scheduleItems = collect();
         if ($selectedDate && $activePDDay) {
             $scheduleItems = ScheduleItem::active()
+                ->scheduleOnly()
                 ->where('p_d_day_id', $activePDDay->id)
                 ->whereDate('date', $selectedDate)
                 ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions) {
-                    // Filter to items that are assigned to the selected divisions
-                    return $query->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
-                        $subQ->whereIn('divisions.id', $selectedDivisions);
+                    // Show items matching the selected division OR items with no divisions (All School)
+                    return $query->where(function ($q) use ($selectedDivisions) {
+                        $q->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
+                            $subQ->whereIn('divisions.id', $selectedDivisions);
+                        })->orWhereDoesntHave('divisions');
                     });
                 })
                 ->with(['divisions'])
@@ -91,29 +99,78 @@ class ScheduleController extends Controller
                 ->get();
         }
 
-        // Handle wellness session replacement for Day 2
-        $userWellnessSession = null;
-        if ($activeTab === 'day2') {
-            $userWellnessEnrollment = \App\Models\UserSession::where('user_id', $user->id)
-                ->whereNotNull('wellness_session_id')
+        // Handle CCL session replacement (replace placeholder with user's enrolled CCL)
+        $userCCLSession = null;
+        if ($selectedDate) {
+            $userCCLEnrollments = \App\Models\UserSession::where('user_id', $user->id)
+                ->whereHas('scheduleItem', function ($query) {
+                    $query->where('session_type', 'ccl');
+                })
                 ->where('status', '!=', 'cancelled')
-                ->with('wellnessSession')
-                ->first();
+                ->with('scheduleItem')
+                ->get();
 
-            if ($userWellnessEnrollment && $userWellnessEnrollment->wellnessSession) {
-                $userWellnessSession = $userWellnessEnrollment->wellnessSession;
+            $enrollmentForDate = $userCCLEnrollments->first(function ($enrollment) use ($selectedDate) {
+                return $enrollment->scheduleItem
+                    && $enrollment->scheduleItem->date
+                    && $enrollment->scheduleItem->date->format('Y-m-d') === $selectedDate->format('Y-m-d');
+            });
 
-                // Remove the "Community Culture and Wellbeing" session and replace with user's wellness session
+            if ($enrollmentForDate && $enrollmentForDate->scheduleItem) {
+                $userCCLSession = $enrollmentForDate->scheduleItem;
+
                 $scheduleItems = $scheduleItems->filter(function ($item) {
-                    return ! str_contains(strtolower($item->title), 'community culture and wellbeing');
+                    return ! str_contains(strtolower($item->title), 'collaborative community learning');
                 });
 
-                // Create wellness schedule item with proper Carbon datetime instances
+                $userCCLSession->load('divisions');
+
+                $cclScheduleItem = new ScheduleItem([
+                    'title' => $userCCLSession->title,
+                    'description' => $userCCLSession->description,
+                    'location' => $userCCLSession->location,
+                    'start_time' => $userCCLSession->start_time,
+                    'end_time' => $userCCLSession->end_time,
+                    'date' => $userCCLSession->date,
+                    'presenter_primary' => $userCCLSession->presenter_primary,
+                    'is_active' => true,
+                    'session_type' => 'ccl',
+                ]);
+
+                $scheduleItems->push($cclScheduleItem);
+
+                $scheduleItems = $scheduleItems->sortBy(function ($item) {
+                    return $item->start_time ? $item->start_time->timestamp : 0;
+                })->values();
+            }
+        }
+
+        // Handle wellness session replacement
+        $userWellnessSession = null;
+        $userWellnessEnrollment = \App\Models\UserSession::where('user_id', $user->id)
+            ->whereNotNull('wellness_session_id')
+            ->where('status', '!=', 'cancelled')
+            ->with('wellnessSession')
+            ->first();
+
+        if ($userWellnessEnrollment && $userWellnessEnrollment->wellnessSession) {
+            $userWellnessSession = $userWellnessEnrollment->wellnessSession;
+
+            $wellnessDate = Carbon::parse($userWellnessSession->date)->format('Y-m-d');
+            $currentDate = $selectedDate ? $selectedDate->format('Y-m-d') : null;
+
+            if ($currentDate && $wellnessDate === $currentDate) {
+                // Remove the wellness placeholder (handles both old and new title)
+                $scheduleItems = $scheduleItems->filter(function ($item) {
+                    $title = strtolower($item->title);
+                    return ! str_contains($title, 'belonging and well-being')
+                        && ! str_contains($title, 'community culture and wellbeing');
+                });
+
                 $wellnessStartTime = Carbon::parse($userWellnessSession->start_time);
                 $wellnessEndTime = Carbon::parse($userWellnessSession->end_time);
 
-                // Add the user's wellness session to the schedule items
-                $wellnessScheduleItem = new \App\Models\ScheduleItem([
+                $wellnessScheduleItem = new ScheduleItem([
                     'title' => $userWellnessSession->title,
                     'description' => $userWellnessSession->description,
                     'location' => $userWellnessSession->location,
@@ -131,10 +188,8 @@ class ScheduleController extends Controller
                     'session_type' => 'wellness',
                 ]);
 
-                // Add wellness session to the collection
                 $scheduleItems->push($wellnessScheduleItem);
 
-                // Re-sort by start_time chronologically (ensuring proper Carbon comparison)
                 $scheduleItems = $scheduleItems->sortBy(function ($item) {
                     return $item->start_time ? $item->start_time->timestamp : 0;
                 })->values();
@@ -147,6 +202,7 @@ class ScheduleController extends Controller
             'selectedDivisions',
             'scheduleItems',
             'userWellnessSession',
+            'userCCLSession',
             'eventDates',
             'activeTab',
             'selectedDate'
@@ -234,15 +290,19 @@ class ScheduleController extends Controller
         // Get division filter
         $selectedDivisions = $request->get('divisions', []);
 
-        // Load schedule items with division filtering
+        // Load schedule items with division filtering (exclude CCL & wellness)
         $scheduleItems = collect();
         if ($selectedDate && $activePDDay) {
             $scheduleItems = ScheduleItem::active()
+                ->scheduleOnly()
                 ->where('p_d_day_id', $activePDDay->id)
                 ->whereDate('date', $selectedDate)
                 ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions) {
-                    return $query->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
-                        $subQ->whereIn('divisions.id', $selectedDivisions);
+                    // Show items matching the selected division OR items with no divisions (All School)
+                    return $query->where(function ($q) use ($selectedDivisions) {
+                        $q->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
+                            $subQ->whereIn('divisions.id', $selectedDivisions);
+                        })->orWhereDoesntHave('divisions');
                     });
                 })
                 ->with(['divisions'])
@@ -308,6 +368,7 @@ class ScheduleController extends Controller
         $hasActivePLDaysSessions = false;
         if ($activePDDay) {
             $hasActivePLDaysSessions = ScheduleItem::active()
+                ->scheduleOnly()
                 ->where('p_d_day_id', $activePDDay->id)
                 ->exists();
         }
@@ -334,17 +395,29 @@ class ScheduleController extends Controller
             $selectedDivisions = $user->division_id ? [$user->division_id] : [];
         } else {
             // User has interacted with filters - respect their choice
-            $selectedDivisions = $request->get('divisions', []);
+            $rawDivisions = $request->get('divisions', []);
+            // Handle explicit clear (divisions= empty string) vs actual selection
+            if (is_array($rawDivisions)) {
+                $selectedDivisions = array_filter($rawDivisions);
+            } else {
+                // divisions='' means user explicitly cleared the filter
+                $selectedDivisions = [];
+            }
         }
 
+        // Get schedule items (exclude CCL & wellness - they have their own tabs)
         $scheduleItems = collect();
         if ($selectedDate && $activePDDay) {
             $scheduleItems = ScheduleItem::active()
+                ->scheduleOnly()
                 ->where('p_d_day_id', $activePDDay->id)
                 ->whereDate('date', $selectedDate)
-                ->when($selectedDivisions, function ($query) use ($selectedDivisions) {
-                    return $query->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
-                        $subQ->whereIn('divisions.id', $selectedDivisions);
+                ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions) {
+                    // Show items matching the selected division OR items with no divisions (All School)
+                    return $query->where(function ($q) use ($selectedDivisions) {
+                        $q->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
+                            $subQ->whereIn('divisions.id', $selectedDivisions);
+                        })->orWhereDoesntHave('divisions');
                     });
                 })
                 ->with(['divisions'])
@@ -352,9 +425,60 @@ class ScheduleController extends Controller
                 ->get();
         }
 
+        // Handle CCL session replacement (replace placeholder with user's enrolled CCL)
+        $userCCLSession = null;
+        if (! ($isArchiveView ?? false) && $selectedDate) {
+            $userCCLEnrollments = \App\Models\UserSession::where('user_id', $user->id)
+                ->whereHas('scheduleItem', function ($query) {
+                    $query->where('session_type', 'ccl');
+                })
+                ->where('status', '!=', 'cancelled')
+                ->with('scheduleItem')
+                ->get();
+
+            // Find the enrollment for the currently selected date
+            $enrollmentForDate = $userCCLEnrollments->first(function ($enrollment) use ($selectedDate) {
+                return $enrollment->scheduleItem
+                    && $enrollment->scheduleItem->date
+                    && $enrollment->scheduleItem->date->format('Y-m-d') === $selectedDate->format('Y-m-d');
+            });
+
+            if ($enrollmentForDate && $enrollmentForDate->scheduleItem) {
+                $userCCLSession = $enrollmentForDate->scheduleItem;
+
+                // Remove the "Collaborative Community Learning" placeholder
+                $scheduleItems = $scheduleItems->filter(function ($item) {
+                    return ! str_contains(strtolower($item->title), 'collaborative community learning');
+                });
+
+                // Load the user's CCL ScheduleItem with divisions and add it
+                $userCCLSession->load('divisions');
+
+                // Mark session_type so the view can style it distinctly
+                $cclScheduleItem = new ScheduleItem([
+                    'title' => $userCCLSession->title,
+                    'description' => $userCCLSession->description,
+                    'location' => $userCCLSession->location,
+                    'start_time' => $userCCLSession->start_time,
+                    'end_time' => $userCCLSession->end_time,
+                    'date' => $userCCLSession->date,
+                    'presenter_primary' => $userCCLSession->presenter_primary,
+                    'is_active' => true,
+                    'session_type' => 'ccl',
+                ]);
+
+                $scheduleItems->push($cclScheduleItem);
+
+                // Re-sort by start_time
+                $scheduleItems = $scheduleItems->sortBy(function ($item) {
+                    return $item->start_time ? $item->start_time->timestamp : 0;
+                })->values();
+            }
+        }
+
         // Handle wellness session replacement (only for non-archive view)
         $userWellnessSession = null;
-        if ($activeTab === 'day2' && ! $isArchiveView) {
+        if (! ($isArchiveView ?? false)) {
             $userWellnessEnrollment = \App\Models\UserSession::where('user_id', $user->id)
                 ->whereNotNull('wellness_session_id')
                 ->where('status', '!=', 'cancelled')
@@ -364,39 +488,48 @@ class ScheduleController extends Controller
             if ($userWellnessEnrollment && $userWellnessEnrollment->wellnessSession) {
                 $userWellnessSession = $userWellnessEnrollment->wellnessSession;
 
-                $scheduleItems = $scheduleItems->filter(function ($item) {
-                    return ! str_contains(strtolower($item->title), 'community culture and wellbeing');
-                });
+                // Check if the wellness session is on the currently selected date
+                $wellnessDate = Carbon::parse($userWellnessSession->date)->format('Y-m-d');
+                $currentDate = $selectedDate ? $selectedDate->format('Y-m-d') : null;
 
-                // Create wellness schedule item with proper Carbon datetime instances
-                $wellnessStartTime = Carbon::parse($userWellnessSession->start_time);
-                $wellnessEndTime = Carbon::parse($userWellnessSession->end_time);
+                if ($currentDate && $wellnessDate === $currentDate) {
+                    // Remove the wellness placeholder (handles both old and new title)
+                    $scheduleItems = $scheduleItems->filter(function ($item) {
+                        $title = strtolower($item->title);
+                        return ! str_contains($title, 'belonging and well-being')
+                            && ! str_contains($title, 'community culture and wellbeing');
+                    });
 
-                $wellnessScheduleItem = new ScheduleItem([
-                    'title' => $userWellnessSession->title,
-                    'description' => $userWellnessSession->description,
-                    'location' => $userWellnessSession->location,
-                    'start_time' => $wellnessStartTime,
-                    'end_time' => $wellnessEndTime,
-                    'date' => $userWellnessSession->date,
-                    'presenter_primary' => $userWellnessSession->presenter_name,
-                    'presenter_bio' => $userWellnessSession->presenter_bio,
-                    'presenter_email' => $userWellnessSession->presenter_email,
-                    'max_participants' => $userWellnessSession->max_participants,
-                    'current_enrollment' => $userWellnessSession->current_enrollment,
-                    'equipment_needed' => $userWellnessSession->equipment_needed,
-                    'special_requirements' => $userWellnessSession->special_requirements,
-                    'is_active' => true,
-                    'session_type' => 'wellness',
-                ]);
+                    // Create wellness schedule item with proper Carbon datetime instances
+                    $wellnessStartTime = Carbon::parse($userWellnessSession->start_time);
+                    $wellnessEndTime = Carbon::parse($userWellnessSession->end_time);
 
-                // Add wellness session to the collection
-                $scheduleItems->push($wellnessScheduleItem);
+                    $wellnessScheduleItem = new ScheduleItem([
+                        'title' => $userWellnessSession->title,
+                        'description' => $userWellnessSession->description,
+                        'location' => $userWellnessSession->location,
+                        'start_time' => $wellnessStartTime,
+                        'end_time' => $wellnessEndTime,
+                        'date' => $userWellnessSession->date,
+                        'presenter_primary' => $userWellnessSession->presenter_name,
+                        'presenter_bio' => $userWellnessSession->presenter_bio,
+                        'presenter_email' => $userWellnessSession->presenter_email,
+                        'max_participants' => $userWellnessSession->max_participants,
+                        'current_enrollment' => $userWellnessSession->current_enrollment,
+                        'equipment_needed' => $userWellnessSession->equipment_needed,
+                        'special_requirements' => $userWellnessSession->special_requirements,
+                        'is_active' => true,
+                        'session_type' => 'wellness',
+                    ]);
 
-                // Sort by start_time chronologically (ensuring proper Carbon comparison)
-                $scheduleItems = $scheduleItems->sortBy(function ($item) {
-                    return $item->start_time ? $item->start_time->timestamp : 0;
-                })->values();
+                    // Add wellness session to the collection
+                    $scheduleItems->push($wellnessScheduleItem);
+
+                    // Sort by start_time chronologically (ensuring proper Carbon comparison)
+                    $scheduleItems = $scheduleItems->sortBy(function ($item) {
+                        return $item->start_time ? $item->start_time->timestamp : 0;
+                    })->values();
+                }
             }
         }
 
@@ -406,6 +539,7 @@ class ScheduleController extends Controller
             'selectedDivisions',
             'scheduleItems',
             'userWellnessSession',
+            'userCCLSession',
             'eventDates',
             'activeTab',
             'selectedDate',

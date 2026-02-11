@@ -67,9 +67,9 @@ Route::post('/logout', [GoogleController::class, 'logout'])->name('logout');
 
 // User-only protected routes
 Route::middleware(['user.only'])->group(function () {
-    // Default landing page for end users - Wellness
+    // Default landing page for end users - Spring Wellness (shows full sub-nav)
     Route::get('/dashboard', function () {
-        return redirect()->route('wellness.index');
+        return redirect()->route('spring.wellness');
     })->name('dashboard');
     
     // My PL Routes
@@ -138,6 +138,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // Wellness Sessions Management
     Route::resource('wellness', WellnessSessionController::class);
+    Route::get('/wellness/{wellness}/export-participants', [WellnessSessionController::class, 'exportParticipants'])->name('wellness.export-participants');
     Route::post('/wellness/{wellness}/toggle-status', [WellnessSessionController::class, 'toggleStatus'])->name('wellness.toggle-status');
     Route::post('/wellness/{wellness}/remove-enrollment', [WellnessSessionController::class, 'removeEnrollment'])->name('wellness.remove-enrollment');
     Route::get('/wellness/{wellness}/transfer', [WellnessSessionController::class, 'showTransfer'])->name('wellness.transfer');

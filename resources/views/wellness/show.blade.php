@@ -351,8 +351,8 @@
                 </div>
                 @endif
 
-                <!-- Equipment and Requirements -->
-                @if($session->equipment_needed)
+                <!-- Equipment and Requirements (admin only) -->
+                @if(auth()->user()->isAdmin() && $session->equipment_needed)
                 <div class="section-title">
                     <i class="fas fa-toolbox"></i>
                     Equipment Needed

@@ -175,9 +175,6 @@
                     </div>
                     <div class="flex space-x-3">
                         <button class="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                            <i class="fas fa-download mr-2"></i>Export
-                        </button>
-                        <button class="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                             <i class="fas fa-cog mr-2"></i>Bulk Actions
                         </button>
                     </div>
@@ -281,6 +278,10 @@
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         @if($session->user_sessions_count > 0)
+                                            <a href="{{ route('admin.wellness.export-participants', $session) }}" 
+                                               class="text-green-600 hover:text-green-900 transition-colors" title="Export Participants CSV">
+                                                <i class="fas fa-file-csv"></i>
+                                            </a>
                                             <a href="{{ route('admin.wellness.transfer', $session) }}" 
                                                class="text-blue-600 hover:text-blue-900 transition-colors" title="Transfer Users">
                                                 <i class="fas fa-exchange-alt"></i>
