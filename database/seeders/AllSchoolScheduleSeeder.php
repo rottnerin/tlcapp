@@ -64,7 +64,12 @@ class AllSchoolScheduleSeeder extends Seeder
                 ->first();
 
             if ($existing) {
-                $this->command->info("Skipping existing: {$item['title']} ({$item['date']})");
+                if (! $existing->divisions()->where('divisions.id', $allSchool->id)->exists()) {
+                    $existing->divisions()->syncWithoutDetaching([$allSchool->id]);
+                    $this->command->info("Attached All School to existing: {$item['title']} ({$item['date']})");
+                } else {
+                    $this->command->info("Skipping existing: {$item['title']} ({$item['date']})");
+                }
                 continue;
             }
 

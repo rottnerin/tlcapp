@@ -43,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
                 'wellnessActive' => WellnessSetting::isActive(),
                 'plDaysActive' => PLDaysSetting::isActive(),
                 'cclActive' => CCLSetting::isActive(),
+                'isNTSUser' => auth()->check() && auth()->user()->isNTS(),
                 'archivedFallPDDays' => PDDay::getArchivedBySeason('fall'),
                 'archivedSpringPDDays' => PDDay::getArchivedBySeason('spring'),
             ]);

@@ -45,13 +45,13 @@
             <tr>
                 <td>{{ $enrollment->user->name }}</td>
                 <td>{{ $enrollment->user->email }}</td>
-                <td>{{ $enrollment->user->division->name ?? 'N/A' }}</td>
-                <td>{{ $enrollment->scheduleItem->title ?? 'N/A' }}</td>
+                <td>{{ $enrollment->user->division?->name ?? 'N/A' }}</td>
+                <td>{{ $enrollment->scheduleItem?->title ?? 'N/A' }}</td>
                 <td>
-                    {{ $enrollment->scheduleItem->date?->format('M d, Y') }}<br>
-                    {{ $enrollment->scheduleItem->start_time?->format('g:i A') }} - {{ $enrollment->scheduleItem->end_time?->format('g:i A') }}
+                    {{ $enrollment->scheduleItem?->date?->format('M d, Y') ?? 'N/A' }}<br>
+                    {{ $enrollment->scheduleItem?->start_time?->format('g:i A') }} - {{ $enrollment->scheduleItem?->end_time?->format('g:i A') }}
                 </td>
-                <td>{{ $enrollment->scheduleItem->location ?? 'TBD' }}</td>
+                <td>{{ $enrollment->scheduleItem?->location ?? 'TBD' }}</td>
                 <td>
                     <span class="badge badge-{{ $enrollment->status }}">
                         {{ ucfirst($enrollment->status) }}

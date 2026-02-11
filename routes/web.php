@@ -7,6 +7,7 @@ use App\Http\Controllers\WellnessController;
 use App\Http\Controllers\PLWednesdayController;
 use App\Http\Controllers\MyPLController;
 use App\Http\Controllers\CCLController;
+use App\Http\Controllers\NTSController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\WellnessSessionController;
 use App\Http\Controllers\Admin\ScheduleItemController;
@@ -42,6 +43,16 @@ Route::get('/test-login', function () {
         return redirect('/spring-pl-days/ccl');
     }
     return 'User not found';
+});
+
+// TEMPORARY: Test login for NTS user (bypass Google auth)
+Route::get('/test-login-nts', function () {
+    $user = \App\Models\User::where('email', 'ntstest@aes.ac.in')->first();
+    if ($user) {
+        Auth::login($user);
+        return redirect()->route('spring.nts');
+    }
+    return 'NTS test user not found. Run: php artisan db:seed --class=ReportsTestDataSeeder';
 });
 
 // Claude Code Settings Interface
@@ -101,6 +112,11 @@ Route::middleware(['user.only'])->group(function () {
         Route::get('/ccl/{session}', [CCLController::class, 'show'])->name('spring.ccl.show');
         Route::post('/ccl/{session}/join', [CCLController::class, 'join'])->name('spring.ccl.join');
         Route::post('/ccl/{session}/unjoin', [CCLController::class, 'unjoin'])->name('spring.ccl.unjoin');
+
+        Route::get('/nts', [NTSController::class, 'index'])->name('spring.nts');
+        Route::get('/nts/schedule-item/{scheduleItem}', [NTSController::class, 'show'])->name('spring.nts.schedule.show');
+        Route::post('/nts/optional-signup/{scheduleItem}/join', [NTSController::class, 'joinOptionalSignup'])->name('spring.nts.optional.join');
+        Route::post('/nts/optional-signup/{scheduleItem}/unjoin', [NTSController::class, 'unjoinOptionalSignup'])->name('spring.nts.optional.unjoin');
     });
 
     // Legacy Schedule routes (for backwards compatibility)

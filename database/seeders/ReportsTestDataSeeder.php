@@ -22,6 +22,7 @@ class ReportsTestDataSeeder extends Seeder
         $es = Division::where('name', 'ES')->first();
         $ms = Division::where('name', 'MS')->first();
         $hs = Division::where('name', 'HS')->first();
+        $nts = Division::where('name', 'NTS')->first();
 
         // Create diverse test users across all divisions
         $testUsers = [
@@ -146,6 +147,17 @@ class ReportsTestDataSeeder extends Seeder
                 'is_admin' => false,
                 'id_card_code' => 'HS006',
                 'is_active' => false // Inactive account
+            ],
+
+            // NTS (Non-Teaching Staff) - for testing NTS Sessions
+            [
+                'name' => 'NTS Test User',
+                'email' => 'ntstest@aes.ac.in',
+                'password' => bcrypt('password'),
+                'division_id' => $nts?->id,
+                'is_admin' => false,
+                'id_card_code' => 'NTS001',
+                'last_login_at' => null,
             ],
         ];
 

@@ -29,6 +29,8 @@ composer test                  # Run all PHPUnit tests
 ./vendor/bin/pint              # Fix code style with Laravel Pint
 ```
 
+**Seeders:** Do not run any database seeders (e.g. `php artisan db:seed` or `--class=SomeSeeder`) unless the user explicitly asks you to run them.
+
 ## Architecture
 
 ### Authentication System

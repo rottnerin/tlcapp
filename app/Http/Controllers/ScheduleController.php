@@ -73,24 +73,33 @@ class ScheduleController extends Controller
             // User has interacted with filters - respect their choice
             $rawDivisions = $request->get('divisions', []);
             if (is_array($rawDivisions)) {
-                $selectedDivisions = array_filter($rawDivisions);
+                $selectedDivisions = array_values(array_filter($rawDivisions));
             } else {
-                $selectedDivisions = [];
+                $selectedDivisions = $rawDivisions !== '' && $rawDivisions !== null ? [$rawDivisions] : [];
             }
         }
 
         // Get schedule items for the selected date (exclude CCL & wellness - they have their own tabs)
         $scheduleItems = collect();
         if ($selectedDate && $activePDDay) {
+            $allSchoolDivisionId = Division::where('name', 'ALL')->value('id');
             $scheduleItems = ScheduleItem::active()
                 ->scheduleOnly()
                 ->where('p_d_day_id', $activePDDay->id)
                 ->whereDate('date', $selectedDate)
-                ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions) {
-                    // Show items matching the selected division OR items with no divisions (All School)
-                    return $query->where(function ($q) use ($selectedDivisions) {
-                        $q->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
-                            $subQ->whereIn('divisions.id', $selectedDivisions);
+                ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions, $allSchoolDivisionId) {
+                    $onlyAllSchoolSelected = $allSchoolDivisionId
+                        && count($selectedDivisions) === 1
+                        && in_array((int) $allSchoolDivisionId, array_map('intval', $selectedDivisions));
+                    if ($onlyAllSchoolSelected) {
+                        return $query->whereHas('divisions', fn ($subQ) => $subQ->where('divisions.id', $allSchoolDivisionId));
+                    }
+                    $divisionIds = $allSchoolDivisionId
+                        ? array_values(array_unique(array_merge($selectedDivisions, [$allSchoolDivisionId])))
+                        : $selectedDivisions;
+                    return $query->where(function ($q) use ($divisionIds) {
+                        $q->whereHas('divisions', function ($subQ) use ($divisionIds) {
+                            $subQ->whereIn('divisions.id', $divisionIds);
                         })->orWhereDoesntHave('divisions');
                     });
                 })
@@ -293,15 +302,24 @@ class ScheduleController extends Controller
         // Load schedule items with division filtering (exclude CCL & wellness)
         $scheduleItems = collect();
         if ($selectedDate && $activePDDay) {
+            $allSchoolDivisionId = Division::where('name', 'ALL')->value('id');
             $scheduleItems = ScheduleItem::active()
                 ->scheduleOnly()
                 ->where('p_d_day_id', $activePDDay->id)
                 ->whereDate('date', $selectedDate)
-                ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions) {
-                    // Show items matching the selected division OR items with no divisions (All School)
-                    return $query->where(function ($q) use ($selectedDivisions) {
-                        $q->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
-                            $subQ->whereIn('divisions.id', $selectedDivisions);
+                ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions, $allSchoolDivisionId) {
+                    $onlyAllSchoolSelected = $allSchoolDivisionId
+                        && count($selectedDivisions) === 1
+                        && in_array((int) $allSchoolDivisionId, array_map('intval', (array) $selectedDivisions));
+                    if ($onlyAllSchoolSelected) {
+                        return $query->whereHas('divisions', fn ($subQ) => $subQ->where('divisions.id', $allSchoolDivisionId));
+                    }
+                    $divisionIds = $allSchoolDivisionId
+                        ? array_values(array_unique(array_merge((array) $selectedDivisions, [$allSchoolDivisionId])))
+                        : (array) $selectedDivisions;
+                    return $query->where(function ($q) use ($divisionIds) {
+                        $q->whereHas('divisions', function ($subQ) use ($divisionIds) {
+                            $subQ->whereIn('divisions.id', $divisionIds);
                         })->orWhereDoesntHave('divisions');
                     });
                 })
@@ -396,27 +414,34 @@ class ScheduleController extends Controller
         } else {
             // User has interacted with filters - respect their choice
             $rawDivisions = $request->get('divisions', []);
-            // Handle explicit clear (divisions= empty string) vs actual selection
             if (is_array($rawDivisions)) {
-                $selectedDivisions = array_filter($rawDivisions);
+                $selectedDivisions = array_values(array_filter($rawDivisions));
             } else {
-                // divisions='' means user explicitly cleared the filter
-                $selectedDivisions = [];
+                $selectedDivisions = $rawDivisions !== '' && $rawDivisions !== null ? [$rawDivisions] : [];
             }
         }
 
         // Get schedule items (exclude CCL & wellness - they have their own tabs)
         $scheduleItems = collect();
         if ($selectedDate && $activePDDay) {
+            $allSchoolDivisionId = Division::where('name', 'ALL')->value('id');
             $scheduleItems = ScheduleItem::active()
                 ->scheduleOnly()
                 ->where('p_d_day_id', $activePDDay->id)
                 ->whereDate('date', $selectedDate)
-                ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions) {
-                    // Show items matching the selected division OR items with no divisions (All School)
-                    return $query->where(function ($q) use ($selectedDivisions) {
-                        $q->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
-                            $subQ->whereIn('divisions.id', $selectedDivisions);
+                ->when(!empty($selectedDivisions), function ($query) use ($selectedDivisions, $allSchoolDivisionId) {
+                    $onlyAllSchoolSelected = $allSchoolDivisionId
+                        && count($selectedDivisions) === 1
+                        && in_array((int) $allSchoolDivisionId, array_map('intval', $selectedDivisions));
+                    if ($onlyAllSchoolSelected) {
+                        return $query->whereHas('divisions', fn ($subQ) => $subQ->where('divisions.id', $allSchoolDivisionId));
+                    }
+                    $divisionIds = $allSchoolDivisionId
+                        ? array_values(array_unique(array_merge($selectedDivisions, [$allSchoolDivisionId])))
+                        : $selectedDivisions;
+                    return $query->where(function ($q) use ($divisionIds) {
+                        $q->whereHas('divisions', function ($subQ) use ($divisionIds) {
+                            $subQ->whereIn('divisions.id', $divisionIds);
                         })->orWhereDoesntHave('divisions');
                     });
                 })

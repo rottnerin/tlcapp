@@ -193,7 +193,7 @@ class ScheduleItemController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'session_type' => 'nullable|in:fixed,wellness,keynote,break,lunch,transition,regular',
+            'session_type' => 'nullable|in:fixed,wellness,keynote,break,lunch,transition,regular,nts_optional',
             'presenter_primary' => 'nullable|string|max:255',
             'presenter_secondary' => 'nullable|string|max:255',
             'presenter_bio' => 'nullable|string',
@@ -245,6 +245,36 @@ class ScheduleItemController extends Controller
 
         return redirect()->route('admin.schedule.index')
             ->with('success', 'Schedule item deleted successfully!');
+    }
+
+    /**
+     * Remove a user's enrollment from this schedule item (e.g. NTS Optional Sign-up, CCL).
+     */
+    public function removeEnrollment(Request $request, ScheduleItem $schedule)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $user = \App\Models\User::findOrFail($request->user_id);
+
+        $enrollment = \App\Models\UserSession::where('user_id', $user->id)
+            ->where('schedule_item_id', $schedule->id)
+            ->where('status', '!=', 'cancelled')
+            ->first();
+
+        if (! $enrollment) {
+            return back()->with('error', 'User is not enrolled in this session.');
+        }
+
+        $wasConfirmed = $enrollment->status === 'confirmed';
+        $enrollment->update(['status' => 'cancelled']);
+
+        if ($wasConfirmed && $schedule->max_participants !== null) {
+            $schedule->decrement('current_enrollment');
+        }
+
+        return back()->with('success', "Removed {$user->name} from this session.");
     }
 
     /**

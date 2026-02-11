@@ -49,7 +49,8 @@ class ReportsController extends Controller
         $dateTo = $request->get('date_to');
 
         $query = UserSession::with(['user.division', 'wellnessSession'])
-            ->whereNotNull('wellness_session_id');
+            ->whereNotNull('wellness_session_id')
+            ->whereHas('wellnessSession');
 
         if ($sessionId) {
             $query->where('wellness_session_id', $sessionId);

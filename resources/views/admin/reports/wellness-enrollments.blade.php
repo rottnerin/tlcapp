@@ -38,7 +38,7 @@
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
         <form method="GET" action="{{ route('admin.reports.wellness-enrollments') }}">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div>
                     <label for="session_id" class="block text-sm font-medium text-gray-700 mb-1">Wellness Session</label>
                     <select name="session_id" id="session_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -47,6 +47,15 @@
                             <option value="{{ $session->id }}" {{ $sessionId == $session->id ? 'selected' : '' }}>
                                 {{ $session->title }} ({{ $session->date->format('M d, Y') }})
                             </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="division_id" class="block text-sm font-medium text-gray-700 mb-1">Division</label>
+                    <select name="division_id" id="division_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Divisions</option>
+                        @foreach($divisions as $division)
+                            <option value="{{ $division->id }}" {{ $divisionId == $division->id ? 'selected' : '' }}>{{ $division->name }}</option>
                         @endforeach
                     </select>
                 </div>
