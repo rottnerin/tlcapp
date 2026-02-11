@@ -213,9 +213,10 @@ class WellnessController extends Controller
             }
         ]);
         
-        // Check if user is enrolled
+        // Check if user is enrolled (exclude cancelled so they can re-enroll)
         $userEnrollment = $session->userSessions()
             ->where('user_id', $user->id)
+            ->where('status', '!=', 'cancelled')
             ->first();
         
         // Get other participants

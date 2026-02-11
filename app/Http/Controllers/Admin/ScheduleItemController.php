@@ -134,8 +134,16 @@ class ScheduleItemController extends Controller
         $links = $validated['links'] ?? [];
         unset($validated['links']);
 
+        // Divisions are stored in pivot table, not on schedule_items
+        $divisionId = $validated['division_id'] ?? null;
+        unset($validated['division_id']);
+
         $scheduleItem = ScheduleItem::create($validated);
-        
+
+        if ($divisionId) {
+            $scheduleItem->divisions()->attach($divisionId);
+        }
+
         // Create links
         $order = 0;
         foreach ($links as $linkData) {

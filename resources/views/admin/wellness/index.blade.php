@@ -295,14 +295,10 @@
                                             </button>
                                         </form>
                                         @if($session->user_sessions_count == 0)
-                                            <form action="{{ route('admin.wellness.destroy', $session) }}" method="POST" 
-                                                  class="inline" onsubmit="return confirm('Are you sure you want to delete this Wellness session? This action cannot be undone.');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 transition-colors" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" onclick="openWellnessDeleteModal('{{ addslashes($session->title) }}', '{{ route('admin.wellness.destroy', $session) }}')" 
+                                                    class="text-red-600 hover:text-red-900 transition-colors" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
@@ -336,4 +332,52 @@
         @endif
     </div>
 </div>
+
+{{-- Type-to-confirm delete modal (double confirmation per CLAUDE.md) --}}
+<div id="wellnessDeleteModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" id="wellnessDeleteModalTitle">Delete wellness session?</h3>
+        <p class="text-sm text-gray-600 mb-4">Wellness sessions cannot be recovered once deleted. Type <strong>DELETE</strong> to confirm.</p>
+        <form id="wellnessDeleteForm" method="POST" action="">
+            @csrf
+            @method('DELETE')
+            <input type="text" id="wellnessDeleteConfirmInput" placeholder="Type DELETE here"
+                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                   autocomplete="off">
+            <p id="wellnessDeleteConfirmError" class="hidden mt-1 text-sm text-red-600">You must type DELETE to confirm.</p>
+            <div class="flex justify-end gap-2 mt-4">
+                <button type="button" onclick="closeWellnessDeleteModal()" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
+                <button type="button" id="wellnessDeleteModalSubmit" onclick="tryWellnessDelete()" disabled
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+function openWellnessDeleteModal(title, destroyUrl) {
+    document.getElementById('wellnessDeleteModalTitle').textContent = 'Delete "' + title + '"?';
+    document.getElementById('wellnessDeleteConfirmInput').value = '';
+    document.getElementById('wellnessDeleteConfirmError').classList.add('hidden');
+    document.getElementById('wellnessDeleteModalSubmit').disabled = true;
+    document.getElementById('wellnessDeleteForm').action = destroyUrl;
+    document.getElementById('wellnessDeleteModal').classList.remove('hidden');
+    document.getElementById('wellnessDeleteConfirmInput').focus();
+}
+function closeWellnessDeleteModal() {
+    document.getElementById('wellnessDeleteModal').classList.add('hidden');
+}
+function tryWellnessDelete() {
+    var input = document.getElementById('wellnessDeleteConfirmInput');
+    var err = document.getElementById('wellnessDeleteConfirmError');
+    if (input.value.trim() !== 'DELETE') {
+        err.classList.remove('hidden');
+        return;
+    }
+    document.getElementById('wellnessDeleteForm').submit();
+}
+document.getElementById('wellnessDeleteConfirmInput').addEventListener('input', function() {
+    document.getElementById('wellnessDeleteModalSubmit').disabled = this.value.trim() !== 'DELETE';
+    if (this.value.trim() === 'DELETE') document.getElementById('wellnessDeleteConfirmError').classList.add('hidden');
+});
+</script>
 @endsection

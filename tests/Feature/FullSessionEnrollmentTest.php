@@ -13,6 +13,8 @@ use App\Models\Division;
 use App\Models\CCLSetting;
 use App\Models\WellnessSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class FullSessionEnrollmentTest extends TestCase
@@ -48,6 +50,8 @@ class FullSessionEnrollmentTest extends TestCase
 
     public function test_user_cannot_enroll_in_full_wellness_session(): void
     {
+        $this->withoutMiddleware(VerifyCsrfToken::class);
+
         // Create a user
         $user = User::factory()->create([
             'name' => 'Test User',
@@ -108,6 +112,8 @@ class FullSessionEnrollmentTest extends TestCase
 
     public function test_user_cannot_join_full_ttt_session(): void
     {
+        $this->withoutMiddleware(VerifyCsrfToken::class);
+
         // Create a user
         $user = User::factory()->create([
             'name' => 'Test User',
@@ -149,19 +155,29 @@ class FullSessionEnrollmentTest extends TestCase
         $tttSession->refresh();
         
         // Create corresponding ScheduleItem with max 20 participants (full)
+        // Use full datetime for start_time/end_time so CCL join lookup finds it; session_type must be 'ccl'
+        $startDateTime = $sessionDate->format('Y-m-d') . ' ' . $startTime->format('H:i:s');
+        $endDateTime = $sessionDate->format('Y-m-d') . ' ' . Carbon::createFromTime(11, 0, 0)->format('H:i:s');
         $scheduleItem = ScheduleItem::create([
             'title' => $tttSession->title,
             'description' => $tttSession->description,
             'location' => $tttSession->location,
-            'start_time' => $tttSession->start_time,
-            'end_time' => $tttSession->end_time,
+            'start_time' => $startDateTime,
+            'end_time' => $endDateTime,
             'date' => $tttSession->date,
             'presenter_primary' => $tttSession->presenter_name,
             'is_active' => true,
-            'session_type' => 'ttt',
+            'session_type' => 'ccl',
             'p_d_day_id' => $pdDay->id,
             'max_participants' => 20,
             'current_enrollment' => 20, // Session is full
+        ]);
+
+        // Ensure start_time/date stored so controller's exact where('start_time', $string) finds the row
+        DB::table('schedule_items')->where('id', $scheduleItem->id)->update([
+            'start_time' => $startDateTime,
+            'end_time' => $endDateTime,
+            'date' => $sessionDate->format('Y-m-d'),
         ]);
 
         // Verify schedule item is full
@@ -172,7 +188,7 @@ class FullSessionEnrollmentTest extends TestCase
 
         // Attempt to join
         $response = $this->actingAs($user)->post(
-            route('spring.ttt.join', $tttSession)
+            route('spring.ccl.join', $tttSession)
         );
 
         // Assert redirect with error message
@@ -257,17 +273,17 @@ class FullSessionEnrollmentTest extends TestCase
 
         $tttSession->refresh();
         
-        // Create schedule item at capacity
+        // Create schedule item at capacity (session_type 'ccl' to match CCL enrollment)
         $scheduleItem = ScheduleItem::create([
             'title' => $tttSession->title,
             'description' => $tttSession->description,
             'location' => $tttSession->location,
-            'start_time' => $tttSession->start_time,
-            'end_time' => $tttSession->end_time,
+            'start_time' => $tttSession->date->format('Y-m-d') . ' ' . $tttSession->start_time->format('H:i:s'),
+            'end_time' => $tttSession->date->format('Y-m-d') . ' ' . $tttSession->end_time->format('H:i:s'),
             'date' => $tttSession->date,
             'presenter_primary' => $tttSession->presenter_name,
             'is_active' => true,
-            'session_type' => 'ttt',
+            'session_type' => 'ccl',
             'p_d_day_id' => $pdDay->id,
             'max_participants' => 20,
             'current_enrollment' => 20,
@@ -282,6 +298,8 @@ class FullSessionEnrollmentTest extends TestCase
 
     public function test_enrollment_blocked_when_wellness_session_reaches_exact_capacity(): void
     {
+        $this->withoutMiddleware(VerifyCsrfToken::class);
+
         // Create a user
         $user = User::factory()->create([
             'name' => 'Test User',

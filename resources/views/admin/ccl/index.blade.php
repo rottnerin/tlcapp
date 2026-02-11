@@ -213,14 +213,10 @@
                                                 <i class="fas fa-{{ $session->is_active ? 'pause' : 'play' }}"></i>
                                             </button>
                                         </form>
-                                        <form action="{{ route('admin.ccl.destroy', $session) }}" method="POST" 
-                                              class="inline" onsubmit="return confirm('Are you sure you want to delete this CCL session? This action cannot be undone.');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900 transition-colors" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <button type="button" onclick="openCclDeleteModal('{{ addslashes($session->title) }}', '{{ route('admin.ccl.destroy', $session) }}')"
+                                                class="text-red-600 hover:text-red-900 transition-colors" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -254,4 +250,48 @@
     </div>
 </div>
 
+{{-- Type-to-confirm delete modal (double confirmation per CLAUDE.md) --}}
+<div id="cclDeleteModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" id="cclDeleteModalTitle">Delete CCL session?</h3>
+        <p class="text-sm text-gray-600 mb-4">CCL sessions cannot be recovered once deleted. Type <strong>DELETE</strong> to confirm.</p>
+        <form id="cclDeleteForm" method="POST" action="">
+            @csrf
+            @method('DELETE')
+            <input type="text" id="cclDeleteConfirmInput" placeholder="Type DELETE here"
+                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                   autocomplete="off">
+            <p id="cclDeleteConfirmError" class="hidden mt-1 text-sm text-red-600">You must type DELETE to confirm.</p>
+            <div class="flex justify-end gap-2 mt-4">
+                <button type="button" onclick="closeCclDeleteModal()" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
+                <button type="button" id="cclDeleteModalSubmit" onclick="tryCclDelete()" disabled
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+function openCclDeleteModal(title, destroyUrl) {
+    document.getElementById('cclDeleteModalTitle').textContent = 'Delete "' + title + '"?';
+    document.getElementById('cclDeleteConfirmInput').value = '';
+    document.getElementById('cclDeleteConfirmError').classList.add('hidden');
+    document.getElementById('cclDeleteModalSubmit').disabled = true;
+    document.getElementById('cclDeleteForm').action = destroyUrl;
+    document.getElementById('cclDeleteModal').classList.remove('hidden');
+    document.getElementById('cclDeleteConfirmInput').focus();
+}
+function closeCclDeleteModal() { document.getElementById('cclDeleteModal').classList.add('hidden'); }
+function tryCclDelete() {
+    var input = document.getElementById('cclDeleteConfirmInput');
+    if (input.value.trim() !== 'DELETE') {
+        document.getElementById('cclDeleteConfirmError').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('cclDeleteForm').submit();
+}
+document.getElementById('cclDeleteConfirmInput').addEventListener('input', function() {
+    document.getElementById('cclDeleteModalSubmit').disabled = this.value.trim() !== 'DELETE';
+    if (this.value.trim() === 'DELETE') document.getElementById('cclDeleteConfirmError').classList.add('hidden');
+});
+</script>
 @endsection

@@ -76,14 +76,14 @@ class CCLController extends Controller
     /**
      * Display a specific CCL session
      */
-    public function show(CCLSession $session)
+    public function show(CCLSession $ccl)
     {
-        if (!CCLSetting::isActive() || !$session->is_active) {
+        if (!CCLSetting::isActive() || !$ccl->is_active) {
             return redirect()->route('spring.ccl')
                 ->with('error', 'This session is not currently available.');
         }
 
-        $session->load(['division', 'links', 'pdDay']);
+        $ccl->load(['division', 'links', 'pdDay']);
         
         // Check if user is already enrolled
         $user = auth()->user();
@@ -91,12 +91,12 @@ class CCLController extends Controller
         if ($user) {
             // Find the corresponding ScheduleItem for this CCL session
             // Combine date and time to match the datetime stored in schedule_items
-            $scheduleItemStartTime = $session->date->format('Y-m-d') . ' ' . $session->start_time->format('H:i:s');
+            $scheduleItemStartTime = $ccl->date->format('Y-m-d') . ' ' . $ccl->start_time->format('H:i:s');
 
-            $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
-                ->where('date', $session->date->format('Y-m-d'))
+            $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $ccl->p_d_day_id)
+                ->where('date', $ccl->date->format('Y-m-d'))
                 ->where('start_time', $scheduleItemStartTime)
-                ->where('title', $session->title)
+                ->where('title', $ccl->title)
                 ->where('session_type', 'ccl')
                 ->first();
             
@@ -108,16 +108,16 @@ class CCLController extends Controller
             }
         }
 
-        return view('ccl.show', compact('session', 'userEnrollment'));
+        return view('ccl.show', ['session' => $ccl, 'userEnrollment' => $userEnrollment]);
     }
 
     /**
      * Join a CCL session (enroll user)
      */
-    public function join(Request $request, CCLSession $session)
+    public function join(Request $request, CCLSession $ccl)
     {
         // Check if CCL feature is active
-        if (!CCLSetting::isActive() || !$session->is_active) {
+        if (!CCLSetting::isActive() || !$ccl->is_active) {
             return back()->with('error', 'This session is not currently available.');
         }
 
@@ -125,12 +125,12 @@ class CCLController extends Controller
 
         // Find the corresponding ScheduleItem for this CCL session
         // Combine date and time to match the datetime stored in schedule_items
-        $scheduleItemStartTime = $session->date->format('Y-m-d') . ' ' . $session->start_time->format('H:i:s');
+        $scheduleItemStartTime = $ccl->date->format('Y-m-d') . ' ' . $ccl->start_time->format('H:i:s');
 
-        $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
-            ->where('date', $session->date->format('Y-m-d'))
+        $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $ccl->p_d_day_id)
+            ->where('date', $ccl->date->format('Y-m-d'))
             ->where('start_time', $scheduleItemStartTime)
-            ->where('title', $session->title)
+            ->where('title', $ccl->title)
             ->where('session_type', 'ccl')
             ->first();
 
@@ -150,10 +150,10 @@ class CCLController extends Controller
 
         // Check if user is already enrolled in a CCL session at the same time slot
         $existingCCLEnrollmentSameTime = \App\Models\UserSession::where('user_id', $user->id)
-            ->whereHas('scheduleItem', function($query) use ($session) {
+            ->whereHas('scheduleItem', function($query) use ($ccl) {
                 $query->where('session_type', 'ccl')
-                      ->where('date', $session->date->format('Y-m-d'))
-                      ->whereTime('start_time', '=', $session->start_time->format('H:i:s'));
+                      ->where('date', $ccl->date->format('Y-m-d'))
+                      ->whereTime('start_time', '=', $ccl->start_time->format('H:i:s'));
             })
             ->where('status', '!=', 'cancelled')
             ->with('scheduleItem')
@@ -183,8 +183,8 @@ class CCLController extends Controller
             if ($userWellnessEnrollment && $userWellnessEnrollment->wellnessSession) {
                 $wellnessSession = $userWellnessEnrollment->wellnessSession;
                 // Check if times overlap
-                $tttStart = $session->start_time;
-                $tttEnd = $session->end_time;
+                $tttStart = $ccl->start_time;
+                $tttEnd = $ccl->end_time;
                 $wellnessStart = $wellnessSession->start_time;
                 $wellnessEnd = $wellnessSession->end_time;
 
@@ -244,7 +244,7 @@ class CCLController extends Controller
     /**
      * Unjoin user from a CCL session (admin only)
      */
-    public function unjoin(Request $request, CCLSession $session)
+    public function unjoin(Request $request, CCLSession $ccl)
     {
         // Check if CCL feature is active
         if (!CCLSetting::isActive()) {
@@ -259,12 +259,12 @@ class CCLController extends Controller
         }
 
         // Find the corresponding ScheduleItem for this CCL session
-        $scheduleItemStartTime = $session->date->format('Y-m-d') . ' ' . $session->start_time->format('H:i:s');
+        $scheduleItemStartTime = $ccl->date->format('Y-m-d') . ' ' . $ccl->start_time->format('H:i:s');
 
-        $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
-            ->where('date', $session->date->format('Y-m-d'))
+        $scheduleItem = \App\Models\ScheduleItem::where('p_d_day_id', $ccl->p_d_day_id)
+            ->where('date', $ccl->date->format('Y-m-d'))
             ->where('start_time', $scheduleItemStartTime)
-            ->where('title', $session->title)
+            ->where('title', $ccl->title)
             ->where('session_type', 'ccl')
             ->first();
 

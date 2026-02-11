@@ -526,6 +526,20 @@
                    class="sub-nav-item {{ request()->routeIs('spring.schedule') && !request()->route('pdday') ? 'active' : '' }}">
                     Schedule
                 </a>
+                <a href="{{ route('spring.wellness') }}"
+                   class="sub-nav-item {{ request()->routeIs('spring.wellness') ? 'active' : '' }}">
+                    Wellness
+                </a>
+                @if($cclActive ?? false)
+                <a href="{{ route('spring.ccl') }}"
+                   class="sub-nav-item {{ request()->routeIs('spring.ccl') ? 'active' : '' }}">
+                    Collaborative Community Learning
+                </a>
+                @endif
+                <a href="{{ route('spring.nts') }}"
+                   class="sub-nav-item {{ request()->routeIs('spring.nts*') ? 'active' : '' }}">
+                    NTS Sessions
+                </a>
             </div>
         </div>
     </div>

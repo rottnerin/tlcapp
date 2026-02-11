@@ -94,13 +94,9 @@ class ScheduleController extends Controller
                     if ($onlyAllSchoolSelected) {
                         return $query->whereHas('divisions', fn ($subQ) => $subQ->where('divisions.id', $allSchoolDivisionId));
                     }
-                    $divisionIds = $allSchoolDivisionId
-                        ? array_values(array_unique(array_merge($selectedDivisions, [$allSchoolDivisionId])))
-                        : $selectedDivisions;
-                    return $query->where(function ($q) use ($divisionIds) {
-                        $q->whereHas('divisions', function ($subQ) use ($divisionIds) {
-                            $subQ->whereIn('divisions.id', $divisionIds);
-                        })->orWhereDoesntHave('divisions');
+                    // Only show items that belong to the selected division(s) — no ALL, no items with no divisions
+                    return $query->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
+                        $subQ->whereIn('divisions.id', $selectedDivisions);
                     });
                 })
                 ->with(['divisions'])
@@ -314,13 +310,9 @@ class ScheduleController extends Controller
                     if ($onlyAllSchoolSelected) {
                         return $query->whereHas('divisions', fn ($subQ) => $subQ->where('divisions.id', $allSchoolDivisionId));
                     }
-                    $divisionIds = $allSchoolDivisionId
-                        ? array_values(array_unique(array_merge((array) $selectedDivisions, [$allSchoolDivisionId])))
-                        : (array) $selectedDivisions;
-                    return $query->where(function ($q) use ($divisionIds) {
-                        $q->whereHas('divisions', function ($subQ) use ($divisionIds) {
-                            $subQ->whereIn('divisions.id', $divisionIds);
-                        })->orWhereDoesntHave('divisions');
+                    // Only show items that belong to the selected division(s) — no ALL, no items with no divisions
+                    return $query->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
+                        $subQ->whereIn('divisions.id', (array) $selectedDivisions);
                     });
                 })
                 ->with(['divisions'])
@@ -436,13 +428,9 @@ class ScheduleController extends Controller
                     if ($onlyAllSchoolSelected) {
                         return $query->whereHas('divisions', fn ($subQ) => $subQ->where('divisions.id', $allSchoolDivisionId));
                     }
-                    $divisionIds = $allSchoolDivisionId
-                        ? array_values(array_unique(array_merge($selectedDivisions, [$allSchoolDivisionId])))
-                        : $selectedDivisions;
-                    return $query->where(function ($q) use ($divisionIds) {
-                        $q->whereHas('divisions', function ($subQ) use ($divisionIds) {
-                            $subQ->whereIn('divisions.id', $divisionIds);
-                        })->orWhereDoesntHave('divisions');
+                    // Only show items that belong to the selected division(s) — no ALL, no items with no divisions
+                    return $query->whereHas('divisions', function ($subQ) use ($selectedDivisions) {
+                        $subQ->whereIn('divisions.id', $selectedDivisions);
                     });
                 })
                 ->with(['divisions'])

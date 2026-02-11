@@ -109,9 +109,9 @@ Route::middleware(['user.only'])->group(function () {
         Route::post('/wellness/{session}/enroll', [WellnessController::class, 'enroll'])->name('spring.wellness.enroll');
         Route::post('/wellness/{session}/unjoin', [WellnessController::class, 'unjoin'])->name('spring.wellness.unjoin');
         Route::get('/ccl', [CCLController::class, 'index'])->name('spring.ccl');
-        Route::get('/ccl/{session}', [CCLController::class, 'show'])->name('spring.ccl.show');
-        Route::post('/ccl/{session}/join', [CCLController::class, 'join'])->name('spring.ccl.join');
-        Route::post('/ccl/{session}/unjoin', [CCLController::class, 'unjoin'])->name('spring.ccl.unjoin');
+        Route::get('/ccl/{ccl}', [CCLController::class, 'show'])->name('spring.ccl.show');
+        Route::post('/ccl/{ccl}/join', [CCLController::class, 'join'])->name('spring.ccl.join');
+        Route::post('/ccl/{ccl}/unjoin', [CCLController::class, 'unjoin'])->name('spring.ccl.unjoin');
 
         Route::get('/nts', [NTSController::class, 'index'])->name('spring.nts');
         Route::get('/nts/schedule-item/{scheduleItem}', [NTSController::class, 'show'])->name('spring.nts.schedule.show');

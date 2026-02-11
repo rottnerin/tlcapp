@@ -74,7 +74,7 @@
                             <h3 class="text-sm font-medium text-gray-700 mb-1">Date & Time</h3>
                             <p class="text-gray-900">{{ \Carbon\Carbon::parse($wellness->date)->format('l, F j, Y') }}</p>
                             <p class="text-gray-600">
-                                2:30 PM - 3:30 PM
+                                {{ $wellness->start_time->format('g:i A') }} - {{ $wellness->end_time->format('g:i A') }}
                             </p>
                         </div>
 
@@ -228,15 +228,10 @@
                         </form>
 
                         @if($confirmedParticipants->count() == 0)
-                            <form action="{{ route('admin.wellness.destroy', $wellness) }}" method="POST" 
-                                  onsubmit="return confirm('Are you sure you want to delete this Wellness session? This action cannot be undone.');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
-                                    <i class="fas fa-trash mr-2"></i>Delete Session
-                                </button>
-                            </form>
+                            <button type="button" onclick="openWellnessDeleteModal('{{ addslashes($wellness->title) }}', '{{ route('admin.wellness.destroy', $wellness) }}')"
+                                    class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-trash mr-2"></i>Delete Session
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -293,4 +288,50 @@
         @endif
     </div>
 </div>
+
+@if($confirmedParticipants->count() == 0)
+<div id="wellnessDeleteModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-2" id="wellnessDeleteModalTitle">Delete wellness session?</h3>
+        <p class="text-sm text-gray-600 mb-4">Wellness sessions cannot be recovered once deleted. Type <strong>DELETE</strong> to confirm.</p>
+        <form id="wellnessDeleteForm" method="POST" action="">
+            @csrf
+            @method('DELETE')
+            <input type="text" id="wellnessDeleteConfirmInput" placeholder="Type DELETE here"
+                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                   autocomplete="off">
+            <p id="wellnessDeleteConfirmError" class="hidden mt-1 text-sm text-red-600">You must type DELETE to confirm.</p>
+            <div class="flex justify-end gap-2 mt-4">
+                <button type="button" onclick="closeWellnessDeleteModal()" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
+                <button type="button" id="wellnessDeleteModalSubmit" onclick="tryWellnessDelete()" disabled
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+function openWellnessDeleteModal(title, destroyUrl) {
+    document.getElementById('wellnessDeleteModalTitle').textContent = 'Delete "' + title + '"?';
+    document.getElementById('wellnessDeleteConfirmInput').value = '';
+    document.getElementById('wellnessDeleteConfirmError').classList.add('hidden');
+    document.getElementById('wellnessDeleteModalSubmit').disabled = true;
+    document.getElementById('wellnessDeleteForm').action = destroyUrl;
+    document.getElementById('wellnessDeleteModal').classList.remove('hidden');
+    document.getElementById('wellnessDeleteConfirmInput').focus();
+}
+function closeWellnessDeleteModal() { document.getElementById('wellnessDeleteModal').classList.add('hidden'); }
+function tryWellnessDelete() {
+    var input = document.getElementById('wellnessDeleteConfirmInput');
+    if (input.value.trim() !== 'DELETE') {
+        document.getElementById('wellnessDeleteConfirmError').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('wellnessDeleteForm').submit();
+}
+document.getElementById('wellnessDeleteConfirmInput').addEventListener('input', function() {
+    document.getElementById('wellnessDeleteModalSubmit').disabled = this.value.trim() !== 'DELETE';
+    if (this.value.trim() === 'DELETE') document.getElementById('wellnessDeleteConfirmError').classList.add('hidden');
+});
+</script>
+@endif
 @endsection

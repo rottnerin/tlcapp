@@ -170,19 +170,19 @@ class WellnessSession extends Model
     }
 
     /**
-     * Get the fixed start time for all wellness sessions
+     * Get the fixed start time for all wellness sessions (3:00 PM)
      */
     public function getStartTimeAttribute(): \Carbon\Carbon
     {
-        return \Carbon\Carbon::parse($this->date->format('Y-m-d') . ' 14:30:00');
+        return \Carbon\Carbon::parse($this->date->format('Y-m-d') . ' 15:00:00');
     }
 
     /**
-     * Get the fixed end time for all wellness sessions
+     * Get the fixed end time for all wellness sessions (4:00 PM)
      */
     public function getEndTimeAttribute(): \Carbon\Carbon
     {
-        return \Carbon\Carbon::parse($this->date->format('Y-m-d') . ' 15:30:00');
+        return \Carbon\Carbon::parse($this->date->format('Y-m-d') . ' 16:00:00');
     }
 
     /**
