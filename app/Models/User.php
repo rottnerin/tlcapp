@@ -155,6 +155,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is Non-Teaching Staff (NTS)
+     */
+    public function isNTS(): bool
+    {
+        return $this->division?->name === 'NTS';
+    }
+
+    /**
      * Get user's division name
      */
     public function getDivisionNameAttribute(): ?string

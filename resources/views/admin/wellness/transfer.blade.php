@@ -15,7 +15,7 @@
                         <i class="fas fa-calendar mr-1"></i>
                         {{ \Carbon\Carbon::parse($wellness->date)->format('M j, Y') }} • 
                         <i class="fas fa-clock mr-1"></i>
-                        2:30 PM - 3:30 PM
+                        3:00 PM - 4:00 PM
                     </div>
                 </div>
                 <div class="flex space-x-3">

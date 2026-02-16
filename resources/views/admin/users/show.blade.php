@@ -5,6 +5,13 @@
 @section('content')
 <div class="min-h-screen bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        @if(session('error'))
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg flex items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                {{ session('error') }}
+            </div>
+        @endif
+
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center justify-between">
@@ -285,34 +292,27 @@
                                                 {{ $enrollment->created_at->format('M j, Y g:i A') }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                @if($enrollment->wellnessSession && $enrollment->status !== 'cancelled')
-                                                    <form action="{{ route('admin.wellness.remove-enrollment', $enrollment->wellnessSession) }}" method="POST" 
-                                                          onsubmit="return confirm('Are you sure you want to remove this user from this wellness session?')" class="inline">
-                                                        @csrf
-                                                        <input type="hidden" name="user_id" value="{{ $user->id }}">
-                                                        <button type="submit" 
-                                                                class="text-red-600 hover:text-red-800 transition-colors"
-                                                                title="Remove from session">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </form>
-                                                @elseif($enrollment->scheduleItem && $enrollment->scheduleItem->session_type === 'ccl' && $enrollment->status !== 'cancelled')
-                                                    @php
-                                                        $cclSession = \App\Models\CCLSession::where('p_d_day_id', $enrollment->scheduleItem->p_d_day_id)
-                                                            ->where('date', $enrollment->scheduleItem->date)
-                                                            ->whereTime('start_time', $enrollment->scheduleItem->start_time->format('H:i:s'))
-                                                            ->where('title', $enrollment->scheduleItem->title)
-                                                            ->first();
-                                                    @endphp
-                                                    @if($cclSession)
-                                                        <form action="{{ route('admin.ccl.remove-enrollment', $cclSession) }}" method="POST" 
-                                                              onsubmit="return confirm('Are you sure you want to remove this user from this CCL session?')" class="inline">
+                                                @if($enrollment->status !== 'cancelled')
+                                                    @if($enrollment->wellnessSession)
+                                                        <form action="{{ route('admin.wellness.remove-enrollment', $enrollment->wellnessSession) }}" method="POST" 
+                                                              onsubmit="return confirm('Are you sure you want to remove this user from this wellness session?')" class="inline">
                                                             @csrf
                                                             <input type="hidden" name="user_id" value="{{ $user->id }}">
                                                             <button type="submit" 
                                                                     class="text-red-600 hover:text-red-800 transition-colors"
                                                                     title="Remove from session">
-                                                                <i class="fas fa-times"></i>
+                                                                <i class="fas fa-times"></i> Remove
+                                                            </button>
+                                                        </form>
+                                                    @elseif($enrollment->scheduleItem)
+                                                        <form action="{{ route('admin.schedule.remove-enrollment', $enrollment->scheduleItem) }}" method="POST" 
+                                                              onsubmit="return confirm('Are you sure you want to remove this user from this session?')" class="inline">
+                                                            @csrf
+                                                            <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                                            <button type="submit" 
+                                                                    class="text-red-600 hover:text-red-800 transition-colors"
+                                                                    title="Remove from session">
+                                                                <i class="fas fa-times"></i> Remove
                                                             </button>
                                                         </form>
                                                     @endif

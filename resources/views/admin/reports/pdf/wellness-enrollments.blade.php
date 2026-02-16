@@ -45,10 +45,10 @@
             <tr>
                 <td>{{ $enrollment->user->name }}</td>
                 <td>{{ $enrollment->user->email }}</td>
-                <td>{{ $enrollment->user->division->name ?? 'N/A' }}</td>
-                <td>{{ $enrollment->wellnessSession->title ?? 'N/A' }}</td>
-                <td>{{ $enrollment->wellnessSession->date?->format('M d, Y') }}</td>
-                <td>{{ $enrollment->wellnessSession->category_names ?? 'N/A' }}</td>
+                <td>{{ $enrollment->user->division?->name ?? 'N/A' }}</td>
+                <td>{{ $enrollment->wellnessSession?->title ?? 'N/A' }}</td>
+                <td>{{ $enrollment->wellnessSession?->date?->format('M d, Y') ?? 'N/A' }}</td>
+                <td>{{ $enrollment->wellnessSession?->category_names ?? 'N/A' }}</td>
                 <td>
                     <span class="badge badge-{{ $enrollment->status }}">
                         {{ ucfirst($enrollment->status) }}

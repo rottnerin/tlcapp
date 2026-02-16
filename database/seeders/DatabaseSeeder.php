@@ -14,14 +14,16 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            DivisionSeeder::class,
-            AdminUserSeeder::class,
-            PDDaySeeder::class,
-            CCLSessionSeeder::class,
-            WellnessSessionSeeder::class,
-            ScheduleItemSeeder::class,
-            ReportsTestDataSeeder::class,
-            ScheduleTestDataSeeder::class,
+            //DivisionSeeder::class,
+            //AdminUserSeeder::class,
+            //PDDaySeeder::class,
+            //CCLSessionSeeder::class,
+            //WellnessSessionSeeder::class,
+            //ScheduleItemSeeder::class,
+            //AllSchoolScheduleSeeder::class,
+            //NTSScheduleSeeder::class,
+            //ReportsTestDataSeeder::class,
+            //ScheduleTestDataSeeder::class,
         ]);
 
         // User::factory(10)->create();

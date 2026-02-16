@@ -104,6 +104,10 @@
     color: white;
     padding: 1.25rem;
     flex-shrink: 0;
+    height: 9rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .ttt-card-header h3 {
@@ -111,9 +115,11 @@
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: white;
-    min-height: 3.75rem;
-    display: flex;
-    align-items: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.35;
 }
 
 .ttt-card-header .meta {

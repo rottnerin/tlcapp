@@ -152,17 +152,22 @@ class CCLController extends Controller
     /**
      * Display the specified CCL session
      */
-    public function show(CCLSession $ttt)
+    public function show(CCLSession $ccl)
     {
-        $ttt->load(['division', 'pdDay', 'links']);
+        $ccl->load(['division', 'pdDay', 'links']);
 
-        // Find the corresponding ScheduleItem for this CCL session
-        $scheduleItem = ScheduleItem::where('p_d_day_id', $ttt->p_d_day_id)
-            ->where('date', $ttt->date)
-            ->where('start_time', $ttt->start_time)
-            ->where('title', $ttt->title)
-            ->where('session_type', 'ccl')
-            ->first();
+        // Find the corresponding ScheduleItem for this CCL session (use combined datetime like user CCLController)
+        $scheduleItemStartTime = $ccl->date && $ccl->start_time
+            ? $ccl->date->format('Y-m-d') . ' ' . $ccl->start_time->format('H:i:s')
+            : null;
+        $scheduleItem = $scheduleItemStartTime
+            ? ScheduleItem::where('p_d_day_id', $ccl->p_d_day_id)
+                ->where('date', $ccl->date->format('Y-m-d'))
+                ->where('start_time', $scheduleItemStartTime)
+                ->where('title', $ccl->title)
+                ->where('session_type', 'ccl')
+                ->first()
+            : null;
 
         $confirmedParticipants = collect();
         if ($scheduleItem) {
@@ -173,7 +178,7 @@ class CCLController extends Controller
                 ->get();
         }
 
-        return view('admin.ccl.show', compact('ttt', 'confirmedParticipants', 'scheduleItem'));
+        return view('admin.ccl.show', compact('ccl', 'confirmedParticipants', 'scheduleItem'));
     }
 
     /**
@@ -185,13 +190,18 @@ class CCLController extends Controller
         $pdDays = PDDay::orderBy('start_date', 'desc')->get();
         $ccl->load('links');
 
-        // Find the corresponding ScheduleItem for this CCL session
-        $scheduleItem = ScheduleItem::where('p_d_day_id', $ccl->p_d_day_id)
-            ->where('date', $ccl->date)
-            ->where('start_time', $ccl->start_time)
-            ->where('title', $ccl->title)
-            ->where('session_type', 'ccl')
-            ->first();
+        // Find the corresponding ScheduleItem for this CCL session (use combined datetime like user CCLController)
+        $scheduleItemStartTime = $ccl->date && $ccl->start_time
+            ? $ccl->date->format('Y-m-d') . ' ' . $ccl->start_time->format('H:i:s')
+            : null;
+        $scheduleItem = $scheduleItemStartTime
+            ? ScheduleItem::where('p_d_day_id', $ccl->p_d_day_id)
+                ->where('date', $ccl->date->format('Y-m-d'))
+                ->where('start_time', $scheduleItemStartTime)
+                ->where('title', $ccl->title)
+                ->where('session_type', 'ccl')
+                ->first()
+            : null;
 
         $confirmedParticipants = collect();
         if ($scheduleItem) {
@@ -228,7 +238,7 @@ class CCLController extends Controller
     /**
      * Update the specified CCL session
      */
-    public function update(Request $request, CCLSession $ttt)
+    public function update(Request $request, CCLSession $ccl)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -254,11 +264,11 @@ class CCLController extends Controller
         ]);
 
         // Capture old values for ScheduleItem lookup before the update
-        $oldTitle = $ttt->title;
-        $oldDate = $ttt->date;
-        $oldStartTime = $ttt->start_time;
+        $oldTitle = $ccl->title;
+        $oldDate = $ccl->date;
+        $oldStartTime = $ccl->start_time;
 
-        $ttt->update([
+        $ccl->update([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'presenter_name' => $validated['presenter_name'],
@@ -278,13 +288,13 @@ class CCLController extends Controller
         ]);
 
         // Sync the corresponding ScheduleItem (uses old values to find existing, then updates)
-        $this->syncScheduleItem($ttt->fresh(), $oldTitle, $oldDate, $oldStartTime);
+        $this->syncScheduleItem($ccl, $oldTitle, $oldDate, $oldStartTime);
 
         // Update links
-        $ttt->links()->delete();
+        $ccl->links()->delete();
         if (!empty($validated['links'])) {
             foreach ($validated['links'] as $index => $linkData) {
-                $ttt->links()->create([
+                $ccl->links()->create([
                     'title' => $linkData['title'],
                     'url' => $linkData['url'],
                     'type' => $linkData['type'] ?? 'resource',
@@ -300,9 +310,9 @@ class CCLController extends Controller
     /**
      * Remove the specified CCL session
      */
-    public function destroy(CCLSession $ttt)
+    public function destroy(CCLSession $ccl)
     {
-        $ttt->delete();
+        $ccl->delete();
 
         return redirect()->route('admin.ccl.index')
             ->with('success', 'CCL Session deleted successfully.');
@@ -325,10 +335,10 @@ class CCLController extends Controller
     /**
      * Toggle session status
      */
-    public function toggleSessionStatus(CCLSession $ttt)
+    public function toggleSessionStatus(CCLSession $ccl)
     {
-        $ttt->is_active = !$ttt->is_active;
-        $ttt->save();
+        $ccl->is_active = !$ccl->is_active;
+        $ccl->save();
 
         return redirect()->back()
             ->with('success', 'Session status updated.');
@@ -368,6 +378,8 @@ class CCLController extends Controller
             $scheduleItem = ScheduleItem::where('p_d_day_id', $session->p_d_day_id)
                 ->where('title', $oldTitle)
                 ->where('session_type', 'ccl')
+                ->where('date', $oldDateStr)
+                ->where('start_time', $oldStartStr)
                 ->first();
         }
 
@@ -376,6 +388,7 @@ class CCLController extends Controller
                 ->where('title', $session->title)
                 ->where('session_type', 'ccl')
                 ->where('date', $date)
+                ->where('start_time', $startDateTime)
                 ->first();
         }
 
@@ -402,7 +415,7 @@ class CCLController extends Controller
     /**
      * Remove user enrollment from CCL session
      */
-    public function removeEnrollment(Request $request, CCLSession $ttt)
+    public function removeEnrollment(Request $request, CCLSession $ccl)
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -421,7 +434,7 @@ class CCLController extends Controller
             }
         } else {
             // Fallback: use CCL session's matching ScheduleItem (handles null date/start_time)
-            $scheduleItem = $ttt->matchingScheduleItem();
+            $scheduleItem = $ccl->matchingScheduleItem();
 
             if (!$scheduleItem) {
                 return back()->with('error', 'Schedule item not found for this session.');

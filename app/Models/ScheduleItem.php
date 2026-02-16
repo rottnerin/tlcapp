@@ -116,13 +116,13 @@ class ScheduleItem extends Model
     }
 
     /**
-     * Scope for regular schedule items only (excludes wellness & CCL session types)
+     * Scope for regular schedule items only (excludes wellness, CCL & NTS optional)
      */
     public function scopeScheduleOnly($query)
     {
         return $query->where(function ($q) {
             $q->whereNull('session_type')
-              ->orWhereNotIn(\DB::raw('LOWER(session_type)'), ['wellness', 'ccl']);
+              ->orWhereNotIn(\DB::raw('LOWER(session_type)'), ['wellness', 'ccl', 'nts_optional']);
         });
     }
 
@@ -147,9 +147,17 @@ class ScheduleItem extends Model
      */
     public function scopeForDivisions($query, $divisionIds)
     {
-        return $query->whereHas('divisions', function($q) use ($divisionIds) {
+        return $query->whereHas('divisions', function ($q) use ($divisionIds) {
             $q->whereIn('divisions.id', (array) $divisionIds);
         });
+    }
+
+    /**
+     * Scope for items for a division by name (e.g. 'NTS')
+     */
+    public function scopeForDivision($query, string $divisionName)
+    {
+        return $query->whereHas('divisions', fn ($q) => $q->where('divisions.name', $divisionName));
     }
 
     /**

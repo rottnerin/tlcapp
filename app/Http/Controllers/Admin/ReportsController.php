@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Division;
+use App\Models\PDDay;
 use App\Models\ScheduleItem;
 use App\Models\User;
 use App\Models\UserSession;
@@ -49,7 +50,8 @@ class ReportsController extends Controller
         $dateTo = $request->get('date_to');
 
         $query = UserSession::with(['user.division', 'wellnessSession'])
-            ->whereNotNull('wellness_session_id');
+            ->whereNotNull('wellness_session_id')
+            ->whereHas('wellnessSession');
 
         if ($sessionId) {
             $query->where('wellness_session_id', $sessionId);
@@ -169,41 +171,70 @@ class ReportsController extends Controller
     }
 
     /**
-     * Users not enrolled in any sessions
+     * Users not enrolled in Wellness and/or CCL
      */
     public function unenrolledUsers(Request $request)
     {
         $divisionId = $request->get('division_id');
         $dateFrom = $request->get('date_from');
         $dateTo = $request->get('date_to');
+        $missing = $request->get('missing', 'both');
 
-        $query = User::with('division')
-            ->whereDoesntHave('userSessions', function ($q) use ($dateFrom, $dateTo) {
-                if ($dateFrom) {
-                    $q->whereDate('enrolled_at', '>=', $dateFrom);
-                }
-                if ($dateTo) {
-                    $q->whereDate('enrolled_at', '<=', $dateTo);
-                }
-            });
-
+        $query = User::with('division');
         if ($divisionId) {
             $query->where('division_id', $divisionId);
         }
+        $users = $query->orderBy('name')->get();
 
-        $unenrolledUsers = $query->orderBy('name')->get();
+        $wellnessQuery = UserSession::where('status', 'confirmed')
+            ->whereNotNull('wellness_session_id');
+        $cclQuery = UserSession::where('status', 'confirmed')
+            ->whereHas('scheduleItem', fn ($q) => $q->where('session_type', 'ccl'));
+        if ($dateFrom) {
+            $wellnessQuery->whereDate('enrolled_at', '>=', $dateFrom);
+            $cclQuery->whereDate('enrolled_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $wellnessQuery->whereDate('enrolled_at', '<=', $dateTo);
+            $cclQuery->whereDate('enrolled_at', '<=', $dateTo);
+        }
+        $wellnessUserIds = $wellnessQuery->pluck('user_id')->unique();
+        $cclUserIds = $cclQuery->pluck('user_id')->unique();
+
+        $reportUsers = $users->map(function ($user) use ($wellnessUserIds, $cclUserIds) {
+            $enrolledInWellness = $wellnessUserIds->contains($user->id);
+            $enrolledInCcl = $cclUserIds->contains($user->id);
+
+            return [
+                'user' => $user,
+                'enrolled_in_wellness' => $enrolledInWellness,
+                'enrolled_in_ccl' => $enrolledInCcl,
+            ];
+        })->filter(function ($row) use ($missing) {
+            $w = $row['enrolled_in_wellness'];
+            $c = $row['enrolled_in_ccl'];
+            return match ($missing) {
+                'both' => ! $w && ! $c,
+                'wellness' => ! $w,
+                'ccl' => ! $c,
+                'either' => ! $w || ! $c,
+                default => ! $w && ! $c,
+            };
+        })->values();
+
         $divisions = Division::orderBy('name')->get();
 
         if ($request->has('export')) {
-            return $this->exportUnenrolledUsers($unenrolledUsers);
+            return $this->exportUnenrolledUsersReport($reportUsers);
         }
 
         return view('admin.reports.unenrolled-users', compact(
-            'unenrolledUsers',
+            'reportUsers',
             'divisions',
             'divisionId',
             'dateFrom',
-            'dateTo'
+            'dateTo',
+            'missing'
         ));
     }
 
@@ -279,39 +310,126 @@ class ReportsController extends Controller
     }
 
     /**
-     * Division enrollment summary
+     * Division enrollment summary (aggregate + user-level matrix).
+     * Scoped to a single PD Day (CCL and Wellness enrollment only); no date range.
      */
     public function divisionSummary(Request $request)
     {
-        $dateFrom = $request->get('date_from', Carbon::now()->startOfMonth());
-        $dateTo = $request->get('date_to', Carbon::now()->endOfMonth());
+        $divisionId = $request->get('division_id');
+        $pDDayId = $request->get('p_d_day_id');
+
+        $pdDays = PDDay::query()->orderBy('start_date', 'desc')->get();
+        $selectedPDDay = $pDDayId
+            ? $pdDays->firstWhere('id', (int) $pDDayId)
+            : $pdDays->first();
+
+        if (! $selectedPDDay) {
+            $divisions = Division::withCount(['users'])->get();
+            $divisionData = collect();
+            $userMatrixRows = [];
+            $cclSessionHeaders = [];
+            $dateFrom = null;
+            $dateTo = null;
+
+            return view('admin.reports.division-summary', compact(
+                'divisionData',
+                'userMatrixRows',
+                'cclSessionHeaders',
+                'dateFrom',
+                'dateTo',
+                'divisionId',
+                'pDDayId',
+                'pdDays',
+                'divisions'
+            ));
+        }
+
+        $dateFrom = $selectedPDDay->start_date->copy()->startOfDay();
+        $dateTo = $selectedPDDay->end_date->copy()->endOfDay();
+        $pDDayId = $selectedPDDay->id;
+        $pdDayIds = [$selectedPDDay->id];
+
+        $cclItemsAll = ScheduleItem::where('session_type', 'ccl')
+            ->whereIn('p_d_day_id', $pdDayIds)
+            ->whereDate('date', '>=', $dateFrom)
+            ->whereDate('date', '<=', $dateTo)
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
+
+        // Exactly 2 CCL columns: CCL Session 1 and CCL Session 2 (first two time slots)
+        $cclBySlot = $cclItemsAll->groupBy(fn ($i) => $i->date->format('Y-m-d').'_'.($i->start_time?->format('H:i') ?? ''));
+        $cclSlotGroups = $cclBySlot->values()->take(2)->values();
+        $cclSessionHeaders = ['CCL Session 1', 'CCL Session 2'];
+
+        $wellnessSessions = WellnessSession::whereIn('p_d_day_id', $pdDayIds)
+            ->whereDate('date', '>=', $dateFrom)
+            ->whereDate('date', '<=', $dateTo)
+            ->get();
+        $wellnessSessionIds = $wellnessSessions->pluck('id')->toArray();
+        $cclItemIds = $cclItemsAll->pluck('id')->toArray();
+
+        $userQuery = User::with('division');
+        if ($divisionId) {
+            $userQuery->where('division_id', $divisionId);
+        }
+        $users = $userQuery->orderBy('name')->get();
+
+        $enrollments = UserSession::where('status', 'confirmed')
+            ->where(function ($q) use ($cclItemIds, $wellnessSessionIds) {
+                $q->whereIn('schedule_item_id', $cclItemIds)
+                    ->orWhereIn('wellness_session_id', $wellnessSessionIds);
+            })
+            ->with(['scheduleItem', 'wellnessSession'])
+            ->get();
+
+        $userEnrollments = $enrollments->groupBy('user_id');
+
+        // Build user rows with CCL Session 1, CCL Session 2, and Wellness
+        $userMatrixRows = $users->sortBy([
+            fn ($u) => $u->division?->name ?? '',
+            fn ($u) => $u->name,
+        ])->values()->map(function ($user) use ($userEnrollments, $cclSlotGroups, $wellnessSessions) {
+            $userEnrs = $userEnrollments->get($user->id, collect());
+            $cclBySession = [];
+            foreach ($cclSlotGroups as $idx => $slotItems) {
+                $enr = $userEnrs->first(fn ($e) => $slotItems->contains('id', $e->schedule_item_id));
+                $cclBySession[$idx] = $enr && $enr->scheduleItem ? $enr->scheduleItem->title : '';
+            }
+            $wellnessTitle = '';
+            $wellnessEnr = $userEnrs->first(fn ($e) => $e->wellness_session_id !== null);
+            if ($wellnessEnr && $wellnessEnr->wellnessSession) {
+                $wellnessTitle = $wellnessEnr->wellnessSession->title;
+            }
+
+            return [
+                'name' => $user->name,
+                'email' => $user->email,
+                'division' => $user->division?->name ?? $user->division_name ?? '',
+                'division_sort' => $user->division?->name ?? '',
+                'ccl_by_session' => $cclBySession,
+                'wellness' => $wellnessTitle,
+            ];
+        })->toArray();
 
         $divisions = Division::withCount(['users'])->get();
-
-        $divisionData = $divisions->map(function ($division) use ($dateFrom, $dateTo) {
-            $enrollments = UserSession::whereHas('user', function ($q) use ($division) {
-                $q->where('division_id', $division->id);
-            })
-                ->whereBetween('enrolled_at', [$dateFrom, $dateTo])
+        $divisionData = $divisions->when($divisionId, fn ($c) => $c->where('id', $divisionId))
+            ->map(function ($division) use ($wellnessSessionIds, $cclItemIds) {
+            $enrollments = UserSession::whereHas('user', fn ($q) => $q->where('division_id', $division->id))
+                ->where('status', 'confirmed')
+                ->where(function ($q) use ($wellnessSessionIds, $cclItemIds) {
+                    $q->whereIn('wellness_session_id', $wellnessSessionIds)
+                        ->orWhereIn('schedule_item_id', $cclItemIds);
+                })
+                ->count();
+            $wellnessEnrollments = UserSession::whereHas('user', fn ($q) => $q->where('division_id', $division->id))
+                ->whereIn('wellness_session_id', $wellnessSessionIds)
                 ->where('status', 'confirmed')
                 ->count();
-
-            $wellnessEnrollments = UserSession::whereHas('user', function ($q) use ($division) {
-                $q->where('division_id', $division->id);
-            })
-                ->whereNotNull('wellness_session_id')
-                ->whereBetween('enrolled_at', [$dateFrom, $dateTo])
+            $scheduleEnrollments = UserSession::whereHas('user', fn ($q) => $q->where('division_id', $division->id))
+                ->whereIn('schedule_item_id', $cclItemIds)
                 ->where('status', 'confirmed')
                 ->count();
-
-            $scheduleEnrollments = UserSession::whereHas('user', function ($q) use ($division) {
-                $q->where('division_id', $division->id);
-            })
-                ->whereNotNull('schedule_item_id')
-                ->whereBetween('enrolled_at', [$dateFrom, $dateTo])
-                ->where('status', 'confirmed')
-                ->count();
-
             $participationRate = $division->users_count > 0 ?
                 round(($enrollments / $division->users_count) * 100, 2) : 0;
 
@@ -331,14 +449,21 @@ class ReportsController extends Controller
             if ($type === 'pdf') {
                 return $this->exportDivisionSummaryPDF($divisionData, $dateFrom, $dateTo);
             }
-
-            return $this->exportDivisionSummary($divisionData);
+            if ($type === 'csv') {
+                return $this->exportDivisionSummaryUserMatrix($userMatrixRows, $cclSessionHeaders);
+            }
         }
 
         return view('admin.reports.division-summary', compact(
             'divisionData',
+            'userMatrixRows',
+            'cclSessionHeaders',
             'dateFrom',
-            'dateTo'
+            'dateTo',
+            'divisionId',
+            'pDDayId',
+            'pdDays',
+            'divisions'
         ));
     }
 
@@ -505,32 +630,32 @@ class ReportsController extends Controller
         $callback = function () use ($enrollments) {
             $file = fopen('php://output', 'w');
 
-            // CSV Headers
             fputcsv($file, [
-                'User Name',
-                'Email',
+                'Session Name',
+                'Description',
+                'Participant Name',
+                'Participant Email',
                 'Division',
-                'Session Title',
                 'Session Date',
                 'Category',
                 'Status',
                 'Enrolled At',
-                'Rating',
-                'Attended',
             ]);
 
             foreach ($enrollments as $enrollment) {
+                $description = $enrollment->wellnessSession->description ?? '';
+                $description = str_replace(["\r\n", "\n", "\r"], ' ', $description);
+
                 fputcsv($file, [
+                    $enrollment->wellnessSession->title ?? 'N/A',
+                    $description,
                     $enrollment->user->name,
                     $enrollment->user->email,
                     $enrollment->user->division_name ?? 'N/A',
-                    $enrollment->wellnessSession->title ?? 'N/A',
                     $enrollment->wellnessSession->date ?? 'N/A',
                     $enrollment->wellnessSession->category_names ?? 'N/A',
                     $enrollment->status,
                     $enrollment->enrolled_at->format('Y-m-d H:i:s'),
-                    $enrollment->rating ?? 'N/A',
-                    $enrollment->attended ? 'Yes' : 'No',
                 ]);
             }
 
@@ -540,7 +665,7 @@ class ReportsController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    private function exportUnenrolledUsers($users)
+    private function exportUnenrolledUsersReport($reportUsers)
     {
         $filename = 'unenrolled_users_'.date('Y-m-d_H-i-s').'.csv';
 
@@ -549,24 +674,27 @@ class ReportsController extends Controller
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ];
 
-        $callback = function () use ($users) {
+        $callback = function () use ($reportUsers) {
             $file = fopen('php://output', 'w');
 
             fputcsv($file, [
                 'Name',
                 'Email',
                 'Division',
-                'ID Card Code',
+                'Enrolled in Wellness',
+                'Enrolled in CCL',
                 'Last Login',
                 'Account Created',
             ]);
 
-            foreach ($users as $user) {
+            foreach ($reportUsers as $row) {
+                $user = $row['user'];
                 fputcsv($file, [
                     $user->name,
                     $user->email,
                     $user->division_name ?? 'N/A',
-                    $user->id_card_code ?? 'N/A',
+                    $row['enrolled_in_wellness'] ? 'Y' : 'N',
+                    $row['enrolled_in_ccl'] ? 'Y' : 'N',
                     $user->last_login_at ? $user->last_login_at->format('Y-m-d H:i:s') : 'Never',
                     $user->created_at->format('Y-m-d H:i:s'),
                 ]);
@@ -658,6 +786,36 @@ class ReportsController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    private function exportDivisionSummaryUserMatrix(array $userMatrixRows, array $cclSessionHeaders)
+    {
+        $filename = 'division_summary_users_'.date('Y-m-d_H-i-s').'.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ];
+
+        $callback = function () use ($userMatrixRows, $cclSessionHeaders) {
+            $file = fopen('php://output', 'w');
+
+            $csvHeaders = array_merge(['Division', 'Name', 'Email'], $cclSessionHeaders, ['Wellness']);
+            fputcsv($file, $csvHeaders);
+
+            foreach ($userMatrixRows as $row) {
+                $cclValues = array_values($row['ccl_by_session'] ?? []);
+                fputcsv($file, array_merge(
+                    [$row['division'], $row['name'], $row['email']],
+                    $cclValues,
+                    [$row['wellness']]
+                ));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     private function exportUserActivity($users)
     {
         $filename = 'user_activity_'.date('Y-m-d_H-i-s').'.csv';
@@ -712,39 +870,34 @@ class ReportsController extends Controller
         return response()->stream(function () use ($enrollments) {
             $handle = fopen('php://output', 'w');
 
-            // CSV Headers
             fputcsv($handle, [
-                'User Name',
-                'Email',
+                'Session Name',
+                'Description',
+                'Participant Name',
+                'Participant Email',
                 'Division',
-                'Session Title',
                 'Date',
                 'Start Time',
                 'End Time',
-                'Location',
-                'Presenter',
                 'Status',
                 'Enrolled At',
-                'Rating',
-                'Attended',
             ]);
 
-            // Data rows
             foreach ($enrollments as $enrollment) {
+                $description = $enrollment->scheduleItem->description ?? '';
+                $description = str_replace(["\r\n", "\n", "\r"], ' ', $description);
+
                 fputcsv($handle, [
+                    $enrollment->scheduleItem->title ?? 'N/A',
+                    $description,
                     $enrollment->user->name,
                     $enrollment->user->email,
                     $enrollment->user->division->name ?? 'N/A',
-                    $enrollment->scheduleItem->title ?? 'N/A',
                     $enrollment->scheduleItem->date?->format('Y-m-d') ?? 'N/A',
                     $enrollment->scheduleItem->start_time?->format('g:i A') ?? 'N/A',
                     $enrollment->scheduleItem->end_time?->format('g:i A') ?? 'N/A',
-                    $enrollment->scheduleItem->location ?? 'N/A',
-                    $enrollment->scheduleItem->presenter_primary ?? 'N/A',
                     $enrollment->status,
                     $enrollment->enrolled_at->format('Y-m-d H:i:s'),
-                    $enrollment->rating ?? 'N/A',
-                    $enrollment->attended ? 'Yes' : 'No',
                 ]);
             }
 

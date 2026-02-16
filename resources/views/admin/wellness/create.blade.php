@@ -167,7 +167,7 @@
                             @error('date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
-                            <p class="mt-1 text-sm text-gray-500">All wellness sessions run from 2:30 PM - 3:30 PM</p>
+                            <p class="mt-1 text-sm text-gray-500">All wellness sessions run from 3:00 PM - 4:00 PM</p>
                         </div>
 
                         <div>

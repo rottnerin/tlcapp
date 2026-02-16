@@ -31,19 +31,26 @@ def main():
                 presenter, co_presenter, title, desc, max_part, equipment, email, co_email = cells[:8]
                 if not title or not str(title).strip():
                     continue
+
+                def safe_str(val):
+                    if val is None:
+                        return None
+                    s = str(val).strip()
+                    return s if s else None
+
                 # Normalize email typo
                 if email and '@@' in str(email):
                     email = str(email).replace('@@', '@')
                 out.append({
                     "day": day,
-                    "presenter_name": (presenter or "").strip() or None,
-                    "co_presenter_name": (co_presenter or "").strip() or None,
-                    "session_title": (title or "").strip(),
-                    "description": (desc or "").strip() or None,
-                    "max_participants": (max_part or "").strip() or None,
-                    "special_equipment": (equipment or "").strip() or None,
-                    "email": (email or "").strip() or None,
-                    "co_presenter_email": (co_email or "").strip() or None,
+                    "presenter_name": safe_str(presenter),
+                    "co_presenter_name": safe_str(co_presenter),
+                    "session_title": (title and str(title).strip()) or "",
+                    "description": safe_str(desc),
+                    "max_participants": safe_str(max_part) if max_part is not None else None,
+                    "special_equipment": safe_str(equipment),
+                    "email": safe_str(email),
+                    "co_presenter_email": safe_str(co_email),
                 })
     print(json.dumps(out, indent=2))
 

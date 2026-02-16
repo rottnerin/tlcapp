@@ -17,8 +17,7 @@ php artisan serve              # Start dev server at localhost:8000
 npm run dev                    # Run Vite dev server for frontend assets
 npm run build                  # Build frontend assets for production; required to see all UI/UX changes (e.g. landing page)
 php artisan migrate            # Run database migrations
-php artisan db:seed            # Seed database with sample data
-php artisan migrate:fresh --seed  # Reset and reseed database
+php artisan db:seed            # Seed database with sample data (do not run unless user asks)
 
 # Testing
 composer test                  # Run all PHPUnit tests
@@ -29,12 +28,16 @@ composer test                  # Run all PHPUnit tests
 ./vendor/bin/pint              # Fix code style with Laravel Pint
 ```
 
+**Seeders:** Do not run any database seeders (e.g. `php artisan db:seed` or `--class=SomeSeeder`) unless the user explicitly asks you to run them.
+
+**Destructive commands:** Do NOT run `php artisan migrate:fresh`, `php artisan migrate:fresh --seed`, or `php artisan db:wipe`. These drop all tables and wipe the database. Only safe migration command: `php artisan migrate` (applies new migrations without dropping data).
+
 ## Architecture
 
 ### Authentication System
 - **Regular users**: Google OAuth 2.0 via Laravel Socialite - validates against AES email domains
 - **Admin users**: Traditional email/password login at `/admin/login`
-- **Middleware**: `AdminMiddleware` (admin routes), `UserOnly` (user routes), `NoAdminAccess` (blocks admin from user routes)
+- **Middleware**: `AdminMiddleware` (admin routes), `UserOnly` (user routes; admins are allowed so they can preview/test). `NoAdminAccess` exists but is not applied to user routes.
 - Division auto-detected from email patterns (es@, ms@, hs@)
 
 ### User Enrollment Behavior

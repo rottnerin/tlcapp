@@ -130,7 +130,8 @@
         }
         .sub-nav-item {
             padding: 0.5rem 1rem;
-            color: var(--tlc-navy);
+            background: var(--tlc-navy);
+            color: var(--tlc-cream);
             font-weight: 500;
             transition: all 0.2s ease;
             border-radius: 0.375rem;
@@ -138,11 +139,12 @@
         }
         @media (hover: hover) {
             .sub-nav-item:hover {
-                background: rgba(13, 59, 102, 0.1);
+                background: #164773;
+                color: var(--tlc-cream);
             }
         }
         .sub-nav-item.active {
-            background: var(--tlc-navy);
+            background: #164773;
             color: var(--tlc-cream);
             font-weight: 600;
         }
@@ -348,6 +350,14 @@
                         </a>
                         @endif
 
+                        <!-- NTS Sessions (NTS users only) -->
+                        @if(($isNTSUser ?? false) && ($plDaysActive ?? true))
+                        <a href="{{ route('spring.nts') }}"
+                           class="main-nav-item {{ request()->routeIs('spring.nts*') ? 'active' : '' }}">
+                            NTS Sessions
+                        </a>
+                        @endif
+
                         <!-- PL Wednesday -->
                         @if($plWednesdayActive ?? false)
                         <a href="{{ route('pl-wednesday.index') }}"
@@ -438,6 +448,14 @@
                     </div>
                     @endif
 
+                    <!-- NTS Sessions (NTS users only) -->
+                    @if(($isNTSUser ?? false) && ($plDaysActive ?? true))
+                    <a href="{{ route('spring.nts') }}"
+                       class="block px-3 py-2 text-base font-medium text-tlc-cream hover:text-tlc-navy rounded-md transition-colors {{ request()->routeIs('spring.nts*') ? 'text-tlc-navy' : '' }}" style="{{ request()->routeIs('spring.nts*') ? 'background-color: var(--tlc-gold);' : '' }}">
+                        NTS Sessions
+                    </a>
+                    @endif
+
                     <!-- PL Wednesday -->
                     @if($plWednesdayActive ?? false)
                     <a href="{{ route('pl-wednesday.index') }}"
@@ -500,7 +518,32 @@
     </div>
     @endif
 
-    @if(request()->routeIs('spring.*'))
+    @if(request()->routeIs('spring.nts*') || (($isNTSUser ?? false) && request()->routeIs('spring.*')))
+    <div class="sub-nav">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center space-x-2 py-2">
+                <a href="{{ route('spring.schedule') }}"
+                   class="sub-nav-item {{ request()->routeIs('spring.schedule') && !request()->route('pdday') ? 'active' : '' }}">
+                    Schedule
+                </a>
+                <a href="{{ route('spring.wellness') }}"
+                   class="sub-nav-item {{ request()->routeIs('spring.wellness') ? 'active' : '' }}">
+                    Wellness
+                </a>
+                @if($cclActive ?? false)
+                <a href="{{ route('spring.ccl') }}"
+                   class="sub-nav-item {{ request()->routeIs('spring.ccl') ? 'active' : '' }}">
+                    Collaborative Community Learning
+                </a>
+                @endif
+                <a href="{{ route('spring.nts') }}"
+                   class="sub-nav-item {{ request()->routeIs('spring.nts*') ? 'active' : '' }}">
+                    NTS Sessions
+                </a>
+            </div>
+        </div>
+    </div>
+    @elseif(request()->routeIs('spring.*'))
     <div class="sub-nav">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center space-x-2 py-2">
