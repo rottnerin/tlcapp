@@ -3,352 +3,178 @@
 @section('title', 'Division Summary Report')
 
 @section('content')
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0 text-gray-800">Division Summary Report</h1>
-                <div>
-                    <a href="{{ route('admin.reports') }}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Back to Reports
-                    </a>
-                    <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-success">
-                        <i class="fas fa-download"></i> Export CSV
-                    </a>
-                    <a href="{{ request()->fullUrlWithQuery(['export' => 'pdf']) }}" class="btn btn-danger">
-                        <i class="fas fa-file-pdf"></i> Export PDF
-                    </a>
-                </div>
-            </div>
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Division Summary Report</h1>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('admin.reports') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm font-medium transition">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Reports
+            </a>
+            <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition">
+                <i class="fas fa-download mr-2"></i> Export CSV
+            </a>
+            <a href="{{ request()->fullUrlWithQuery(['export' => 'pdf']) }}" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition">
+                <i class="fas fa-file-pdf mr-2"></i> Export PDF
+            </a>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Date Range Filter</h6>
-                </div>
-                <div class="card-body">
-                    <form method="GET" action="{{ route('admin.reports.division-summary') }}">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="date_from" class="form-label">From Date</label>
-                                <input type="date" name="date_from" id="date_from" class="form-control" value="{{ $dateFrom }}">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="date_to" class="form-label">To Date</label>
-                                <input type="date" name="date_to" id="date_to" class="form-control" value="{{ $dateTo }}">
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-search"></i> Filter
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Report Scope</h2>
+        <form method="GET" action="{{ route('admin.reports.division-summary') }}" class="flex flex-col sm:flex-row gap-4 items-end">
+            <div class="flex-1">
+                <label for="p_d_day_id" class="block text-sm font-medium text-gray-700 mb-1">PD Day</label>
+                <select name="p_d_day_id" id="p_d_day_id" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-tlc-navy focus:ring-tlc-navy">
+                    @foreach($pdDays ?? [] as $pd)
+                        <option value="{{ $pd->id }}" {{ ($pDDayId ?? '') == $pd->id ? 'selected' : '' }}>{{ $pd->title }} ({{ $pd->start_date->format('M j') }})</option>
+                    @endforeach
+                </select>
+                <p class="mt-0.5 text-xs text-gray-500">CCL and Wellness enrollment for this day</p>
             </div>
+            <div class="flex-1">
+                <label for="division_id" class="block text-sm font-medium text-gray-700 mb-1">Division</label>
+                <select name="division_id" id="division_id" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-tlc-navy focus:ring-tlc-navy">
+                    <option value="">All divisions</option>
+                    @foreach($divisions ?? [] as $d)
+                        <option value="{{ $d->id }}" {{ ($divisionId ?? '') == $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-tlc-orange hover:bg-tlc-navy text-white font-medium rounded-lg transition">
+                <i class="fas fa-search mr-2"></i> Update
+            </button>
+        </form>
+    </div>
+
+    <!-- User Enrollment Matrix (primary content) - Sorted by Division, then Name -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 class="text-lg font-semibold text-gray-900">User Enrollment by Division</h2>
+            <p class="text-sm text-gray-500">Users sorted by division, then name. Empty cells = not enrolled.</p>
+        </div>
+        <div class="overflow-x-auto">
+            @if(!empty($userMatrixRows))
+                <table class="min-w-full divide-y divide-gray-200" id="user-matrix-table">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Division</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">Wellness</th>
+                            @foreach($cclSessionHeaders ?? [] as $h)
+                                <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider whitespace-nowrap">{{ $h }}</th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($userMatrixRows as $row)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $row['division'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">{{ $row['name'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ $row['email'] }}</td>
+                                <td class="px-4 py-3 text-sm {{ empty($row['wellness']) ? 'bg-amber-50 text-gray-500 italic' : 'text-gray-900' }}">{{ $row['wellness'] ?: '—' }}</td>
+                                @foreach($row['ccl_by_session'] ?? [] as $sessionTitle)
+                                    <td class="px-4 py-3 text-sm {{ empty($sessionTitle) ? 'bg-amber-50 text-gray-500 italic' : 'text-gray-900' }}">{{ $sessionTitle ?: '—' }}</td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <div class="px-6 py-12 text-center text-gray-500">
+                    <i class="fas fa-users text-4xl mb-3 text-gray-300"></i>
+                    <p>Select a PD Day and click Update to see user enrollments.</p>
+                    <p class="text-sm mt-1">Columns: Division, Name, Email, Wellness, CCL Session 1, CCL Session 2.</p>
+                </div>
+            @endif
         </div>
     </div>
 
-    <!-- Summary Stats -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Divisions
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $divisionData->count() }}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-building fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
+    <!-- Compact division stats (collapsed summary) -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 class="text-lg font-semibold text-gray-900">Division Stats</h2>
+            <div class="flex flex-wrap gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{{ $divisionData->where('participation_rate', '>=', 70)->count() }} High</span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">{{ $divisionData->where('participation_rate', '>=', 30)->where('participation_rate', '<', 70)->count() }} Medium</span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">{{ $divisionData->where('participation_rate', '<', 30)->count() }} Low</span>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Total Users
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $divisionData->sum('total_users') }}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
+        <div class="overflow-x-auto">
+            @if($divisionData->count() > 0)
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Division</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Users</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Enrollments</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Wellness</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">CCL</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Participation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach($divisionData->sortBy('name') as $division)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $division['name'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ $division['total_users'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ $division['total_enrollments'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ $division['wellness_enrollments'] }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ $division['schedule_enrollments'] }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 max-w-[80px] h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div class="h-full rounded-full {{ $division['participation_rate'] >= 70 ? 'bg-green-500' : ($division['participation_rate'] >= 30 ? 'bg-amber-500' : 'bg-red-400') }}" style="width: {{ min($division['participation_rate'], 100) }}%"></div>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-900">{{ $division['participation_rate'] }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <div class="px-6 py-8 text-center text-gray-500">
+                    <p>No division data. Add a PD Day to see enrollment stats.</p>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Total Enrollments
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $divisionData->sum('total_enrollments') }}
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Avg Participation
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ $divisionData->count() > 0 ? round($divisionData->avg('participation_rate'), 1) : 0 }}%
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-chart-pie fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endif
         </div>
     </div>
 
-    <!-- Results -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        Division Enrollment Summary ({{ $divisionData->count() }} divisions)
-                    </h6>
-                    <div>
-                        <span class="badge badge-success">{{ $divisionData->where('participation_rate', '>=', 70)->count() }} High Participation</span>
-                        <span class="badge badge-warning">{{ $divisionData->where('participation_rate', '>=', 30)->where('participation_rate', '<', 70)->count() }} Medium</span>
-                        <span class="badge badge-danger">{{ $divisionData->where('participation_rate', '<', 30)->count() }} Low</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if($divisionData->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Division</th>
-                                        <th>Total Users</th>
-                                        <th>Total Enrollments</th>
-                                        <th>Wellness Enrollments</th>
-                                        <th>Schedule Enrollments</th>
-                                        <th>Participation Rate</th>
-                                        <th>Progress Bar</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($divisionData->sortByDesc('participation_rate') as $division)
-                                        <tr class="{{ $division['participation_rate'] >= 70 ? 'table-success' : ($division['participation_rate'] < 30 ? 'table-warning' : '') }}">
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                                                        {{ substr($division['name'], 0, 1) }}
-                                                    </div>
-                                                    <strong>{{ $division['name'] }}</strong>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="font-weight-bold">{{ $division['total_users'] }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="font-weight-bold text-primary">{{ $division['total_enrollments'] }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="badge badge-info">{{ $division['wellness_enrollments'] }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="badge badge-secondary">{{ $division['schedule_enrollments'] }}</span>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <span class="font-weight-bold me-2">{{ $division['participation_rate'] }}%</span>
-                                                    @if($division['participation_rate'] >= 70)
-                                                        <i class="fas fa-arrow-up text-success"></i>
-                                                    @elseif($division['participation_rate'] < 30)
-                                                        <i class="fas fa-arrow-down text-warning"></i>
-                                                    @else
-                                                        <i class="fas fa-minus text-info"></i>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div class="progress" style="height: 20px;">
-                                                    <div class="progress-bar 
-                                                        {{ $division['participation_rate'] >= 70 ? 'bg-success' : ($division['participation_rate'] >= 30 ? 'bg-info' : 'bg-warning') }}" 
-                                                        role="progressbar" 
-                                                        style="width: {{ min($division['participation_rate'], 100) }}%"
-                                                        aria-valuenow="{{ $division['participation_rate'] }}" 
-                                                        aria-valuemin="0" 
-                                                        aria-valuemax="100">
-                                                        {{ $division['participation_rate'] }}%
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">No divisions found</h5>
-                            <p class="text-muted">No division data available for the selected date range.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Division Comparison Chart -->
-    @if($divisionData->count() > 0)
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Participation Rate by Division</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="participationChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Enrollment Distribution</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="enrollmentChart" width="400" height="200"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const divisionData = @json($divisionData);
-    
-    if (divisionData.length > 0) {
-        // Participation Rate Chart
-        const participationCtx = document.getElementById('participationChart').getContext('2d');
-        new Chart(participationCtx, {
-            type: 'bar',
-            data: {
-                labels: divisionData.map(d => d.name),
-                datasets: [{
-                    label: 'Participation Rate (%)',
-                    data: divisionData.map(d => d.participation_rate),
-                    backgroundColor: divisionData.map(d => 
-                        d.participation_rate >= 70 ? 'rgba(75, 192, 192, 0.8)' :
-                        d.participation_rate >= 30 ? 'rgba(54, 162, 235, 0.8)' :
-                        'rgba(255, 205, 86, 0.8)'
-                    ),
-                    borderColor: divisionData.map(d => 
-                        d.participation_rate >= 70 ? 'rgba(75, 192, 192, 1)' :
-                        d.participation_rate >= 30 ? 'rgba(54, 162, 235, 1)' :
-                        'rgba(255, 205, 86, 1)'
-                    ),
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
+    const table = document.getElementById('user-matrix-table');
+    if (!table) return;
+    const thead = table.querySelector('thead tr');
+    const tbody = table.querySelector('tbody');
+    if (!thead || !tbody) return;
 
-        // Enrollment Distribution Chart
-        const enrollmentCtx = document.getElementById('enrollmentChart').getContext('2d');
-        new Chart(enrollmentCtx, {
-            type: 'doughnut',
-            data: {
-                labels: divisionData.map(d => d.name),
-                datasets: [{
-                    data: divisionData.map(d => d.total_enrollments),
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 205, 86, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(153, 102, 255, 0.8)',
-                        'rgba(255, 159, 64, 0.8)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 205, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
+    // Make column headers clickable for sorting (Division=0, Name=1, Email=2, Wellness=3, then CCL)
+    thead.querySelectorAll('th').forEach((th, colIndex) => {
+        th.style.cursor = 'pointer';
+        th.title = 'Click to sort';
+        th.addEventListener('click', function() {
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const asc = th.dataset.sort === 'asc';
+            th.dataset.sort = asc ? 'desc' : 'asc';
+            // Reset other headers
+            thead.querySelectorAll('th').forEach((h, i) => { if (i !== colIndex) delete h.dataset.sort; });
+
+            rows.sort((a, b) => {
+                const aVal = (a.cells[colIndex]?.textContent ?? '').trim();
+                const bVal = (b.cells[colIndex]?.textContent ?? '').trim();
+                const cmp = aVal.localeCompare(bVal, undefined, { numeric: true });
+                return asc ? cmp : -cmp;
+            });
+            rows.forEach(r => tbody.appendChild(r));
         });
-    }
+    });
 });
 </script>
-
-<style>
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
-    font-weight: bold;
-}
-</style>
+@endpush
 @endsection
