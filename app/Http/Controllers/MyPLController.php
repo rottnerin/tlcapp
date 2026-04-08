@@ -8,6 +8,7 @@ use App\Models\ScheduleItem;
 use App\Models\WellnessSession;
 use App\Models\PLWednesdaySession;
 use App\Models\CCLSession;
+use App\Models\EarthDayWorkshop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -50,6 +51,7 @@ class MyPLController extends Controller
             'wellness' => [],
             'pl_wednesday' => [],
             'ccl' => [],
+            'earth_day' => [],
         ];
 
         foreach ($selectedSessions as $selection) {
@@ -61,6 +63,7 @@ class MyPLController extends Controller
                 WellnessSession::class => 'wellness',
                 PLWednesdaySession::class => 'pl_wednesday',
                 CCLSession::class => 'ccl',
+                EarthDayWorkshop::class => 'earth_day',
                 default => null,
             };
             
@@ -119,6 +122,7 @@ class MyPLController extends Controller
             'wellness_session' => WellnessSession::class,
             'pl_wednesday_session' => PLWednesdaySession::class,
             'ccl_session' => CCLSession::class,
+            'earth_day_workshop' => EarthDayWorkshop::class,
         ];
 
         $class = $classMap[$type] ?? null;
@@ -204,6 +208,11 @@ class MyPLController extends Controller
                 $item['title'] = $session->title;
                 $item['presenter'] = $session->presenter_name ?? '';
                 $item['contact_hours'] = $session->contact_hours ?? $session->calculateContactHours();
+            } elseif ($session instanceof EarthDayWorkshop) {
+                $item['date'] = $session->date;
+                $item['title'] = $session->title;
+                $item['presenter'] = $session->presenter ?? '';
+                $item['contact_hours'] = 0.75; // 45-minute session
             }
 
             $transcriptItems[] = $item;

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Models\User;
 use App\Models\ScheduleItem;
 use App\Models\WellnessSession;
 use App\Models\Division;
 use App\Models\UserSession;
+use App\Models\EarthDaySetting;
 use Carbon\Carbon;
 
 class AdminController extends Controller
@@ -89,6 +91,87 @@ class AdminController extends Controller
         $divisions = Division::all();
 
         return view('admin.users.index', compact('users', 'divisions'));
+    }
+
+    /**
+     * Show form to manually add a user
+     */
+    public function createUser()
+    {
+        $divisions = Division::all();
+
+        return view('admin.users.create', compact('divisions'));
+    }
+
+    /**
+     * Store a manually added user
+     */
+    public function storeUser(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'division_id' => 'nullable|exists:divisions,id',
+            'id_card_code' => 'nullable|string|max:255|unique:users,id_card_code',
+            'is_admin' => 'boolean',
+            'is_active' => 'boolean',
+        ]);
+
+        $divisionId = $validated['division_id']
+            ?? User::detectDivisionFromEmail($validated['email']);
+
+        // Placeholder password (users sign in with Google)
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => \Hash::make(\Str::random(32)),
+            'division_id' => $divisionId,
+            'id_card_code' => ! empty($validated['id_card_code'] ?? null) ? $validated['id_card_code'] : null,
+            'is_admin' => $request->boolean('is_admin'),
+            'is_active' => $request->boolean('is_active', true),
+        ]);
+
+        return redirect()
+            ->route('admin.users.show', $user)
+            ->with('success', 'User "' . $user->name . '" has been added.');
+    }
+
+    /**
+     * Show form to edit a user
+     */
+    public function editUser(User $user)
+    {
+        $divisions = Division::all();
+
+        return view('admin.users.edit', compact('user', 'divisions'));
+    }
+
+    /**
+     * Update a user
+     */
+    public function updateUser(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
+            'division_id' => 'nullable|exists:divisions,id',
+            'id_card_code' => ['nullable', 'string', 'max:255', Rule::unique('users', 'id_card_code')->ignore($user->id)],
+            'is_admin' => 'boolean',
+            'is_active' => 'boolean',
+        ]);
+
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'division_id' => $validated['division_id'] ?: null,
+            'id_card_code' => ! empty($validated['id_card_code'] ?? null) ? $validated['id_card_code'] : null,
+            'is_admin' => $request->boolean('is_admin'),
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        return redirect()
+            ->route('admin.users.show', $user)
+            ->with('success', 'User "' . $user->name . '" has been updated.');
     }
 
     /**
@@ -226,11 +309,26 @@ class AdminController extends Controller
     {
         PLDaysSetting::initialize();
         $settings = PLDaysSetting::getActive();
-        
+
         $settings->update(['is_active' => !$settings->is_active]);
-        
+
         $status = $settings->is_active ? 'activated' : 'deactivated';
-        
+
         return back()->with('success', "PL Days feature {$status} successfully!");
+    }
+
+    /**
+     * Toggle Earth Day feature activation
+     */
+    public function toggleEarthDay()
+    {
+        EarthDaySetting::initialize();
+        $settings = EarthDaySetting::getActive();
+
+        $settings->update(['is_active' => !$settings->is_active]);
+
+        $status = $settings->is_active ? 'activated' : 'deactivated';
+
+        return back()->with('success', "Earth Day feature {$status} successfully!");
     }
 }

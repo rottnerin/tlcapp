@@ -63,6 +63,11 @@
                            style="color: {{ request()->routeIs('admin.ccl.*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
                             CCL
                         </a>
+                        <a href="{{ route('admin.earth-day.index') }}"
+                           class="{{ request()->routeIs('admin.earth-day.*') ? 'font-medium' : '' }}"
+                           style="color: {{ request()->routeIs('admin.earth-day.*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
+                            Earth Day PL
+                        </a>
                         <a href="{{ route('admin.schedule.index') }}"
                            class="{{ request()->routeIs('admin.schedule.*') ? 'font-medium' : '' }}"
                            style="color: {{ request()->routeIs('admin.schedule.*') ? 'var(--tlc-gold)' : 'var(--tlc-cream)' }};">
@@ -158,6 +163,12 @@
                                         <i class="fas fa-plus text-white"></i>
                                     </div>
                                     <span class="text-sm font-medium" style="color: var(--tlc-orange);">CCL</span>
+                                </a>
+                                <a href="{{ route('admin.earth-day.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(45, 106, 79, 0.1); border-color: rgba(45, 106, 79, 0.3);">
+                                    <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: #2d6a4f;">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <span class="text-sm font-medium" style="color: #2d6a4f;">Earth Day</span>
                                 </a>
                                 <a href="{{ route('admin.pl-wednesday.create') }}" class="action-btn flex flex-col items-center p-4 rounded-xl border group" style="background: rgba(13, 59, 102, 0.05); border-color: rgba(13, 59, 102, 0.2);">
                                     <div class="w-12 h-12 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform" style="background: var(--tlc-navy);">

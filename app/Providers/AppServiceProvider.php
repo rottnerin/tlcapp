@@ -6,6 +6,7 @@ use App\Models\PDDay;
 use App\Models\PLDaysSetting;
 use App\Models\PLWednesdaySetting;
 use App\Models\CCLSetting;
+use App\Models\EarthDaySetting;
 use App\Models\WellnessSetting;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -37,12 +38,14 @@ class AppServiceProvider extends ServiceProvider
             PLWednesdaySetting::initialize();
             WellnessSetting::initialize();
             PLDaysSetting::initialize();
+            EarthDaySetting::initialize();
 
             $view->with([
                 'plWednesdayActive' => PLWednesdaySetting::isActive(),
                 'wellnessActive' => WellnessSetting::isActive(),
                 'plDaysActive' => PLDaysSetting::isActive(),
                 'cclActive' => CCLSetting::isActive(),
+                'earthDayActive' => EarthDaySetting::isActive(),
                 'isNTSUser' => auth()->check() && auth()->user()->isNTS(),
                 'archivedFallPDDays' => PDDay::getArchivedBySeason('fall'),
                 'archivedSpringPDDays' => PDDay::getArchivedBySeason('spring'),
