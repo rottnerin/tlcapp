@@ -207,6 +207,10 @@
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.ccl.*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 Collaborative Community Learning
                             </a>
+                            <a href="{{ route('admin.earth-day.index') }}"
+                               class="text-white hover:text-gray-200 {{ request()->routeIs('admin.earth-day.*') ? 'font-medium underline underline-offset-4' : '' }}">
+                                Earth Day PL
+                            </a>
                             <a href="{{ route('admin.schedule.index') }}"
                                class="text-white hover:text-gray-200 {{ request()->routeIs('admin.schedule.*') ? 'font-medium underline underline-offset-4' : '' }}">
                                 Schedule
@@ -252,6 +256,10 @@
                         <a href="{{ route('admin.ccl.index') }}"
                            class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.ccl.*') ? 'bg-white/10' : '' }}">
                             Collaborative Community Learning
+                        </a>
+                        <a href="{{ route('admin.earth-day.index') }}"
+                           class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.earth-day.*') ? 'bg-white/10' : '' }}">
+                            Earth Day PL
                         </a>
                         <a href="{{ route('admin.schedule.index') }}"
                            class="block px-3 py-2 text-base font-medium text-white hover:text-gray-200 hover:bg-white/10 rounded-md {{ request()->routeIs('admin.schedule.*') ? 'bg-white/10' : '' }}">

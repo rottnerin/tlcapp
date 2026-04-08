@@ -222,11 +222,12 @@
                 min-height: 44px;
             }
 
-            /* Sub navigation on mobile */
+            /* Sub navigation on mobile - same-size buttons, no wrapping */
             .sub-nav .sub-nav-item {
                 padding: 0.625rem 0.875rem;
                 font-size: 0.875rem;
                 min-height: 40px;
+                white-space: nowrap;
             }
 
             /* Better spacing for content areas */
@@ -358,6 +359,14 @@
                         </a>
                         @endif
 
+                        <!-- Earth Day -->
+                        @if($earthDayActive ?? false)
+                        <a href="{{ route('earth-day.index') }}"
+                           class="main-nav-item {{ request()->routeIs('earth-day.*') ? 'active' : '' }}">
+                            🌍 Earth Day
+                        </a>
+                        @endif
+
                         <!-- PL Wednesday -->
                         @if($plWednesdayActive ?? false)
                         <a href="{{ route('pl-wednesday.index') }}"
@@ -434,7 +443,7 @@
                             </a>
                             @if($cclActive ?? false)
                             <a href="{{ route('spring.ccl') }}" class="block px-3 py-2 text-sm text-tlc-cream hover:text-tlc-gold {{ request()->routeIs('spring.ccl') ? 'text-tlc-gold font-semibold' : '' }}">
-                                Collaborative Community Learning
+                                <span class="sm:hidden">CCL</span><span class="hidden sm:inline">Collaborative Community Learning</span>
                             </a>
                             @endif
                             @if(isset($archivedSpringPDDays) && $archivedSpringPDDays->count() > 0)
@@ -453,6 +462,14 @@
                     <a href="{{ route('spring.nts') }}"
                        class="block px-3 py-2 text-base font-medium text-tlc-cream hover:text-tlc-navy rounded-md transition-colors {{ request()->routeIs('spring.nts*') ? 'text-tlc-navy' : '' }}" style="{{ request()->routeIs('spring.nts*') ? 'background-color: var(--tlc-gold);' : '' }}">
                         NTS Sessions
+                    </a>
+                    @endif
+
+                    <!-- Earth Day -->
+                    @if($earthDayActive ?? false)
+                    <a href="{{ route('earth-day.index') }}"
+                       class="block px-3 py-2 text-base font-medium text-tlc-cream hover:text-tlc-navy rounded-md transition-colors {{ request()->routeIs('earth-day.*') ? 'text-tlc-navy' : '' }}" style="{{ request()->routeIs('earth-day.*') ? 'background-color: var(--tlc-gold);' : '' }}">
+                        🌍 Earth Day
                     </a>
                     @endif
 
@@ -533,7 +550,7 @@
                 @if($cclActive ?? false)
                 <a href="{{ route('spring.ccl') }}"
                    class="sub-nav-item {{ request()->routeIs('spring.ccl') ? 'active' : '' }}">
-                    Collaborative Community Learning
+                    <span class="sm:hidden">CCL</span><span class="hidden sm:inline">Collaborative Community Learning</span>
                 </a>
                 @endif
                 <a href="{{ route('spring.nts') }}"
@@ -558,7 +575,7 @@
                 @if($cclActive ?? false)
                 <a href="{{ route('spring.ccl') }}"
                    class="sub-nav-item {{ request()->routeIs('spring.ccl') ? 'active' : '' }}">
-                    Collaborative Community Learning
+                    <span class="sm:hidden">CCL</span><span class="hidden sm:inline">Collaborative Community Learning</span>
                 </a>
                 @endif
                 @if(isset($archivedSpringPDDays) && $archivedSpringPDDays->count() > 0)

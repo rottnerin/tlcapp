@@ -18,6 +18,8 @@ use App\Http\Controllers\Admin\PDDayController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\ClaudeSettingsController;
+use App\Http\Controllers\EarthDayController;
+use App\Http\Controllers\Admin\EarthDayController as AdminEarthDayController;
 use App\Models\PDDay;
 use Illuminate\Support\Facades\Route;
 
@@ -133,6 +135,12 @@ Route::middleware(['user.only'])->group(function () {
     Route::get('/professional-learning', [PLWednesdayController::class, 'index'])->name('pl-wednesday.index');
     Route::get('/professional-learning/{session}', [PLWednesdayController::class, 'show'])->name('pl-wednesday.show');
     
+    // Earth Day Mini-PL Workshops
+    Route::prefix('earth-day')->name('earth-day.')->group(function () {
+        Route::get('/', [EarthDayController::class, 'index'])->name('index');
+        Route::post('/{workshop}/enroll', [EarthDayController::class, 'enroll'])->name('enroll');
+    });
+
     // Archive (hidden, accessible via direct URL)
     Route::get('/archive', [ScheduleController::class, 'archive'])->name('archive.index');
     
@@ -148,11 +156,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // User Management
     Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+    Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
+    Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+    Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
+    Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
     Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
     Route::post('/users/{user}/toggle-admin', [AdminController::class, 'toggleAdmin'])->name('users.toggle-admin');
     Route::post('/users/{user}/update-password', [AdminController::class, 'updatePassword'])->name('users.update-password');
     
     // Wellness Sessions Management
+    Route::get('/wellness/export', [WellnessSessionController::class, 'exportAll'])->name('wellness.export');
     Route::resource('wellness', WellnessSessionController::class);
     Route::get('/wellness/{wellness}/export-participants', [WellnessSessionController::class, 'exportParticipants'])->name('wellness.export-participants');
     Route::post('/wellness/{wellness}/toggle-status', [WellnessSessionController::class, 'toggleStatus'])->name('wellness.toggle-status');
@@ -182,6 +195,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('pl-wednesday', AdminPLWednesdayController::class);
     
     // CCL (Collaborative Community Learning Sessions) Management
+    Route::get('/ccl/export', [AdminCCLController::class, 'export'])->name('ccl.export');
     Route::post('/ccl/toggle-active', [AdminCCLController::class, 'toggleActive'])->name('ccl.toggle-active');
     Route::post('/ccl/{ccl}/toggle-status', [AdminCCLController::class, 'toggleSessionStatus'])->name('ccl.toggle-status');
     Route::post('/ccl/{ccl}/remove-enrollment', [AdminCCLController::class, 'removeEnrollment'])->name('ccl.remove-enrollment');
@@ -196,6 +210,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports/user-activity', [ReportsController::class, 'userActivity'])->name('reports.user-activity');
     Route::get('/reports/ccl-enrollments', [ReportsController::class, 'cclEnrollments'])->name('reports.ccl-enrollments');
     Route::get('/reports/session-participant-lists', [ReportsController::class, 'sessionParticipantLists'])->name('reports.session-participant-lists');
+
+    // Earth Day PL Management
+    Route::get('/earth-day/export', [AdminEarthDayController::class, 'export'])->name('earth-day.export');
+    Route::post('/earth-day/toggle-active', [AdminEarthDayController::class, 'toggleActive'])->name('earth-day.toggle-active');
+    Route::post('/earth-day/{earthDay}/toggle-status', [AdminEarthDayController::class, 'toggleStatus'])->name('earth-day.toggle-status');
+    Route::post('/earth-day/{earthDay}/remove-enrollment', [AdminEarthDayController::class, 'removeEnrollment'])->name('earth-day.remove-enrollment');
+    Route::resource('earth-day', AdminEarthDayController::class);
 
     // Feature Toggles
     Route::post('/toggle-wellness', [AdminController::class, 'toggleWellness'])->name('toggle-wellness');
